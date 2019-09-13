@@ -2,6 +2,7 @@
   (:require [muuntaja.core :as muuntaja]
             [muuntaja.middleware :refer [wrap-format wrap-params]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
+            [ring.middleware.multipart-params :refer [wrap-multipart-params]]
             [hubzero-pubs.auth :as auth]
             )
  )
@@ -19,13 +20,18 @@
 
 (defn wrap-formats [handler]
   (fn [req]
-    ((-> handler wrap-params (wrap-format muuntaja/default-options)) req)    
+    ((->
+       handler
+       wrap-params
+       wrap-multipart-params
+       (wrap-format muuntaja/default-options)) req)    
     )
   )
 
 (defn wrap-base [handler]
   (-> handler 
-      (wrap-cookie-auth)
-      (wrap-defaults site-defaults)
+      ;(wrap-cookie-auth)
+      ;(wrap-defaults site-defaults)
+      (wrap-formats)
       )
   )

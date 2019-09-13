@@ -6,7 +6,27 @@
             [ring.util.response :as response]
             ))
 
+(defn data2edn [d]
+  (->>
+    (slurp d)
+    (clojure.edn/read-string)
+    )
+  )
+
+(defn create-pub [data]
+  (prn data)
+  "ok"
+  )
+
+(defn handle-file [req]
+  (prn (get-in req [:multipart-params "f" :filename]))  
+  (prn (get-in req [:multipart-params "f" :tempfile]))  
+  "ok"
+  )
+
 (defroutes api-routes
-  (GET "/api/v1/helloworld/user" request {:body (:user request)})
+  (GET "/pubs/user" req {:body (:user req)})
+  (POST "/pubs" {body :body} (->> (data2edn body) (create-pub)))
+  (POST "/pubs/:id/files" req (handle-file req))
   )
 

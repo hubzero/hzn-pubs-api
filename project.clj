@@ -22,6 +22,7 @@
                  [clj-http "3.9.0"]
                  [mysql/mysql-connector-java "8.0.17"]
                  [yesql "0.5.3"]
+                 [clj-time "0.15.2"]
                  ]
   :main ^:skip-aot hubzero-pubs.core
   :target-path "target/%s"
