@@ -6,6 +6,10 @@ SELECT * FROM jos_session WHERE session_id = :session_id
 --
 SELECT username FROM jos_users WHERE id = :user_id
 
+-- name: prj
+--
+SELECT * FROM jos_projects WHERE id = :id
+
 -- name: prj-users 
 --
 SELECT DISTINCT o.*, x.name, x.username, x.organization, x.picture, g.cn as groupname, g.description as groupdesc, p.created_by_user , if (o.userid = 0, o.invited_name, x.name) as fullname  FROM jos_project_owners AS o  JOIN jos_projects as p ON o.projectid=p.id LEFT JOIN jos_xprofiles as x ON o.userid=x.uidNumber  LEFT JOIN jos_xgroups as g ON o.groupid=g.gidNumber  WHERE o.projectid=:id AND (o.userid > 0 OR o.invited_email IS NOT null OR o.invited_name IS NOT null)  AND o.status='1' ORDER BY fullname ASC
@@ -19,10 +23,17 @@ C.checked_out, C.checked_out_time, C.rating as master_rating, C.group_owner, C.m
 --
 INSERT INTO `jos_publications` (`category`, `master_type`, `project_id`, `access`, `created_by`, `created` ) VALUES (:category, :master_type, :project_id, :access, :created_by, :created)
 
--- name: add-version<!
+-- name: get-pub-version
+--
+SELECT * FROM `jos_publication_versions` WHERE `id` = :id
+
+-- name: add-pub-version<!
 --
 INSERT INTO `jos_publication_versions` (`publication_id`, `main`, `state`, `title`, `description`, `abstract`, `created`, `created_by`, `secret`, `version_number`, `license_type`, `access`) VALUES (:publication_id, :main, :state, :title, :description, :abstract, :created, :created_by, :secret, :version_number, :license_type, :access)
 
+-- name: update-pub-version!
+--
+UPDATE `jos_publication_versions` SET `publication_id`=:publication_id, `main`=:main,`doi`=:doi, `state`=:state, `title`=:title, `description`=:description, `abstract`=:abstract, `created`=:created, `created_by`=:created_by, `modified`=:modified, `modified_by`=:modified_by, `version_label`=:version_label, `secret`=:secret, `version_number`=:version_number, `license_type`=:license_type, `access`=:access, `rating`=:rating, `times_rated`=:times_rated, `ranking`=:ranking, `forked_from`=:forked_from WHERE `id`=:id
 
 -- name: add-attachment<!
 --
