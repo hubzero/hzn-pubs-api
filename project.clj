@@ -23,6 +23,7 @@
                  [mysql/mysql-connector-java "8.0.17"]
                  [yesql "0.5.3"]
                  [clj-time "0.15.2"]
+                 [com.novemberain/monger "3.1.0"]
                  ]
   :main ^:skip-aot hubzero-pubs.core
   :target-path "target/%s"
