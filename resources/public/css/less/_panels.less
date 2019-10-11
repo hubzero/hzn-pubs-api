@@ -1,0 +1,92 @@
+body.with-overlay {
+	overflow: hidden;
+
+	.page-overlay {
+		transform: translate(0, 0);
+	}
+
+	.wrap {
+		transform: translate(-10%, 0);
+		transition: all, 0.1s ease-in-out;
+	}
+}
+
+.page-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0,0,0,0.5);
+	z-index: 100;
+	transform: translate(100%, 0);
+	transition: all, 0.2s ease-in-out;
+}
+
+.page-panel {
+	position: fixed;
+	top: 0;
+	//left: 0;
+	right: 0;
+	bottom: 0;
+	background: #fff;
+	z-index: 110;
+	overflow: hidden;
+	transform: translate(100%, 0);
+	transition: all, 0.3s ease-in-out;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	max-width: 30rem;
+
+	@media (min-width: @sizeM) {
+		left: auto;
+		width: 50%;
+	}
+
+	& > .inner {
+		overflow: scroll;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+
+		& > header {
+			.pad();
+			background: #f7f7f7;
+			display: flex;
+			align-items: center;
+
+			& > .icon {
+				line-height: 0;
+				margin-right: 0.6em;
+
+				svg {
+					width: 1.4rem;
+					height: 1.4rem;
+				}
+
+				&:hover {
+
+					svg {
+						fill: @colorAction;
+					}
+				}
+			}
+
+			h1 {
+				.text('lg');
+				font-weight: @fontWeightM;
+			}
+		}
+
+		.progress-bar {
+			box-shadow: @layerShadow;
+		}
+	}
+
+	&.open {
+		transform: translate(0, 0);
+	}
+}

@@ -1,0 +1,65 @@
+.ui.tags {
+	display: flex;
+	flex-wrap: wrap;
+
+	@colorTagBorder: #dcdcdc;
+	@iconSize: 0.6em;
+
+	.tag {
+		display: inline-block;
+		border: 1px solid @colorTagBorder;
+		padding: 0.3em 0.7em;
+		border-radius: 1em;
+		white-space: nowrap;
+		margin-right: 0.3rem;
+		margin-bottom: 0.4rem;
+		line-height: 1em;
+
+		.inner {
+			display: flex;
+			align-items: center;
+		}
+
+		.remove {
+			margin-left: 0.4rem;
+
+			svg {
+				width: @iconSize;
+				height: 1em;
+			}
+		}
+
+		&:hover {
+			background: #e8e8e8;
+		}
+
+		&.creator {
+			border-style: dashed;
+			border-color: @colorAction;
+			color: @colorAction;
+
+			.add {
+				margin-right: 0.4rem;
+
+				svg {
+					width: @iconSize;
+					height: 1em;
+					fill: @colorAction;
+				}
+			}
+
+			&:hover {
+				background: @colorAction;
+				color: #fff;
+
+				.add {
+
+					svg {
+						fill: #fff;
+					}
+				}
+			}
+		}
+	}
+
+}

@@ -1,0 +1,156 @@
+// Layout
+
+.containLup() {
+	max-width: 1600px;
+	margin-left: auto;
+	margin-right: auto;
+
+	@media (min-width: @sizeL) {
+		padding-left: @padL;
+		padding-right: @padL;
+	}
+}
+
+.padSides() {
+	padding-left: @pad;
+	padding-right: @pad;
+
+	@media (min-width: @sizeM) {
+		padding-left: @padM;
+		padding-right: @padM;
+	}
+
+	@media (min-width: @sizeL) {
+		padding-left: @padL;
+		padding-right: @padL;
+	}
+}
+
+.padVertically() {
+	padding-top: @pad;
+	padding-bottom: @pad;
+
+	@media (min-width: @sizeM) {
+		padding-top: @padM;
+		padding-bottom: @padM;
+	}
+
+	@media (min-width: @sizeL) {
+		padding-top: @padL;
+		padding-bottom: @padL;
+	}
+}
+
+.pad() {
+	padding: @pad;
+
+	@media (min-width: @sizeM) {
+		padding: @padM;
+	}
+
+	@media (min-width: @sizeL) {
+		padding: @padL;
+	}
+}
+
+.padItemVertically() {
+	padding-top: @padItem;
+	padding-bottom: @padItem;
+
+	@media (min-width: @sizeM) {
+		padding-top: @padItemM;
+		padding-bottom: @padItemM;
+	}
+
+	@media (min-width: @sizeL) {
+		padding-top: @padItemL;
+		padding-bottom: @padItemL;
+	}
+}
+
+.padListItemVertically() {
+	padding-top: @padListItem;
+	padding-bottom: @padListItem;
+
+	@media (min-width: @sizeM) {
+		padding-top: @padListItemM;
+		padding-bottom: @padListItemM;
+	}
+
+	@media (min-width: @sizeL) {
+		padding-top: @padListItemL;
+		padding-bottom: @padListItemL;
+	}
+}
+
+.padFormInput() {
+	padding: @padForm;
+
+	@media (min-width: @sizeM) {
+		padding: @padFormM;
+	}
+
+	@media (min-width: @sizeL) {
+		padding: @padFormL;
+	}
+}
+
+.padFormInputHorizontally() {
+	padding-left: @padForm;
+	padding-right: @padForm;
+
+	@media (min-width: @sizeM) {
+		padding-left: @padFormM;
+		padding-right: @padFormM;
+	}
+
+	@media (min-width: @sizeL) {
+		padding-left: @padFormL;
+		padding-right: @padFormL;
+	}
+}
+
+.padFormInputAbsRight() {
+	right: @padForm;
+
+	@media (min-width: @sizeM) {
+		right: @padFormM;
+	}
+
+	@media (min-width: @sizeL) {
+		right: @padFormL;
+	}
+}
+
+.padFieldContainerVertically() {
+	padding-top: @padFieldContainerVertical;
+	padding-bottom: @padFieldContainerVertical;
+
+	@media (min-width: @sizeM) {
+		padding-top: @padFieldContainerVerticalM;
+		padding-bottom: @padFieldContainerVerticalM;
+	}
+
+	@media (min-width: @sizeL) {
+		padding-top: @padFieldContainerVerticalL;
+		padding-bottom: @padFieldContainerVerticalL;
+	}
+}
+
+// Fonts
+
+.text(@size) when (@size = 'sm') {
+	font-size: 0.85rem;
+}
+
+.text(@size) when (@size = 'lg') {
+	font-size: 1.1rem;
+}
+
+.text(@size) when (@size = 'xl') {
+	font-size: 1.2rem;
+}
+
+.fontSize(@size) when (@size = '2xl') {
+	font-size: 1.6rem;
+}

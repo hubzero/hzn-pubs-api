@@ -18,7 +18,7 @@
 (defn- _get-user [session_id]
   (as-> session_id $
     ($ :userid)
-    (get-user { :user_id $})
+    (sel-user { :user_id $})
     (first $)  
     )
   )
@@ -27,7 +27,7 @@
   (as-> (:cookies req) $
     ($ "66b92427391544b0181f81a94d34bce4") 
     ($ :value)
-    (get-session { :session_id $ })
+    (sel-session { :session_id $ })
     (first $)
     (if $ (_get-user $))
     )
