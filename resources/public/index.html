@@ -127,6 +127,7 @@
   <main>
     <form>
       <essentials></essentials>
+      <additional-details></additional-details>
     </form>
   </main>
 </template>
@@ -134,7 +135,40 @@
 <template id="textfield">
   <div class="field">
     <label for="title">{{ title }}</label>
-    <input type="text" name="title">
+    <input type="text" v-bind:name="name">
+  </div>
+</template>
+
+<template id="ta">
+  <div class="field">
+    <label for="title">{{ title }}</label>
+    <textarea v-bind:name="name"></textarea>
+  </div>
+</template>
+
+<template id="icon">
+  <div class="icon">
+    <svg><use v-bind:xlink:href="icon"></use></svg>
+  </div>
+</template>
+
+<template id="item">
+  <li class="item">
+    <icon icon="#icon-file-text2"></icon>
+    <div class="main"><a href="#">{{ name }}</a></div>
+    <icon icon="#icon-dots"></icon>
+  </li>
+</template>
+
+<template id="collection">
+  <div class="field">
+    <label for="title">{{ title }}</label>
+    <div class="collection">
+      <ul>
+        <item v-for="name in items" v-bind:name="name" :key="name"></item>
+      </ul>
+      <a href="#" class="selector"><icon icon="#icon-plus"></icon></a> 
+    </div>
   </div>
 </template>
 
@@ -144,7 +178,19 @@
       <legend>Essentials</legend>
       <div class="note">all fields required</div>
     </header>
-    <textfield title="Title:"></textfield>
+    <textfield title="Title:" name="title"></textfield>
+    <ta title="Synopsis:" name="synopsis"></ta>
+    <collection title="Content:"></collection>
+  </fieldset>
+</template>
+
+<template id="additional-details">
+  <fieldset class="section">
+    <header>
+      <legend>Additional Details</legend>
+    </header>
+    <textfield title="External website URL:" name="url"></textfield>
+    <ta title="Version release notes:" name="notes"></ta>
   </fieldset>
 </template>
 

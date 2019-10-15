@@ -28,12 +28,54 @@
 (g/defcomponent
   :textfield
   {:template "#textfield"
+   :props [:title :name]
+   :state (fn [] {}) }) 
+
+(g/defcomponent
+  :ta
+  {:template "#ta"
+   :props [:title :name]
+   :state (fn [] {}) }) 
+
+(g/defcomponent
+  :icon-file-text2
+  {:template "#icon-file-text2"
+   :props []
+   :state (fn [] {}) }) 
+
+(g/defcomponent
+  :options
+  {:template "#options"
+   :props []
+   :state (fn [] {}) }) 
+
+(g/defcomponent
+  :item
+  {:template "#item"
+   :props [:name]
+   :state (fn [] {}) }) 
+
+(g/defcomponent
+  :collection
+  {:template "#collection"
    :props [:title]
+   :data (fn [] { :items ["first-file.pdf" "second-file.pdf" "third-file.pdf"] }) 
+   :state (fn [] {}) }) 
+
+(g/defcomponent
+  :icon
+  {:template "#icon"
+   :props [:icon]
    :state (fn [] {}) }) 
 
 (g/defcomponent
   :essentials 
   {:template "#essentials" :state (fn [] {}) }) 
+
+(g/defcomponent
+  :additional-details 
+  {:template "#additional-details" :state (fn [] {}) }) 
+
 
 
 ;(g/defcomponent
