@@ -50,17 +50,35 @@
    :state (fn [] {}) }) 
 
 (g/defcomponent
-  :item
-  {:template "#item"
+  :file
+  {:template "#file"
    :props [:name]
    :state (fn [] {}) }) 
 
 (g/defcomponent
-  :collection
+  :author
+  {:template "#author"
+   :props [:author]
+   :state (fn [] {}) }) 
+
+(g/defcomponent
+  :files
   {:template "#collection"
    :props [:title]
-   :data (fn [] { :items ["first-file.pdf" "second-file.pdf" "third-file.pdf"] }) 
+   :data (fn [] { :files ["first-file.pdf" "second-file.pdf" "third-file.pdf"] }) 
+ 
+   :state (fn [] {}) })
+
+(g/defcomponent
+  :authors
+  {:template "#collection"
+   :props [:title]
+   :data (fn [] { :authors [{:name "JBG" :org "UCSD"}
+                            {:name "JBG" :org "UCSD"}
+                            {:name "JBG" :org "UCSD"}
+                            ] }) 
    :state (fn [] {}) }) 
+
 
 (g/defcomponent
   :icon
@@ -76,7 +94,15 @@
   :additional-details 
   {:template "#additional-details" :state (fn [] {}) }) 
 
-
+(g/defcomponent
+  :license
+  {:template "#license"
+   :props []
+   :data (fn [] {:name "Attribution-NoDerivs 3.0 Unported"
+                 :details "You are free: to Share — to copy, distribute and transmit the work, to Remix — to adapt the work, to make commercial use of the work"
+                  })
+   :state (fn [] {})
+   }) 
 
 ;(g/defcomponent
 ;  :todo-item
