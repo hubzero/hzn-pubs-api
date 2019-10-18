@@ -26,7 +26,9 @@
                  [clj-time "0.15.2"]
 
                  [org.clojure/clojurescript "1.10.520"]
-                 [glue "0.1.3-SNAPSHOT"]
+                 [cljs-http "0.1.46"]
+                 [reagent "0.8.1"]
+                 ;[glue "0.1.3-SNAPSHOT"]
 
                  [com.novemberain/monger "3.1.0"]
                  ]

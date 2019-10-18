@@ -1,209 +1,232 @@
 (ns hubzero-pubs.core
-  (:refer-clojure :exclude [atom])
-  (:require [glue.core :as g :refer [atom]])
+  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require [reagent.core :as r]
+            [cljs.core.async :refer [<!]] 
+            [cljs-http.client :as http]
+            )
   )
 
-(enable-console-print!)
+(defonce s (r/atom {:content ["file1.pdf" "file2.pdf" "file3.pdf"]
+                    :authors [{:name "J" :org "UCSD"}
+                              {:name "B" :org "UCSD"}
+                              {:name "G" :org "UCSD"}
+                              ]
+                    :licenses [{:name "Attribution-NoDerivs 3.0 Unported"
+                                :detail "You are free: to Share — to copy, distribute and transmit the work, to Remix — to adapt the work, to make commercial use of the work"
+                                }]
+                    }))
 
-(defn state []
-  {:pubtitle (atom "")}
+(defn on-js-reload [])
+
+;;(defn hello-request []
+;;  (go (let [res (<! (http/get "https://localhost/api/v1/helloworld/user"
+;;                              {
+;;                               :with-credentials? true 
+;;                               :headers {"Authorization" (str "Bearer " (:token @s)) }
+;;                               }))]
+;;        (swap! s assoc :username (get-in res [:body :username]))
+;;        ))
+;;  )
+;;
+;;(defn token-request []
+;;  (go (let [res (<! (http/post "https://localhost/developer/oauth/token" {:json-params {
+;;                                                                                        :grant_type "session"
+;;                                                                                        ;:client_id "3a223f193b9481749152e76cfa9b8599" 
+;;                                                                                        }}))]
+;;        (swap! s assoc :token (get-in res [:body :access_token]))
+;;        (swap! s assoc :type (get-in res [:body :token_type]))
+;;        (hello-request)
+;;        )
+;;      )
+;;  )
+;;
+
+(defn textfield [title name]
+  [:div {:class :field}
+   [:label {:for :title} title]
+   [:input {:type :text :name name}]
+   ]
   )
 
-(g/defcomponent
-  :wrap
-  {:template "#wrap" :state (fn [] {}) })
+(defn textarea [title name]
+  [:div {:class :field}
+   [:label {:for :title} title]
+   [:textarea {:name name}]
+   ]
+  )
 
-(g/defcomponent
-  :page
-  {:template "#page" :state (fn [] {}) })
+(defn icon [i]
+  [:div {:class "icon"} [:svg [:use {:xlinkHref i}]]]
+  )
 
-(g/defcomponent
-  :navigation
-  {:template "#navigation" :state (fn [] {}) }) 
+(defn file [name]
+  [:li {:class :item :key name}
+   (icon "#icon-file-text2")
+   [:div {:class "main"} [:a {:href "#"} name]]
+   [icon "#icon-dots"]
+   ] 
+  )
 
-(g/defcomponent
-  :navsec
-  {:template "#navsec" :state (fn [] {}) }) 
-
-(g/defcomponent
-  :mainform
-  {:template "#mainform" :state (fn [] {}) }) 
-
-(g/defcomponent
-  :textfield
-  {:template "#textfield"
-   :props [:title :name]
-   :state state
-   :computed (fn [] {})
-   })
-
-(g/defcomponent
-  :ta
-  {:template "#ta"
-   :props [:title :name]
-   :state (fn [] {}) }) 
-
-(g/defcomponent
-  :icon-file-text2
-  {:template "#icon-file-text2"
-   :props []
-   :state (fn [] {}) }) 
-
-(g/defcomponent
-  :options
-  {:template "#options"
-   :props []
-   :state (fn [] {}) }) 
-
-(g/defcomponent
-  :file
-  {:template "#file"
-   :props [:name]
-   :state (fn [] {}) }) 
-
-(g/defcomponent
-  :author
-  {:template "#author"
-   :props [:author]
-   :state (fn [] {}) }) 
-
-(g/defcomponent
-  :gallery-image
-  {:template "#gallery-image"
-   :props [:name]
-   :state (fn [] {}) }) 
-
-(g/defcomponent
-  :files
-  {:template "#collection"
-   :props [:title]
-   :data (fn [] {:files ["first-file.pdf" "second-file.pdf" "third-file.pdf"]
-                 :authors false
-                 :images false }) 
-   :state (fn [] {}) })
-
-(g/defcomponent
-  :authors
-  {:template "#collection"
-   :props [:title]
-   :data (fn [] {:authors [{:name "JBG" :org "UCSD"}
-                           {:name "JBG" :org "UCSD"}
-                           {:name "JBG" :org "UCSD"}]
-                 :files false
-                 :images false 
-                 }) 
-   :state (fn [] {}) }) 
-
-(g/defcomponent
-  :image-gallery
-  {:template "#collection"
-   :props [:title]
-   :data (fn [] {:images ["sd-first-visit.png" "sd-first-visit.png" "sd-first-visit.png"]
-                 :files false
-                 :authors false
-                 }) 
-   :state (fn [] {}) })
-
-(g/defcomponent
-  :support-docs
-  {:template "#collection"
-   :props [:title]
-   :data (fn [] {:files  ["first-file.pdf" "second-file.pdf" "third-file.pdf"]
-                 :images ["sd-first-visit.png" "sd-first-visit.png" "sd-first-visit.png"]
-                 :authors false
-                 }) 
-   :state (fn [] {}) })
-
-(g/defcomponent
-  :icon
-  {:template "#icon"
-   :props [:icon]
-   :state (fn [] {}) }) 
-
-(g/defcomponent
-  :tag
-  {:template "#tag"
-   :props [:name]
-   :state (fn [] {}) }) 
-
-(g/defcomponent
-  :tag-creator
-  {:template "#tag-creator"
-   :state (fn [] {}) }) 
-
-(g/defcomponent
-  :tags
-  {:template "#tags"
-   :data (fn [] { :tags ["Publication" "Publicate"] })
-   :state (fn [] {}) })
-
-(g/defcomponent
-  :citations
-  {:template "#collection"
-   :props [:title]
-   :data (fn [] {:files ["Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
-                         "Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"]
-                 :authors false
-                 :images false
-                 }) 
-   :state (fn [] {}) })
-
-(g/defcomponent
-  :agreements
-  {:template "#agreements" :state (fn [] {}) }) 
-
-(g/defcomponent
-  :essentials 
-  {:template "#essentials" :state (fn [] {}) }) 
-
-(g/defcomponent
-  :additional-details 
-  {:template "#additional-details" :state (fn [] {}) }) 
-
-(g/defcomponent
-  :publish-settings 
-  {:template "#publish-settings" :state (fn [] {}) }) 
-
-(g/defcomponent
-  :section-buttons 
-  {:template "#section-buttons" :state (fn [] {}) }) 
-
-(g/defcomponent
-  :aside-buttons 
-  {:template "#aside-buttons"
-
-   :state (fn [] {})
-   :methods {:proceed (fn [this state]  
-                        (println this.$refs)
-                        (println "Clicked proceed.")
-                        )}
-   }) 
-
-(g/defcomponent
-  :license
-  {:template "#license"
-   :props []
-   :data (fn [] {:name "Attribution-NoDerivs 3.0 Unported"
-                 :details "You are free: to Share — to copy, distribute and transmit the work, to Remix — to adapt the work, to make commercial use of the work"
-                  })
-   :state (fn [] {})
-   }) 
-
-;(g/defcomponent
-;  :todo-item
-;  {:template "#todo-item"
-;   :props [:label]
-;   :state (fn [] {:counter (atom 0)})
-;   :computed {:counter-label (fn [this state]
-;                               (str @(:counter state) " clicks"))}
-;   :methods {:click-me (fn [this state _]
-;                         (println "Click happened on" (g/prop this :label))
-;                         (swap! (:counter state) inc)
-;                         (g/emit this :todo-click 1))}})
+(defn author [author]
+  [:li {:class :item :key (:name author)}
+   (icon "#icon-user")
+   [:div {:class :main}
+    [:div {:class :subject} [:a {:href "#"} (:name author)] ]
+    [:div {:class :meta} [:a {:href "#"} (:org author)] ]
+    [:div {:class [:ui :checkbox :inline :meta]}
+     [:input {:type :checkbox :name :poc}]
+     [:label (:for :poc) "Point of contact"]
+     ]
+    ]
+   ]
+  )
 
 
-(defonce app (g/vue {:el "#app"}))
+(defn item [name type]
+  (type {
+         :file (file name)
+         :author (author name)
+         })
+  )
 
-(defn on-js-reload []
-  (g/reset-state!))
+(defn items [type key]
+  (merge 
+    [:ul]
+    (map #(item % type) (key @s))
+    )
+  )
+
+(defn collection [title type key]
+  [:div {:class :field}
+   [:label {:for :title} title]
+   [:div {:class :collection}
+    (items type key)
+    ]
+   ]
+  )
+
+(defn license-item [name detail]
+  [:div {:class :item :key name}
+   [:div {:class :main}
+    [:header {:class :subject} name]   
+    [:div {:class [:details :meta]} detail]  
+    ]
+   ]
+  )
+
+(defn acknowledge []
+  [:div {:class [:details :last-child]}
+   [:div {:class :inner}
+    [:header "License acknowledgement"]
+    [:div {:class [:ui :checkbox :inline]}
+     [:input {:type :checkbox :class :important :name :poc} ]
+     [:label {:for :poc}
+      "I have read the "
+      [:a {:href "#"} "license terms"]
+      " and agree to license my work under the attribution 3.0 unported license."
+      ]
+     ]
+    ]
+   ] 
+  )
+
+(defn licenses []
+  [:div {:class :field}
+   [:label {:for :title} "License:"]
+   (merge
+     [:div {:class [:collection :single-item]}
+      (map (fn [l] (license-item (:name l) (:detail l))) (:licenses @s))
+      (acknowledge)
+      ]   
+     )
+   ]
+  )
+
+(defn agreements []
+  [:div {:class :field}
+   [:label {:for :agreement} "Agreements"]
+   [:div {:class :field-wrapper}
+    [:div {:class [:item :ui :checkbox :inline]}
+     [:input {:type :checkbox :name :poc}]
+     [:label {:for :pox} "I and all publication authors have read and agree to PURR terms of deposit."]
+     ]
+    ]
+   ]
+  )
+
+(defn essentials []
+  [:fieldset {:class :section}
+   [:header
+    [:legend "Essentials"]
+    [:div {:class "note"} "all field required"]
+    ]
+    (textfield "Title:" "title")
+    (textarea "Synopsis:" "synopsis")
+    (collection "Content:" :file :content)
+    (collection "Authors:" :author :authors)
+    (licenses)
+    (agreements)
+   ]
+  )
+
+(defn aside-buttons []
+  [:aside
+   [:fieldset {:class :buttons-aside}
+    [:a {:href "#" :class :btn} "Proceed with the draft"]
+    [:a {:href "#" :class [:btn :secondary]} "Submit draft"]
+    ]
+   ]
+  )
+
+(defn main-form []
+  [:main
+   [:form
+    (essentials) 
+    ]
+   ]
+  )
+
+(defn nav-section []
+  [:div
+   [:header "Essentials"]
+   [:ul
+    [:li [:a {:href "#"} "Title"]]
+    [:li "Synopsis"]
+    [:li "Content"]
+    [:li "Authors"]
+    [:li "License"]
+    [:li "Point of Contact"]
+    [:li "Agreements"]
+    ]
+   ]
+  )
+ 
+(defn navigation []
+  [:aside
+   [:nav
+    (nav-section)
+    ]
+   ]
+  )
+
+(defn page []
+  [:div {:class :page}
+   (navigation) 
+   (main-form)
+   (aside-buttons)
+   ]
+  )
+
+(defn wrap []
+  [:div {:class :wrap}
+   [:header
+    [:h1 "New Publication"]
+    (page)
+    ] ])
+
+(defn ^:export run []
+;;  (token-request)
+  (r/render [wrap] (js/document.getElementById "app")))
+
+(run)
 
