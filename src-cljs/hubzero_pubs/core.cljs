@@ -5,6 +5,10 @@
 
 (enable-console-print!)
 
+(defn state []
+  {:pubtitle (atom "")}
+  )
+
 (g/defcomponent
   :wrap
   {:template "#wrap" :state (fn [] {}) })
@@ -29,7 +33,9 @@
   :textfield
   {:template "#textfield"
    :props [:title :name]
-   :state (fn [] {}) }) 
+   :state state
+   :computed (fn [] {})
+   })
 
 (g/defcomponent
   :ta
@@ -71,24 +77,31 @@
   :files
   {:template "#collection"
    :props [:title]
-   :data (fn [] { :files ["first-file.pdf" "second-file.pdf" "third-file.pdf"] }) 
+   :data (fn [] {:files ["first-file.pdf" "second-file.pdf" "third-file.pdf"]
+                 :authors false
+                 :images false }) 
    :state (fn [] {}) })
 
 (g/defcomponent
   :authors
   {:template "#collection"
    :props [:title]
-   :data (fn [] { :authors [{:name "JBG" :org "UCSD"}
-                            {:name "JBG" :org "UCSD"}
-                            {:name "JBG" :org "UCSD"}
-                            ] }) 
+   :data (fn [] {:authors [{:name "JBG" :org "UCSD"}
+                           {:name "JBG" :org "UCSD"}
+                           {:name "JBG" :org "UCSD"}]
+                 :files false
+                 :images false 
+                 }) 
    :state (fn [] {}) }) 
 
 (g/defcomponent
   :image-gallery
   {:template "#collection"
    :props [:title]
-   :data (fn [] { :images ["sd-first-visit.png" "sd-first-visit.png" "sd-first-visit.png"] }) 
+   :data (fn [] {:images ["sd-first-visit.png" "sd-first-visit.png" "sd-first-visit.png"]
+                 :files false
+                 :authors false
+                 }) 
    :state (fn [] {}) })
 
 (g/defcomponent
@@ -96,7 +109,9 @@
   {:template "#collection"
    :props [:title]
    :data (fn [] {:files  ["first-file.pdf" "second-file.pdf" "third-file.pdf"]
-                 :images ["sd-first-visit.png" "sd-first-visit.png" "sd-first-visit.png"] }) 
+                 :images ["sd-first-visit.png" "sd-first-visit.png" "sd-first-visit.png"]
+                 :authors false
+                 }) 
    :state (fn [] {}) })
 
 (g/defcomponent
@@ -126,8 +141,11 @@
   :citations
   {:template "#collection"
    :props [:title]
-   :data (fn [] { :files ["Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
-                          "Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"] }) 
+   :data (fn [] {:files ["Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
+                         "Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"]
+                 :authors false
+                 :images false
+                 }) 
    :state (fn [] {}) })
 
 (g/defcomponent
@@ -152,7 +170,14 @@
 
 (g/defcomponent
   :aside-buttons 
-  {:template "#aside-buttons" :state (fn [] {}) }) 
+  {:template "#aside-buttons"
+
+   :state (fn [] {})
+   :methods {:proceed (fn [this state]  
+                        (println this.$refs)
+                        (println "Clicked proceed.")
+                        )}
+   }) 
 
 (g/defcomponent
   :license
