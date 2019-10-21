@@ -6,21 +6,24 @@
             )
   )
 
-(defonce s (r/atom {:content ["file1.pdf" "file2.pdf" "file3.pdf"]
-                    :support-docs ["file1.pdf" "file2.pdf" "file3.pdf"]
-                    :authors [{:name "J" :org "UCSD"}
-                              {:name "B" :org "UCSD"}
-                              {:name "G" :org "UCSD"}
-                              ]
-                    :images ["image1.jpg" "image2.jpg" "image3.jpg"]
-                    :tags ["foo" "bar" "baz"]
-                    :licenses [{:name "Attribution-NoDerivs 3.0 Unported"
-                                :detail "You are free: to Share — to copy, distribute and transmit the work, to Remix — to adapt the work, to make commercial use of the work"
-                                }]
-                    :citations ["Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
-                                "Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
-                                ]
-                    }))
+(defonce s (r/atom {:data
+                    {:content ["file1.pdf" "file2.pdf" "file3.pdf"]
+                     :support-docs ["file1.pdf" "file2.pdf" "file3.pdf"]
+                     :authors [{:name "J" :org "UCSD"}
+                               {:name "B" :org "UCSD"}
+                               {:name "G" :org "UCSD"}
+                               ]
+                     :images ["image1.jpg" "image2.jpg" "image3.jpg"]
+                     :tags ["foo" "bar" "baz"]
+                     :licenses [{:name "Attribution-NoDerivs 3.0 Unported"
+                                 :detail "You are free: to Share — to copy, distribute and transmit the work, to Remix — to adapt the work, to make commercial use of the work"
+                                 }]
+                     :citations ["Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
+                                 "Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
+                                 ]
+                     }
+                    }
+                   ))
 
 (defn on-js-reload [])
 
@@ -50,14 +53,18 @@
 (defn textfield [title name]
   [:div {:class :field}
    [:label {:for :title} title]
-   [:input {:type :text :name name}]
+   [:input {:type :text
+            :name name
+            :on-change #(swap! s assoc-in [:form name] (-> % .-target .-value))}]
    ]
   )
 
 (defn textarea [title name]
   [:div {:class :field}
    [:label {:for :title} title]
-   [:textarea {:name name}]
+   [:textarea {:name name
+               :on-change #(swap! s assoc-in [:form name] (-> % .-target .-value))  
+               }]
    ]
   )
 
@@ -106,7 +113,7 @@
 (defn items [type key]
   (merge 
     [:ul]
-    (map #(item % type) (key @s))
+    (map #(item % type) (get-in @s [:data key]))
     )
   )
 
@@ -149,7 +156,7 @@
    [:label {:for :title} "License:"]
    (merge
      [:div {:class [:collection :single-item]}
-      (map (fn [l] (license-item (:name l) (:detail l))) (:licenses @s))
+      (map (fn [l] (license-item (:name l) (:detail l))) (get-in @s [:data :licenses]))
       (acknowledge)
       ]   
      )
@@ -195,7 +202,7 @@
    [:div {:class :field-wrapper}
     (merge
       [:div {:class [:item :ui :tags]}]
-      (map tag (:tags @s))
+      (map tag (get-in @s [:data :tags]))
       (tag-creator)
       )
     ]
