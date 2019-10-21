@@ -122,6 +122,9 @@
    [:label {:for :title} title]
    [:div {:class :collection}
     (items type key)
+    [:a {:href "#" :class :selector}
+     (icon "#icon-plus")
+     ]
     ]
    ]
   )
