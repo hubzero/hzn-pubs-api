@@ -3,6 +3,7 @@
     [hubzero-pubs.utils :as utils]
     [hubzero-pubs.comps.panels :as panels]
     [hubzero-pubs.comps.options :as options] 
+    [hubzero-pubs.comps.ui :as ui] 
     )
   )
 
@@ -24,13 +25,9 @@
    ]
   )
 
-(defn icon [s i]
-  [:div {:class "icon"} [:svg [:use {:xlinkHref i}]]]
-  )
-
 (defn file [s name]
   [:li {:class :item :key name}
-   (icon s "#icon-file-text2")
+   (ui/icon s "#icon-file-text2")
    [:div {:class "main"} [:a {:href "#"} name]]
    [:div {:class "options" :on-click #(-> %
                                           .-target
@@ -39,7 +36,7 @@
                                           .-classList
                                           (.add "open")
                                           )}
-    (icon s "#icon-dots")
+    (ui/icon s "#icon-dots")
     (options/items s)
     ]
    ] 
@@ -47,7 +44,7 @@
 
 (defn author [s author]
   [:li {:class :item :key (:name author)}
-   (icon s "#icon-user")
+   (ui/icon s "#icon-user")
    [:div {:class :main}
     [:div {:class :subject} [:a {:href "#"} (:name author)] ]
     [:div {:class :meta} [:a {:href "#"} (:org author)] ]
@@ -61,9 +58,9 @@
 
 (defn image [s name]
   [:li {:class :item :key name}
-   (icon s "#icon-file-picture")
+   (ui/icon s "#icon-file-picture")
    [:div {:class :main} [:a {:href "#"} name]]
-   (icon s "#icon-dots")
+   (ui/icon s "#icon-dots")
    ]
   )
 
@@ -90,7 +87,7 @@
     [:a {:href "#"
          :class :selector
          :on-click (fn [e] (panels/show s e true type))}
-     (icon s "#icon-plus")
+     (ui/icon s "#icon-plus")
      ]
     ]
    ]
@@ -151,7 +148,7 @@
   [:a {:href "#" :class [:tag :creator]}
    [:div {:class :inner}
     [:div {:class [:add :icon]}
-     (icon s "#icon-plus")
+     (ui/icon s "#icon-plus")
      ]
     "Add new tag"
     ]
@@ -162,7 +159,7 @@
   [:a {:href "#" :class :tag :key name}
    [:div {:class :inner} name
     [:div {:class [:remove :icon]}
-     (icon s "#icon-cross")
+     (ui/icon s "#icon-cross")
      ]
     ]
    ]

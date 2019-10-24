@@ -22,6 +22,11 @@
                      :citations ["Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
                                  "Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
                                  ]
+                     :usage {:size 1.25
+                             :units "GB"
+                             :percent "25"
+                             :max 5
+                             }
                      }
                     }
                    ))
