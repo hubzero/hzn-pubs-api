@@ -3,8 +3,12 @@
             [compojure.route :as route]
             [clojure.tools.logging :as log]
             [clojure.java.io :as io]
-            [ring.util.response :refer [response redirect content-type resource-response]]
+            [ring.util.response :refer [response
+                                        redirect
+                                        content-type
+                                        resource-response]]
             [ring.util.response :as response]
+            [hubzero-pubs.classic :as classic]
             ))
 
 (defn data2edn [d]
@@ -26,9 +30,14 @@
   )
 
 (defroutes api-routes
+  (GET "/prjs/:id" [id] (classic/get-prj id))
+  (GET "/prjs/:id/files" [id] (classic/get-files id))
+
   (GET "/pubs/user" req {:body (:user req)})
+
   (POST "/pubs" {body :body} (->> (data2edn body) (create-pub)))
   (POST "/pubs/:id/files" req (handle-file req))
+
   )
 
 (defroutes ui-routes

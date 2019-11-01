@@ -1,5 +1,6 @@
 (ns hubzero-pubs.comps.panels
   (:require
+    [hubzero-pubs.data :as data] 
     [hubzero-pubs.comps.ui :as ui] 
     ) 
   )
@@ -26,6 +27,7 @@
 
 (defn show [s e show panel]
   (.preventDefault e)
+  (data/get-files s 1)
   (as-> (.querySelector js/document (str ".as-panel." (name panel))) $
     (.-classList $)
     (if show (.add $ "open") (.remove $ "open"))
@@ -41,47 +43,4 @@
   [:div {:class [:options-list :page-panel :as-panel]}]
   )
 
-(defn files-header [s]
-  [:header
-     [:a {:href "#" :class :icon :on-click #(close s)}
-      (ui/icon s "#icon-left")
-      [:span {:class :name} "Return"]
-      ]
-     [:div {:class :content}
-      [:h1 "Add files from project"]
-      ]
-     ] 
-  )
-
-(defn files-progress [s]
-  [:div {:class [:ui :progress-bar]}
-   [:div {:class :status}
-    [:strong (str (get-in @s [:data :usage :size])
-                  (get-in @s [:data :usage :units])
-                  " ("
-                  (get-in @s [:data :usage :percent])
-                  ")"
-                  )]
-    " of your "
-    [:strong (str (get-in @s [:data :usage :max])
-                  (get-in @s [:data :usage :units])
-                  )]
-    ]
-   [:div {:class :progress}
-
-    [:div {:class :bar}
-     [:span (str (get-in @s [:data :usage :percent]) "%")]
-     ]
-    ]
-   ]
-  )
-
-(defn files [s]
-  [:div {:class [:page-panel :as-panel :files :-open]}
-   [:div {:class :inner}
-    (files-header s)  
-    (files-progress s)  
-    ]
-   ]
-  )
 

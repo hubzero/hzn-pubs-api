@@ -1,8 +1,6 @@
 (ns hubzero-pubs.core
-  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [reagent.core :as r]
-            [cljs.core.async :refer [<!]] 
-            [cljs-http.client :as http]
+
             [hubzero-pubs.comps.app :as app]
             )
   )
@@ -20,7 +18,7 @@
                                  :detail "You are free: to Share — to copy, distribute and transmit the work, to Remix — to adapt the work, to make commercial use of the work"
                                  }]
                      :citations ["Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
-                                 "Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
+                                 "Paskin, N. (2001). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
                                  ]
                      :usage {:size 1.25
                              :units "GB"
@@ -28,6 +26,10 @@
                              :max 5
                              }
                      }
+                    :ui
+                    {:current-folder ["Project files"]
+
+                     } 
                     }
                    ))
 
@@ -56,9 +58,10 @@
 ;;  )
 ;;
 
-(defn ^:export run []
+(defn ^:export run [prj-id]
 ;;  (token-request)
+
   (r/render [#(app/app s)] (js/document.getElementById "app")))
 
-(run)
+(run 1)
 

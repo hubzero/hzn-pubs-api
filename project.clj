@@ -31,6 +31,7 @@
                  ;[glue "0.1.3-SNAPSHOT"]
 
                  [com.novemberain/monger "3.1.0"]
+                 [me.raynes/fs "1.4.6"]
                  ]
   :plugins [[lein-figwheel "0.5.14"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]

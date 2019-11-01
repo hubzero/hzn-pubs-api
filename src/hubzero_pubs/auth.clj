@@ -1,24 +1,13 @@
 (ns hubzero-pubs.auth
   (:require
-    [yesql.core :refer [defqueries]]
-    [clojure.java.jdbc :as jdbc]
+    [hubzero-pubs.classic :as classic]
     )
   )
-
-(def db {:dbtype "mysql"
-         :dbname "example"
-         :user "root"
-         :password "PUk8zFrxsqsS83"
-         ;:host "hub-mysql"
-         :host "localhost"
-         })
-
-(defqueries "yesql/hzcms-queries.sql" { :connection db })
 
 (defn- _get-user [session_id]
   (as-> session_id $
     ($ :userid)
-    (sel-user { :user_id $})
+    (classic/get-user $)
     (first $)  
     )
   )
@@ -27,7 +16,7 @@
   (as-> (:cookies req) $
     ($ "66b92427391544b0181f81a94d34bce4") 
     ($ :value)
-    (sel-session { :session_id $ })
+    (classic/get-session $)
     (first $)
     (if $ (_get-user $))
     )

@@ -2,6 +2,7 @@
   (:require
     [hubzero-pubs.utils :as utils]
     [hubzero-pubs.comps.panels :as panels]
+    [hubzero-pubs.comps.files :as files]
     [hubzero-pubs.comps.options :as options] 
     [hubzero-pubs.comps.ui :as ui] 
     )
@@ -284,7 +285,7 @@
     [:div]
     (wrap s)
     (panels/overlay s)
-    (panels/files s)
+    (files/files s)
     )
 
   )
