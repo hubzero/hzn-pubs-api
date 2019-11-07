@@ -6,6 +6,7 @@
     ) 
   )
 
+
 (defn header [s]
   [:header
    [:a {:href "#" :class :icon :on-click #(panels/close s)}
@@ -45,7 +46,7 @@
   [:a {:href "#"
        :class [:icon (if (> (count (get-in @s [:ui :current-folder])) 1) :show)]
        :on-click #(folder-pop s %)
-       
+
        }
    (ui/icon s "#icon-left")
    [:span {:class :name} "Return"]
@@ -76,11 +77,10 @@
 
 (defn file-selector [s files index]
   [:ul {:class [:ui :file-selector]}
-       (select-all s)
-       (doall (map (fn [[path name]] (file s path name)) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (last $)))))
-       (doall (map (fn [[path name]] (folder s path name (inc index))) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (second $)))))
-;       (doall (map #(folder s % (inc index)) (-> files (nth index) (second))))
-      ] 
+   (select-all s)
+   (doall (map (fn [[path name]] (file s path name)) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (last $)))))
+   (doall (map (fn [[path name]] (folder s path name (inc index))) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (second $)))))
+   ] 
   )
 
 (defn container [s files index]
@@ -106,7 +106,8 @@
    ]
   )
 
-(defn file-click [s name e]
+(defn file-click [s path name e]
+  (prn (spf path name))
   (-> e 
       .-target
       (utils/find-ancestor "li")
@@ -114,16 +115,18 @@
       .-classList
       (.toggle "selected")
       )
-  (if (some #{name} (get-in @s [:data :content]))
-    (swap! s assoc-in [:data :content] (remove #{name} (get-in @s [:data :content])))
-    (swap! s update-in [:data :content] conj name)
+  (let [k (spf path name)]
+    (if (get-in @s [:data :content k])
+      (swap! s update-in [:data :content] dissoc k)
+      (swap! s assoc-in [:data :content k] name)
+      )   
     )
   )
 
 (defn file [s path name]
-  [:li {:key name :on-click #(file-click s name %)}
+  [:li {:key name :on-click #(file-click s path name %)}
    [:div {:class [:inner] }
-    [:div {:class [:selected-indicator (if (some #{name} (get-in @s [:data :content])) :selected)] }
+    [:div {:class [:selected-indicator (if (get-in @s [:data :content (spf path name)]) :selected)] }
      [:div {:class :icon}
       (ui/icon s "#icon-checkmark")
       [:span {:class :name} "Selected"]
@@ -162,15 +165,31 @@
   (swap! s update-in [:ui :current-folder] conj name)
   )
 
+;(def s hubzero-pubs.core/s)
+
+(defn spf [path file]
+  (str path "/" file)
+  )
+ 
 (defn add-folder-files [s index]
   (as-> (:files @s) $
     (nth $ index) 
     (first $)
     (reduce (fn [c f]
               (if (clojure.string/includes? (first f) $)
-                (concat c (last f))
-                )) [] (:files @s))
-    (swap! s update-in [:data :content] assoc (str (first f) "/" (last f)) $)
+                (reduce (fn [c2 f2]
+                          (let [k (spf (first f) f2)]
+                            (if (c2 k)
+                              (dissoc c2 k)
+                              (assoc c2 k f2)
+                              )
+                            )
+                          ) c (last f))
+                c
+                )
+              )
+            (get-in @s [:data :content]) (:files @s))
+    (swap! s assoc-in [:data :content] $)
     )
   )
 

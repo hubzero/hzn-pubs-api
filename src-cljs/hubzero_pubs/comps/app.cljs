@@ -76,7 +76,9 @@
 (defn items [s type key]
   (merge 
     [:ul]
-    (map #(item s % type) (get-in @s [:data key]))
+    (map #(item s % type) (as-> (get-in @s [:data key]) $
+                            (if (map? $) (vals $) $)
+                            ))
     )
   )
 

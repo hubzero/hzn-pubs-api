@@ -6,7 +6,7 @@
   )
 
 (defonce s (r/atom {:data
-                    {:content []
+                    {:content {} 
                      :support-docs ["file1.pdf" "file2.pdf" "file3.pdf"]
                      :authors [{:name "J" :org "UCSD"}
                                {:name "B" :org "UCSD"}
