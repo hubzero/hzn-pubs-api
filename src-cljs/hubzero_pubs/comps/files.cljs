@@ -6,7 +6,6 @@
     ) 
   )
 
-
 (defn header [s]
   [:header
    [:a {:href "#" :class :icon :on-click #(panels/close s)}
@@ -75,38 +74,39 @@
    ] 
   )
 
-(defn file-selector [s files index]
+(defn file-selector [s files key index]
+  (prn key index)
   [:ul {:class [:ui :file-selector]}
    (select-all s)
-   (doall (map (fn [[path name]] (file s path name)) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (last $)))))
-   (doall (map (fn [[path name]] (folder s path name (inc index))) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (second $)))))
+   (doall (map (fn [[path name]] (file s path name key)) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (last $)))))
+   (doall (map (fn [[path name]] (folder s path name key (inc index))) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (second $)))))
    ] 
   )
 
-(defn container [s files index]
+(defn container [s files key index]
   [:div {:class :overlay-panel-container}
-   (file-selector s files index)
+   (file-selector s files key index)
    ]
   )
 
-(defn subpanel [s name files index]
+(defn subpanel [s files name key index]
   [:div {:id name :class [:panel-subpanel :as-panel :files :-open]}
-   (file-selector s files index)
+   (file-selector s files key index)
    ] 
   )
 
-(defn files [s]
+(defn files [s key]
   [:div {:class [:page-panel :as-panel :files :-open]}
    [:div {:class :inner}
     (header s)  
     (progress s)
     (subheader s)
-    (container s (:files @s) 0)
+    (container s (:files @s) key 0)
     ]
    ]
   )
 
-(defn file-click [s path name e]
+(defn file-click [s path name key e]
   (prn (spf path name))
   (-> e 
       .-target
@@ -116,17 +116,17 @@
       (.toggle "selected")
       )
   (let [k (spf path name)]
-    (if (get-in @s [:data :content k])
-      (swap! s update-in [:data :content] dissoc k)
-      (swap! s assoc-in [:data :content k] name)
+    (if (get-in @s [:data key k])
+      (swap! s update-in [:data key] dissoc k)
+      (swap! s assoc-in [:data key k] name)
       )   
     )
   )
 
-(defn file [s path name]
-  [:li {:key name :on-click #(file-click s path name %)}
+(defn file [s path name key]
+  [:li {:key name :on-click #(file-click s path name key %)}
    [:div {:class [:inner] }
-    [:div {:class [:selected-indicator (if (get-in @s [:data :content (spf path name)]) :selected)] }
+    [:div {:class [:selected-indicator (if (get-in @s [:data key (spf path name)]) :selected)] }
      [:div {:class :icon}
       (ui/icon s "#icon-checkmark")
       [:span {:class :name} "Selected"]
@@ -171,7 +171,7 @@
   (str path "/" file)
   )
  
-(defn add-folder-files [s index]
+(defn add-folder-files [s key index]
   (as-> (:files @s) $
     (nth $ index) 
     (first $)
@@ -184,16 +184,14 @@
                               (assoc c2 k f2)
                               )
                             )
-                          ) c (last f))
-                c
-                )
+                          ) c (last f)) c)
               )
-            (get-in @s [:data :content]) (:files @s))
-    (swap! s assoc-in [:data :content] $)
+            (get-in @s [:data key]) (:files @s))
+    (swap! s assoc-in [:data key] $)
     )
   )
 
-(defn folder-click [s index e]
+(defn folder-click [s key index e]
   (.stopPropagation e)
   (-> e 
       .-target
@@ -202,13 +200,13 @@
       .-classList
       (.toggle "selected") 
       )
-  (add-folder-files s index)
+  (add-folder-files s key index)
   )
 
-(defn folder [s path name index]
+(defn folder [s path name key index]
   [:li {:key name :on-click #(folder-push s name %)}
    [:div {:class [:inner :folder]}
-    [:div {:class :selected-indicator :on-click #(folder-click s index %)}
+    [:div {:class :selected-indicator :on-click #(folder-click s key index %)}
      [:div {:class :icon }
       (ui/icon s "#icon-checkmark")
       [:span {:class :name} "Selected indicator"]
@@ -223,7 +221,7 @@
      ]
     ]
    (if (< index (count (:files @s)))
-     (subpanel s name (:files @s) index)
+     (subpanel s (:files @s) name key index)
      )
    ]
   )

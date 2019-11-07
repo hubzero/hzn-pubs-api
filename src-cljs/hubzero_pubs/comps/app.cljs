@@ -65,7 +65,7 @@
    ]
   )
 
-(defn item [s name type]
+(defn item [s name type key]
   (type {
          :files (file s name)
          :author (author s name)
@@ -76,9 +76,9 @@
 (defn items [s type key]
   (merge 
     [:ul]
-    (map #(item s % type) (as-> (get-in @s [:data key]) $
-                            (if (map? $) (vals $) $)
-                            ))
+    (map #(item s % type key) (as-> (get-in @s [:data key]) $
+                                (if (map? $) (vals $) $)
+                                ))
     )
   )
 
@@ -287,7 +287,7 @@
     [:div]
     (wrap s)
     (panels/overlay s)
-    (files/files s)
+    (files/files s :content)
     )
 
   )
