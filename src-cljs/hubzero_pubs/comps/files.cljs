@@ -75,7 +75,6 @@
   )
 
 (defn file-selector [s files key index]
-  (prn key index)
   [:ul {:class [:ui :file-selector]}
    (select-all s)
    (doall (map (fn [[path name]] (file s path name key)) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (last $)))))
@@ -170,8 +169,8 @@
 (defn spf [path file]
   (str path "/" file)
   )
- 
-(defn add-folder-files [s key index]
+
+(defn toggle-folder-files [s key index selected]
   (as-> (:files @s) $
     (nth $ index) 
     (first $)
@@ -179,9 +178,9 @@
               (if (clojure.string/includes? (first f) $)
                 (reduce (fn [c2 f2]
                           (let [k (spf (first f) f2)]
-                            (if (c2 k)
-                              (dissoc c2 k)
+                            (if selected 
                               (assoc c2 k f2)
+                              (dissoc c2 k)
                               )
                             )
                           ) c (last f)) c)
@@ -193,20 +192,40 @@
 
 (defn folder-click [s key index e]
   (.stopPropagation e)
-  (-> e 
+  (let [classes (-> e 
       .-target
       (utils/find-ancestor "li")
       (.querySelector ".selected-indicator")
       .-classList
-      (.toggle "selected") 
-      )
-  (add-folder-files s key index)
+      (js/Array.from)
+      )]
+      (toggle-folder-files s key index (not (boolean (some #{"selected"} classes))))
+      (.toggle classes "selected") 
+    )
   )
 
+(defn folder-selected? [s name key index]
+  (as-> (:files @s) $
+    (nth $ index) 
+    (first $)
+    (reduce (fn [c f]
+              (if (clojure.string/includes? (first f) $)
+                (and c
+                     (reduce (fn [x y] (and x y)) (reduce (fn [c2 f2]
+                                                            (and c2 (get-in @s [:data key (spf (first f) f2)]))
+                                                            ) c (last f))) 
+                     )
+
+                c)
+              )
+            true (:files @s))
+    )
+  )
+ 
 (defn folder [s path name key index]
   [:li {:key name :on-click #(folder-push s name %)}
    [:div {:class [:inner :folder]}
-    [:div {:class :selected-indicator :on-click #(folder-click s key index %)}
+    [:div {:class [:selected-indicator (if (folder-selected? s name key index) :selected)] :on-click #(folder-click s key index %)}
      [:div {:class :icon }
       (ui/icon s "#icon-checkmark")
       [:span {:class :name} "Selected indicator"]
