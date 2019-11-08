@@ -6,12 +6,10 @@
 
 (defonce s (r/atom {:data
                     {:content {} 
-                     :support-docs ["file1.pdf" "file2.pdf" "file3.pdf"]
                      :authors [{:name "J" :org "UCSD"}
                                {:name "B" :org "UCSD"}
                                {:name "G" :org "UCSD"}
                                ]
-                     :images ["image1.jpg" "image2.jpg" "image3.jpg"]
                      :tags ["foo" "bar" "baz"]
                      :licenses [{:name "Attribution-NoDerivs 3.0 Unported"
                                  :detail "You are free: to Share — to copy, distribute and transmit the work, to Remix — to adapt the work, to make commercial use of the work"

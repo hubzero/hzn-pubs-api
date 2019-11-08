@@ -25,10 +25,10 @@
   (show-overlay s false)
   )
 
-(defn show [s e show panel]
+(defn show [s e show key]
   (.preventDefault e)
   (data/get-files s 1)
-  (as-> (.querySelector js/document (str ".as-panel." (name panel))) $
+  (as-> (.querySelector js/document (str ".as-panel." (name key))) $
     (.-classList $)
     (if show (.add $ "open") (.remove $ "open"))
     )

@@ -65,31 +65,32 @@
    ]
   )
 
-(defn item [s name type key]
-  (type {
-         :files (file s name)
-         :author (author s name)
-         :image (image s name)
-         })
+(defn item [s name key]
+  (key {
+        :content (file s name)
+        :support-docs (file s name)
+        :authors (author s name)
+        :images (image s name)
+        })
   )
 
-(defn items [s type key]
+(defn items [s key]
   (merge 
     [:ul]
-    (map #(item s % type key) (as-> (get-in @s [:data key]) $
+    (map #(item s % key) (as-> (get-in @s [:data key]) $
                                 (if (map? $) (vals $) $)
                                 ))
     )
   )
 
-(defn collection [s title type key]
+(defn collection [s title key]
   [:div {:class :field}
    [:label {:for :title} title]
    [:div {:class :collection}
-    (items s type key)
+    (items s key)
     [:a {:href "#"
          :class :selector
-         :on-click (fn [e] (panels/show s e true type))}
+         :on-click (fn [e] (panels/show s e true key))}
      (ui/icon s "#icon-plus")
      ]
     ]
@@ -189,8 +190,8 @@
     ]
     (textfield s "Title:" "title")
     (textarea s "Synopsis:" "synopsis")
-    (collection s "Content:" :files :content)
-    (collection s "Authors:" :author :authors)
+    (collection s "Content:" :content)
+    (collection s "Authors:" :authors)
     (licenses s)
     (agreements s)
    ]
@@ -199,11 +200,11 @@
 (defn additional-details [s]
   [:fieldset {:class :section}
    [:header [:legend "Additional Details"]]
-   (collection s "Image gallery:" :image :images)
+   (collection s "Image gallery:" :images)
    (textfield s "External website URL:" "url")
-   (collection s "Supporting docs:" :files :support-docs)
+   (collection s "Supporting docs:" :support-docs)
    (tags s)
-   (collection s "Citations:" :files :citations)
+   (collection s "Citations:" :citations)
    (textarea s "Version release notes:" "release-notes")
    ]
   )
@@ -280,7 +281,7 @@
    [:header
     [:h1 "New Publication"]
     (page s)
-    ] ])
+    ]])
 
 (defn app [s]
   (merge
@@ -288,7 +289,8 @@
     (wrap s)
     (panels/overlay s)
     (files/files s :content)
+    (files/files s :images)
+    (files/files s :support-docs)
     )
-
   )
  

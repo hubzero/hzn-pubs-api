@@ -95,7 +95,7 @@
   )
 
 (defn files [s key]
-  [:div {:class [:page-panel :as-panel :files :-open]}
+  [:div {:class [:page-panel :as-panel key :-open]}
    [:div {:class :inner}
     (header s)  
     (progress s)
