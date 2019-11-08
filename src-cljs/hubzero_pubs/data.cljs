@@ -17,5 +17,6 @@
 ;                              
                               ))]
         (swap! s assoc :files (cljs.reader/read-string (:body res)))
+        (swap! s assoc-in [:ui :current-folder] [["Project files" (first (first (:files @s)))]])
         ))
   )

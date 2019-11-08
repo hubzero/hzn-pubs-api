@@ -56,27 +56,27 @@
   [:header {:class :subheader}
    (backarrow s)   
    [:div {:class :content}
-    [:h1 (last (get-in @s [:ui :current-folder]))]
+    [:h1 (first (last (get-in @s [:ui :current-folder])))]
     ]  
    ]
   )
 
-(defn select-all [s]
-  [:li {:class :select-all}
+(defn select-all [s key index]
+  [:li {:class :select-all :on-click #(folder-click s key index %)}
    [:div {:class :inner}
-    [:div {:class :selected-indicator}
+    [:div {:class [:selected-indicator (if (folder-selected? s key index) :selected)]}
      [:div {:class :icon}
       (ui/icon s "#icon-checkmark")
       [:span {:class :name} "Selected"]
-      ] 
+      ]
      ] "Select all"
     ]
-   ] 
+   ]
   )
 
 (defn file-selector [s files key index]
   [:ul {:class [:ui :file-selector]}
-   (select-all s)
+   (select-all s key index)
    (doall (map (fn [[path name]] (file s path name key)) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (last $)))))
    (doall (map (fn [[path name]] (folder s path name key (inc index))) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (second $)))))
    ] 
@@ -106,7 +106,6 @@
   )
 
 (defn file-click [s path name key e]
-  (prn (spf path name))
   (-> e 
       .-target
       (utils/find-ancestor "li")
@@ -150,7 +149,7 @@
   (swap! s update-in [:ui :current-folder] pop)
   )
 
-(defn folder-push [s name e]
+(defn folder-push [s name path e]
   (.stopPropagation e)
   (let [node (-> e 
                  .-target
@@ -161,7 +160,7 @@
     (-> node .-classList (.toggle "open"))
     (swap! s update-in [:ui :current-panel] conj node)
     )
-  (swap! s update-in [:ui :current-folder] conj name)
+  (swap! s update-in [:ui :current-folder] conj [name path])
   )
 
 ;(def s hubzero-pubs.core/s)
@@ -197,14 +196,13 @@
       (utils/find-ancestor "li")
       (.querySelector ".selected-indicator")
       .-classList
-      (js/Array.from)
       )]
-      (toggle-folder-files s key index (not (boolean (some #{"selected"} classes))))
-      (.toggle classes "selected") 
+      (toggle-folder-files s key index (not (boolean (some #{"selected"} (js/Array.from classes )))))
+      (.toggle classes "selected")
     )
   )
 
-(defn folder-selected? [s name key index]
+(defn folder-selected? [s key index]
   (as-> (:files @s) $
     (nth $ index) 
     (first $)
@@ -223,9 +221,9 @@
   )
  
 (defn folder [s path name key index]
-  [:li {:key name :on-click #(folder-push s name %)}
+  [:li {:key name :on-click #(folder-push s name path %)}
    [:div {:class [:inner :folder]}
-    [:div {:class [:selected-indicator (if (folder-selected? s name key index) :selected)] :on-click #(folder-click s key index %)}
+    [:div {:class [:selected-indicator (if (folder-selected? s key index) :selected)] :on-click #(folder-click s key index %)}
      [:div {:class :icon }
       (ui/icon s "#icon-checkmark")
       [:span {:class :name} "Selected indicator"]

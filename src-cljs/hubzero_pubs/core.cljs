@@ -1,6 +1,5 @@
 (ns hubzero-pubs.core
   (:require [reagent.core :as r]
-
             [hubzero-pubs.comps.app :as app]
             )
   )
@@ -26,37 +25,10 @@
                              :max 5
                              }
                      }
-                    :ui
-                    {:current-folder ["Project files"]
-
-                     } 
                     }
                    ))
 
 (defn on-js-reload [])
-
-;;(defn hello-request []
-;;  (go (let [res (<! (http/get "https://localhost/api/v1/helloworld/user"
-;;                              {
-;;                               :with-credentials? true 
-;;                               :headers {"Authorization" (str "Bearer " (:token @s)) }
-;;                               }))]
-;;        (swap! s assoc :username (get-in res [:body :username]))
-;;        ))
-;;  )
-;;
-;;(defn token-request []
-;;  (go (let [res (<! (http/post "https://localhost/developer/oauth/token" {:json-params {
-;;                                                                                        :grant_type "session"
-;;                                                                                        ;:client_id "3a223f193b9481749152e76cfa9b8599" 
-;;                                                                                        }}))]
-;;        (swap! s assoc :token (get-in res [:body :access_token]))
-;;        (swap! s assoc :type (get-in res [:body :token_type]))
-;;        (hello-request)
-;;        )
-;;      )
-;;  )
-;;
 
 (defn ^:export run [prj-id]
 ;;  (token-request)
