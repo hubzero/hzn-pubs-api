@@ -34,6 +34,7 @@
   (GET "/prjs/:id/files" [id] (classic/get-files id))
 
   (GET "/pubs/user" req {:body (:user req)})
+  (GET "/pubs/licenses" [] (classic/get-licenses))
 
   (POST "/pubs" {body :body} (->> (data2edn body) (create-pub)))
   (POST "/pubs/:id/files" req (handle-file req))

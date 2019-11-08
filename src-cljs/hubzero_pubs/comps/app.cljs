@@ -13,7 +13,7 @@
    [:label {:for :title} title]
    [:input {:type :text
             :name name
-            :on-change #(swap! s assoc-in [:form name] (-> % .-target .-value))}]
+            :on-change #(swap! s assoc-in [:data (keyword name)] (-> % .-target .-value))}]
    ]
   )
 
@@ -21,7 +21,7 @@
   [:div {:class :field}
    [:label {:for :title} title]
    [:textarea {:name name
-               :on-change #(swap! s assoc-in [:form name] (-> % .-target .-value))  
+               :on-change #(swap! s assoc-in [:data (keyword name)] (-> % .-target .-value))  
                }]
    ]
   )
