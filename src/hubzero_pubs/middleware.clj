@@ -28,8 +28,16 @@
     )
   )
 
+(defn wrap-session [handler]
+  (fn [req]
+    (prn "REQ" req)
+    (handler req)
+    ) 
+  )
+
 (defn wrap-base [handler]
   (-> handler 
+      (wrap-session)
       ;(wrap-cookie-auth)
       ;(wrap-defaults site-defaults)
       (wrap-formats)

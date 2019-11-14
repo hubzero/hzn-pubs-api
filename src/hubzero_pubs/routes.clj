@@ -43,6 +43,7 @@
 
 (defroutes ui-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
+  (GET "/prjs/:id/pubs" [id] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
   (route/resources "/")  
   )
 
