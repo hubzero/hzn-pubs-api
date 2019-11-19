@@ -110,6 +110,10 @@ body.with-overlay {
 			}
 		}
 
+		fieldset {
+			.padVertically();
+		}
+
 		.progress-bar {
 			box-shadow: @layerShadow;
 			position: relative;
@@ -121,6 +125,15 @@ body.with-overlay {
 			flex-grow: 1;
 			z-index: 1;
 			overflow: hidden;
+		}
+
+		hr {
+			.marginSides();
+			margin-top: 2rem;
+			margin-bottom: 2rem;
+			background: @colorDivider;
+			height: 1px;
+			border: 0;
 		}
 	}
 

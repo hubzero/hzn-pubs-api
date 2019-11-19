@@ -26,19 +26,15 @@
    ]
   )
 
-(defn file [s name]
+(defn file [s key name]
   [:li {:class :item :key name}
    (ui/icon s "#icon-file-text2")
    [:div {:class "main"} [:a {:href "#"} name]]
-   [:div {:class "options" :on-click #(-> %
-                                          .-target
-                                          (utils/find-ancestor ".options")
-                                          (.querySelector ".options-list")
-                                          .-classList
-                                          (.add "open")
-                                          )}
+   [:div {:class "options" :on-click
+          #(swap! s assoc-in [:ui :options key name] true)
+          }
     (ui/icon s "#icon-dots")
-    (options/items s)
+    (options/items s key name)
     ]
    ] 
   )
@@ -67,8 +63,8 @@
 
 (defn item [s name key]
   (key {
-        :content (file s name)
-        :support-docs (file s name)
+        :content (file s key name)
+        :support-docs (file s key name)
         :authors (author s name)
         :images (image s name)
         })
@@ -83,15 +79,22 @@
     )
   )
 
-(defn collection [s title key]
+(defn selector-classes [s key classes]
+  (concat classes (key {:authors [:options :author-selector ]}))
+  )
+
+(defn collection [s title key options-comp f]
   [:div {:class :field}
    [:label {:for :title} title]
    [:div {:class :collection}
     (items s key)
-    [:a {:href "#"
-         :class :selector
-         :on-click (fn [e] (panels/show s e true key))}
-     (ui/icon s "#icon-plus")
+    [:div {:class (selector-classes s key [:selector]) }
+     [:a {:href "#"
+          :class :selector-button
+          :on-click #(f s % key)}
+      (ui/icon s "#icon-plus")
+      ]  
+      options-comp
      ]
     ]
    ]
@@ -190,8 +193,11 @@
     ]
     (textfield s "Title:" "title")
     (textarea s "Synopsis:" "synopsis")
-    (collection s "Content:" :content)
-    (collection s "Authors:" :authors)
+    (collection s "Content:" :content nil (fn [s e key] (panels/show s e true key)))
+    (collection s "Authors:" :authors (options/authors s) (fn [s e key]
+                                                            (.stopPropagation e)
+                                                            (swap! s assoc-in [:ui :options :authors] true)
+                                                            ))
     (licenses s)
     (agreements s)
    ]
@@ -200,11 +206,13 @@
 (defn additional-details [s]
   [:fieldset {:class :section}
    [:header [:legend "Additional Details"]]
-   (collection s "Image gallery:" :images)
+   (collection s "Image gallery:" :images nil
+               (fn [s e key] (panels/show s e true key)))
    (textfield s "External website URL:" "url")
-   (collection s "Supporting docs:" :support-docs)
+   (collection s "Supporting docs:" :support-docs nil
+               (fn [s e key] (panels/show s e true key)))
    (tags s)
-   (collection s "Citations:" :citations)
+   (collection s "Citations:" :citations nil #())
    (textarea s "Version release notes:" "release-notes")
    ]
   )
@@ -277,7 +285,7 @@
   )
 
 (defn wrap [s]
-  [:div {:class :wrap :on-click (fn [e] (options/close s (.-target e))) }
+  [:div {:class :wrap :on-click (fn [e] (options/close s)) }
    [:header
     [:h1 "New Publication"]
     (page s)

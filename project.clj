@@ -56,7 +56,7 @@
                            }
 
                 :compiler {:main hubzero-pubs.core
-                           :asset-path "js/compiled/out"
+                           :asset-path "/js/compiled/out"
                            :output-to "resources/public/js/compiled/hubzero_pubs.js"
                            :output-dir "resources/public/js/compiled/out"
                            :source-map-timestamp true

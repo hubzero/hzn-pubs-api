@@ -4,14 +4,15 @@
     )
   )
 
-(defn close [s el]
-  (if (not (utils/find-ancestor el ".options-list, .options"))
-    (doall (map
-             #(-> % .-classList (.remove "open"))
-             (array-seq (.querySelectorAll js/document ".options-list"))
-             ) 
-           )
-    )
+(defn close [s]
+  (swap! s assoc-in [:ui :options] nil)
+;  (if (not (utils/find-ancestor el ".options-list, .options"))
+;    (doall (map
+;             #(-> % .-classList (.remove "open"))
+;             (array-seq (.querySelectorAll js/document ".options-list"))
+;             ) 
+;           )
+;    )
   )
  
 (defn item [s i name]
@@ -26,8 +27,11 @@
    ]
   )
 
-(defn items [s]
-  [:div {:class [:options-list :--as-panel]}
+(defn items [s key name]
+  [:div {:class [:options-list
+                 :--as-panel
+                 (if (get-in @s [:ui :options key name]) :open)
+                 ]}
    [:div {:class :inner}
     (merge
       [:ul]
@@ -39,3 +43,18 @@
    ]
   )
 
+(defn authors [s]
+  (prn "AUTHORS" (get-in @s [:ui :options :authors]))
+  [:div {:class [:authors-options
+                 :options-list
+                 (if (get-in @s [:ui :options :authors]) :open)
+                 ]}
+   [:div {:class :inner}
+    (merge
+      [:ul]
+      (item s "#icon-user" "Add from project")
+      (item s "#icon-user" "Add new")
+      )
+    ]
+   ]
+  )

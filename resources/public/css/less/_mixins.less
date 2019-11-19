@@ -26,6 +26,21 @@
 	}
 }
 
+.marginSides() {
+	margin-left: @pad;
+	margin-right: @pad;
+
+	@media (min-width: @sizeM) {
+		margin-left: @padM;
+		margin-right: @padM;
+	}
+
+	@media (min-width: @sizeL) {
+		margin-left: @padL;
+		margin-right: @padL;
+	}
+}
+
 .padVertically() {
 	padding-top: @pad;
 	padding-bottom: @pad;

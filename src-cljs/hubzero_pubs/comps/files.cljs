@@ -75,7 +75,7 @@
   )
 
 (defn file-selector [s files key index]
-  [:ul {:class [:ui :file-selector]}
+  [:ul {:class [:ui :file-selector :item-selector]}
    (select-all s key index)
    (doall (map (fn [[path name]] (file s path name key)) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (last $)))))
    (doall (map (fn [[path name]] (folder s path name key (inc index))) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (second $)))))

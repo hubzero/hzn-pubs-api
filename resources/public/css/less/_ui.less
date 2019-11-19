@@ -34,7 +34,7 @@
 		}
 	}
 
-	&.file-selector {
+	&.item-selector {
 		list-style: none;
 		margin: 0;
 		padding: 0;
@@ -52,13 +52,12 @@
 			padding: 0;
 
 			& > .inner {
-				@selectedIndicatorSize: 1.6em;
+				@selectedIndicatorSize: 1.6rem;
 				display: flex;
 				align-items: center;
 				.padItemVertically();
 				.padSides();
 				border-bottom: 1px solid @colorDivider;
-				// padding-left: @selectedIndicatorSize + 0.6em;
 				position: relative;
 
 				.selected-indicator {
@@ -131,6 +130,83 @@
 			}
 		}
 
+	}
+
+	&.autocomplete {
+		position: relative;
+
+		.results {
+			position: absolute;
+			top: 0;
+			list-style: none;
+			margin: 0;
+			left: 0;
+			right: 0;
+			.padFormInput();
+			background: #fff;
+			z-index: 1;
+			box-shadow: @uiShadow;
+
+			.result {
+				.padListItemVertically();
+			}
+		}
+	}
+}
+
+.options {
+	text-align: center;
+
+	&.open {
+		z-index: 2 !important;
+	}
+
+	.options-list {
+		text-align: left;
+		background: white;
+		position: absolute;
+		display: none;
+		top: 100%;
+		right: 0;
+		z-index: 2;
+		box-shadow: @layerShadow;
+		transform: translate(0, 5px);
+
+		&.open {
+			display: block;
+		}
+
+		ul,
+		li {
+			list-style: none;
+			margin: 0;
+		}
+
+		li > a {
+			display: flex;
+			.padListItemVertically();
+			white-space: nowrap;
+
+
+			.icon {
+				margin-right: 1rem;
+				align-self: center;
+
+				svg {
+					fill: @colorAction;
+					height: 1em;
+					width: 1em;
+				}
+			}
+		}
+
+		ul {
+			.pad();
+		}
+
+		header {
+			display: none;
+		}
 	}
 }
 

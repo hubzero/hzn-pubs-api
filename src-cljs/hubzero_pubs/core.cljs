@@ -28,10 +28,20 @@
 
 (defn on-js-reload [])
 
+(defn get-prj-id []
+ (-> (.-cookie js/document)
+     (clojure.string/split #";")
+     (first)
+     (clojure.string/split #"=")
+     (last)
+     ) 
+  )
+
 (defn ^:export run [prj-id]
 ;;  (token-request)
-
+  (prn "PROJECT" prj-id)
+  (swap! s assoc :prj-id prj-id)
   (r/render [#(app/app s)] (js/document.getElementById "app")))
 
-(run 1)
+(run (get-prj-id))
 

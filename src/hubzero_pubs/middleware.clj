@@ -28,16 +28,22 @@
     )
   )
 
-(defn wrap-session [handler]
+(defn handle-prj-id [handler]
+  (prn "HANDLER" handler)
   (fn [req]
-    (prn "REQ" req)
-    (handler req)
-    ) 
+    (prn "REQ" (:params req))
+    (if-let [prj-id (:id (:params req))]
+      (as-> (handler req) $
+        (assoc :cookies (merge (:cookies $) {"prj-id" {:value (str prj-id)}}))
+        (assoc :session (merge (:session $) {:prj-id prj-id}))
+        )
+      (handler req)
+      )
+    )
   )
 
 (defn wrap-base [handler]
   (-> handler 
-      (wrap-session)
       ;(wrap-cookie-auth)
       ;(wrap-defaults site-defaults)
       (wrap-formats)

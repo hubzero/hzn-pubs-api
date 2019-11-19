@@ -38,6 +38,21 @@
 			border-color: @colorAction;
 			color: @colorAction;
 
+			&.hide {
+				display: none;
+			}
+
+			.new-tag {
+				height: 1em;
+				padding: 0;
+				border: none;
+				transition: none;
+
+				&:focus {
+					border: none;
+				}
+			}
+
 			.add {
 				margin-right: 0.4rem;
 
@@ -60,6 +75,37 @@
 				}
 			}
 		}
-	}
 
+		&.creating {
+			border-style: dashed;
+			background: #fff;
+			display: none;
+
+			&.show {
+				display: inline-block;
+			}
+
+			.new-tag {
+				height: 1em;
+				padding: 0;
+				border: none;
+				transition: none;
+				background: #fff;
+
+				&:focus {
+					border: none;
+				}
+			}
+
+			.add {
+				margin-left: 0.4rem;
+
+				svg {
+					width: @iconSize;
+					height: 1em;
+					fill: @colorAction;
+				}
+			}
+		}
+	}
 }

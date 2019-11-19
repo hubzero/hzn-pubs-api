@@ -29,6 +29,13 @@
   "ok"
   )
 
+(defn handle-prj-id [id]
+  (->
+    (content-type (resource-response "index.html" {:root "public"}) "text/html")
+    (assoc :cookies {:project-id id})
+    )
+  )
+
 (defroutes api-routes
   (GET "/prjs/:id" [id] (classic/get-prj id))
   (GET "/prjs/:id/files" [id] (classic/get-files id))
@@ -43,7 +50,7 @@
 
 (defroutes ui-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
-  (GET "/prjs/:id/pubs" [id] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
+  (GET "/prjs/:id/pubs" [id] (handle-prj-id id))
   (route/resources "/")  
   )
 

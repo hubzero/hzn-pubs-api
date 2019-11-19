@@ -195,7 +195,7 @@ fieldset > header {
 		border: none;
 		border-bottom: 1px solid @colorDivider;
 		position: relative;
-		transition: all, 0.5s ease-in-out;
+		transition: border-color, 0.5s ease-in-out;
 
 		&:focus {
 			outline: none;
@@ -248,8 +248,8 @@ fieldset > header {
 		border-bottom: none;
 		position: relative;
 
-		ul,
-		li {
+		& > ul,
+		& > ul li {
 			margin: 0;
 			padding: 0;
 			list-style: none;
@@ -286,40 +286,15 @@ fieldset > header {
 				position: relative;
 
 				.options-list {
-					text-align: left;
-					background: white;
-					position: absolute;
-					display: none;
-					top: 100%;
-					right: 0;
-					z-index: 1;
-					box-shadow: @layerShadow;
-
-					&.open {
-						display: block;
-					}
 
 					li > a {
-						display: flex;
-						.padListItemVertically();
-
 
 						.icon {
-							margin-right: 1rem;
-							align-self: center;
 
 							svg {
 								fill: @colorAction;
 							}
 						}
-					}
-
-					ul {
-						.pad();
-					}
-
-					header {
-						display: none;
 					}
 				}
 			}
@@ -347,40 +322,44 @@ fieldset > header {
 		}
 
 		.selector {
-			background: @colorAction;
 			position: absolute;
 			top: 0;
 			.padFormInputAbsRight();
 			transform: translate(0, -50%);
-			display: block;
-			width: @selectorSize;
-			height: @selectorSize;
-			line-height: 0;
-			border-radius: 50%;
-			color: #fff;
-			text-align: center;
-			font-weight: 600;
-			transition: all, 0.1s ease-in-out;
+			z-index: 1;
 
-			.icon {
-
-				svg {
-					transition: all, 0.2s ease-in-out;
-					transition-delay: 0.1s;
-					width: 0.9rem;
-					height: @selectorSize;
-					fill: #fff;
-				}
-			}
-
-			&:hover {
-				background: @colorActionMod;
-				transform: translate(0, -50%)  scale(1.1);
+			.selector-button {
+				background: @colorAction;
+				display: block;
+				width: @selectorSize;
+				height: @selectorSize;
+				line-height: 0;
+				border-radius: 50%;
+				color: #fff;
+				text-align: center;
+				font-weight: 600;
+				transition: all, 0.1s ease-in-out;
 
 				.icon {
 
 					svg {
-						//transform: scale(0.85);
+						transition: all, 0.2s ease-in-out;
+						transition-delay: 0.1s;
+						width: 0.9rem;
+						height: @selectorSize;
+						fill: #fff;
+					}
+				}
+
+				&:hover {
+					background: @colorActionMod;
+					transform: scale(1.1);
+
+					.icon {
+
+						svg {
+							//transform: scale(0.85);
+						}
 					}
 				}
 			}
@@ -455,7 +434,7 @@ fieldset > header {
 		margin-bottom: 0.6rem;
 
 		&:last-child {
-			margin-bottom: 0;
+			//margin-bottom: 0;
 		}
 
 		&.secondary {

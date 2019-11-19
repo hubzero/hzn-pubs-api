@@ -7,8 +7,9 @@
 
 (def url "http://localhost:8888")
 
-(defn get-files [s id]
-  (go (let [res (<! (http/get (str url "/prjs/" id "/files")
+(defn get-files [s]
+  (prn (str url "/prjs/" (:prj-id @s) "/files"))
+  (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s) "/files")
 
 ;                              {
 ;                               :with-credentials? true 
@@ -16,6 +17,7 @@
 ;                               }
 ;                              
                               ))]
+        (prn (:body res))
         (swap! s assoc :files (cljs.reader/read-string (:body res)))
         (swap! s assoc-in [:ui :current-folder] [["Project files" (first (first (:files @s)))]])
         ))
