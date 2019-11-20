@@ -8,7 +8,7 @@
 (def url "http://localhost:8888")
 
 (defn get-files [s]
-  (prn (str url "/prjs/" (:prj-id @s) "/files"))
+  (prn "GET-FILES" (str url "/prjs/" (:prj-id @s) "/files"))
   (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s) "/files")
 
 ;                              {

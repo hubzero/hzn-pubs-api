@@ -28,12 +28,9 @@
   )
 
 (defn show [s e show key]
+  (prn "SHOW SHOW SHOW" key)
   (.preventDefault e)
   (data/get-files s)
-;  (as-> (.querySelector js/document (str ".as-panel." (name key))) $
-;    (.-classList $)
-;    (if show (.add $ "open") (.remove $ "open"))
-;    )
   (swap! s assoc-in [:ui :panels key] show)
   (show-overlay s true)
   )
@@ -41,8 +38,4 @@
 (defn overlay [s]
   [:div {:class :page-overlay :on-click #(close s) }]
   )
-
-;(defn page-panel [s key]
-;  [:div {:class [:options-list :page-panel :as-panel (if (get-in @s [:ui :panels key]) :open)]}]
-;  )
 

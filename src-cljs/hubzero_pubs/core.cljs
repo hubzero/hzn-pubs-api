@@ -34,7 +34,9 @@
      (first)
      (clojure.string/split #"=")
      (last)
-     ) 
+     ;; This is for my lazy maker/debugger self - JBG
+     (as-> $ (if (> (count $) 0) $ "1")))
+     ;; End lazyness - JBG
   )
 
 (defn ^:export run [prj-id]

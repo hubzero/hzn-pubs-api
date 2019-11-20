@@ -44,7 +44,6 @@
   )
 
 (defn authors [s]
-  (prn "AUTHORS" (get-in @s [:ui :options :authors]))
   [:div {:class [:authors-options
                  :options-list
                  (if (get-in @s [:ui :options :authors]) :open)
