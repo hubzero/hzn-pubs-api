@@ -6,10 +6,7 @@
 
 (defonce s (r/atom {:data
                     {:content {} 
-                     :authors [{:name "J" :org "UCSD"}
-                               {:name "B" :org "UCSD"}
-                               {:name "G" :org "UCSD"}
-                               ]
+                     :authors []
                      :tags ["foo" "bar" "baz"]
                      :licenses [{:name "Attribution-NoDerivs 3.0 Unported"
                                  :detail "You are free: to Share — to copy, distribute and transmit the work, to Remix — to adapt the work, to make commercial use of the work"
@@ -29,14 +26,12 @@
 (defn on-js-reload [])
 
 (defn get-prj-id []
- (-> (.-cookie js/document)
-     (clojure.string/split #";")
-     (first)
-     (clojure.string/split #"=")
-     (last)
-     ;; This is for my lazy maker/debugger self - JBG
-     (as-> $ (if (> (count $) 0) $ "1")))
-     ;; End lazyness - JBG
+  (-> (.-cookie js/document)
+      (clojure.string/split #";")
+      (first)
+      (clojure.string/split #"=")
+      (last)
+      )
   )
 
 (defn ^:export run [prj-id]

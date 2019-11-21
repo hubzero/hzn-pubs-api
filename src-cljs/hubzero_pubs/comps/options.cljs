@@ -1,6 +1,8 @@
 (ns hubzero-pubs.comps.options
   (:require
     [hubzero-pubs.utils :as utils]
+    [hubzero-pubs.data :as data]
+    [hubzero-pubs.comps.panels :as panels]
     )
   )
 
@@ -15,15 +17,13 @@
 ;    )
   )
  
-(defn item [s i name]
+(defn item [s i name f]
   [:li
-   [:a {:href "#"}
+   [:a {:href "#" :on-click #(f s %)}
     [:div {:class :icon}
      [:svg [:use {:xlinkHref i}]]
      [:span {:class :name} name]
-     ]
-    name
-    ]
+     ] name]
    ]
   )
 
@@ -35,12 +35,20 @@
    [:div {:class :inner}
     (merge
       [:ul]
-      (item s "#icon-edit" "Rename")
-      (item s "#icon-download" "Download")
-      (item s "#icon-delete" "Remove")
+      (item s "#icon-edit" "Rename" #())
+      (item s "#icon-download" "Download" #())
+      (item s "#icon-delete" "Remove" #())
       ) 
     ]
    ]
+  )
+
+(defn handle-add-author [s e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (data/get-users s)
+  (panels/show-overlay s true)
+  (swap! s assoc-in [:ui :panels :authors-list] true)
   )
 
 (defn authors [s]
@@ -51,8 +59,8 @@
    [:div {:class :inner}
     (merge
       [:ul]
-      (item s "#icon-user" "Add from project")
-      (item s "#icon-user" "Add new")
+      (item s "#icon-user" "Add from project" handle-add-author)
+      (item s "#icon-user" "Add new" #())
       )
     ]
    ]

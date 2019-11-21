@@ -39,3 +39,16 @@
   [:div {:class :page-overlay :on-click #(close s) }]
   )
 
+(defn header [s title]
+  [:header
+   [:a {:href "#" :class :icon :on-click #(close s)}
+    (ui/icon s "#icon-left")
+    [:span {:class :name} "Return"]
+    ]
+   [:div {:class :content}
+    [:h1 title]
+    ]
+   ] 
+  )
+ 
+
