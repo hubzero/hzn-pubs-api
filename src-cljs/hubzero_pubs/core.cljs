@@ -10,7 +10,6 @@
                                {:name "B" :org "UCSD"}
                                {:name "G" :org "UCSD"}
                                ]
-                     :tags ["foo" "bar" "baz"]
                      :licenses [{:name "Attribution-NoDerivs 3.0 Unported"
                                  :detail "You are free: to Share — to copy, distribute and transmit the work, to Remix — to adapt the work, to make commercial use of the work"
                                  }]
@@ -40,8 +39,8 @@
   )
 
 (defn ^:export run [prj-id]
-;;  (token-request)
-  (prn "PROJECT" prj-id)
+  ;(token-request)
+  ;(prn "PROJECT" prj-id)
   (swap! s assoc :prj-id prj-id)
   (r/render [#(app/app s)] (js/document.getElementById "app")))
 
