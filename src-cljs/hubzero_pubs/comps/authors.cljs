@@ -8,8 +8,8 @@
 
 (defn user-click [s id key e]
   (swap! s update-in [:ui key id] not)
-  (if (get-in @s [:ui key id])
-    (swap! s update-in [:data key] remove #{id})
+  (if (some #{id} (get-in @s [:data key]))
+    (swap! s assoc-in [:data key] (remove #{id} (get-in @s [:data key])))
     (swap! s update-in [:data key] conj id)
     )
   )

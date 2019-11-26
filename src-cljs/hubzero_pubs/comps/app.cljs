@@ -41,18 +41,29 @@
    ] 
   )
 
-(defn author [s author]
-  [:li {:class :item :key (:name author)}
-   (ui/icon s "#icon-user")
-   [:div {:class :main}
-    [:div {:class :subject} [:a {:href "#"} (:name author)] ]
-    [:div {:class :meta} [:a {:href "#"} (:org author)] ]
-    [:div {:class [:ui :checkbox :inline :meta]}
-     [:input {:type :checkbox :name :poc}]
-     [:label (:for :poc) "Point of contact"]
+(defn handle-poc-click [s e id]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (if (some #{id} (get-in @s [:data :poc]))
+    (swap! s assoc-in [:data :poc] (remove #{id} (get-in @s [:data :poc])))
+    (swap! s update-in [:data :poc] conj id)
+    )
+  )
+
+(defn author [s id]
+  (let [author (get-in @s [:users id])]
+    [:li {:class :item :key (:fullname author)}
+     (ui/icon s "#icon-user")
+     [:div {:class :main}
+      [:div {:class :subject} [:a {:href "#"} (:fullname author)] ]
+      [:div {:class :meta} [:a {:href "#"} (:organization author)] ]
+      [:div {:class [:ui :checkbox :inline :meta] }
+      [:input (merge {:type :checkbox :name :poc :on-change #(handle-poc-click s % id)} {:checked (boolean (some #{id} (get-in @s [:data :poc]))) })]
+      [:label (:for :poc) "Point of contact"]
+       ]
+      ]
      ]
-    ]
-   ]
+    )
   )
 
 (defn image [s name]
@@ -67,7 +78,7 @@
   (key {
         :content (file s key name)
         :support-docs (file s key name)
-        :authors (author s name)
+        :authors-list (author s name)
         :images (image s name)
         })
   )
@@ -90,7 +101,7 @@
   )
 
 (defn selector-classes [s key classes]
-  (concat classes (key {:authors [:options :author-selector ]}))
+  (concat classes (key {:authors-list [:options :author-selector ]}))
   )
 
 (defn collection [s title key options-comp f]
@@ -103,9 +114,7 @@
           :class :selector-button
           :on-click #(f s % key)}
       (ui/icon s "#icon-plus")
-      ]  
-      options-comp
-     ]
+      ] options-comp ]
     ]
    ]
   )
@@ -181,7 +190,7 @@
     (textfield s "Title:" "title")
     (textarea s "Synopsis:" "synopsis")
     (collection s "Content:" :content nil handle-files-options)
-    (collection s "Authors:" :authors (options/authors s) handle-author-options)
+    (collection s "Authors:" :authors-list (options/authors s) handle-author-options)
     (licenses s)
     (agreements s)
    ]
