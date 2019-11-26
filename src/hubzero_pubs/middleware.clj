@@ -45,7 +45,7 @@
 (defn wrap-base [handler]
   (-> handler 
       ;(wrap-cookie-auth)
-      ;(wrap-defaults site-defaults)
-      (wrap-formats)
+      (wrap-defaults site-defaults)
+      ;(wrap-formats)
       )
   )

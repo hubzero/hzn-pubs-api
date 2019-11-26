@@ -39,6 +39,7 @@
 (defroutes api-routes
   (GET "/prjs/:id" [id] (classic/get-prj id))
   (GET "/prjs/:id/files" [id] (classic/get-files id))
+  (GET "/prjs/:id/users" [id] (classic/get-users id))
 
   (GET "/pubs/user" req {:body (:user req)})
   (GET "/pubs/licenses" [] (classic/get-licenses))

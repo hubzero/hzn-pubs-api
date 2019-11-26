@@ -4,6 +4,7 @@
     [hubzero-pubs.comps.panels :as panels]
     [hubzero-pubs.comps.files :as files]
     [hubzero-pubs.comps.tags :as tags]
+    [hubzero-pubs.comps.authors :as authors]
     [hubzero-pubs.comps.options :as options] 
     [hubzero-pubs.comps.ui :as ui] 
     )
@@ -74,11 +75,17 @@
 (defn items [s key]
   (merge 
     [:ul]
+<<<<<<< HEAD
     (doall
       (map #(item s % key) (as-> (get-in @s [:data key]) $
                              (if (map? $) (vals $) $)
                              ))  
       )
+=======
+    (doall (map #(item s % key) (as-> (get-in @s [:data key]) $
+                                  (if (map? $) (vals $) $)
+                                  )))
+>>>>>>> 85099684a63668c5044da2da06ba2b72d4d8c5ce
     )
   )
 
@@ -155,6 +162,16 @@
   )
 
 
+(defn handle-files-options [s e key]
+  (panels/show s e true key)
+  )
+
+(defn handle-author-options [s e key]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s assoc-in [:ui :options :authors] true) 
+  )
+
 (defn essentials [s]
   [:fieldset {:class :section}
    [:header
@@ -163,11 +180,8 @@
     ]
     (textfield s "Title:" "title")
     (textarea s "Synopsis:" "synopsis")
-    (collection s "Content:" :content nil (fn [s e key] (panels/show s e true key)))
-    (collection s "Authors:" :authors (options/authors s) (fn [s e key]
-                                                            (.stopPropagation e)
-                                                            (swap! s assoc-in [:ui :options :authors] true)
-                                                            ))
+    (collection s "Content:" :content nil handle-files-options)
+    (collection s "Authors:" :authors (options/authors s) handle-author-options)
     (licenses s)
     (agreements s)
    ]
@@ -176,12 +190,16 @@
 (defn additional-details [s]
   [:fieldset {:class :section}
    [:header [:legend "Additional Details"]]
-   (collection s "Image gallery:" :images nil
-               (fn [s e key] (panels/show s e true key)))
+   (collection s "Image gallery:" :images nil handle-files-options)
    (textfield s "External website URL:" "url")
+<<<<<<< HEAD
    (collection s "Supporting docs:" :support-docs nil
                (fn [s e key] (panels/show s e true key)))
    (tags/tags s)
+=======
+   (collection s "Supporting docs:" :support-docs nil handle-files-options)
+   (tags s)
+>>>>>>> 85099684a63668c5044da2da06ba2b72d4d8c5ce
    (collection s "Citations:" :citations nil #())
    (textarea s "Version release notes:" "release-notes")
    ]
@@ -269,6 +287,7 @@
     (files/files s :content)
     (files/files s :images)
     (files/files s :support-docs)
+    (authors/authors-list s :authors-list)
     )
   )
  

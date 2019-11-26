@@ -6,7 +6,7 @@
   (:gen-class)
   )
 
-(def file-root "/home/jbg/Development/hzcms-docker/data/srv/example/projects/")
+(def file-root "/home/jbg/Development/hub/data/srv/example/projects/")
 (def file-dir "/files")
 
 (def db {:dbtype "mysql"
@@ -50,6 +50,10 @@
   (sel-licenses)
   )
 
+(defn get-users [id]
+  (sel-prj-users {:id id})
+  )
+
 (comment
 
   (get-prj 1)
@@ -59,6 +63,8 @@
   (get-user 1001)
 
   (get-licenses)
+
+  (get-prj-users 1)
 
   )
 
