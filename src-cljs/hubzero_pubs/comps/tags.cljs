@@ -66,7 +66,10 @@
   )
 
 (defn tag [s name]
-  [:a {:href "#" :class :tag :key name :data-val name}
+  [:a {:href "#" :class :tag :key name :data-val name :on-click (fn [e]
+                                                                  (.preventDefault e)
+                                                                  (.stopPropagation e)
+                                                                  )}
    [:div {:class :inner} name
     [:div {:class [:remove :icon] :on-click #(remove-tag s %)}
      (ui/icon s "#icon-cross")

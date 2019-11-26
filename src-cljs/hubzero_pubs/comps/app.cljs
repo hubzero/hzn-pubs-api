@@ -86,17 +86,11 @@
 (defn items [s key]
   (merge 
     [:ul]
-<<<<<<< HEAD
     (doall
       (map #(item s % key) (as-> (get-in @s [:data key]) $
                              (if (map? $) (vals $) $)
                              ))  
       )
-=======
-    (doall (map #(item s % key) (as-> (get-in @s [:data key]) $
-                                  (if (map? $) (vals $) $)
-                                  )))
->>>>>>> 85099684a63668c5044da2da06ba2b72d4d8c5ce
     )
   )
 
@@ -201,14 +195,8 @@
    [:header [:legend "Additional Details"]]
    (collection s "Image gallery:" :images nil handle-files-options)
    (textfield s "External website URL:" "url")
-<<<<<<< HEAD
-   (collection s "Supporting docs:" :support-docs nil
-               (fn [s e key] (panels/show s e true key)))
-   (tags/tags s)
-=======
    (collection s "Supporting docs:" :support-docs nil handle-files-options)
-   (tags s)
->>>>>>> 85099684a63668c5044da2da06ba2b72d4d8c5ce
+   (tags/tags s)
    (collection s "Citations:" :citations nil #())
    (textarea s "Version release notes:" "release-notes")
    ]
