@@ -28,9 +28,7 @@
   )
 
 (defn show [s e show key]
-  (prn "SHOW SHOW SHOW" key)
   (.preventDefault e)
-  (data/get-files s)
   (swap! s assoc-in [:ui :panels key] show)
   (show-overlay s true)
   )

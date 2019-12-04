@@ -7,7 +7,6 @@
     ) 
   )
 
-
 (defn progress [s]
   [:div {:class [:ui :progress-bar]}
    [:div {:class :status}
@@ -95,20 +94,22 @@
   [:ul {:class [:ui :file-selector :item-selector]}
    (select-all s key index)
    (doall (map (fn [[path name]] (file s path name key)) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (last $)))))
-   (doall (map (fn [[path name]] (folders/folder s path name key (inc index))) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (second $)))))
+   (doall (map (fn [[path name]] (folders/folder s path name key (inc index) subpanel)) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (second $)))))
    ] 
-  )
-
-(defn container [s files key index]
-  [:div {:class :overlay-panel-container}
-   (file-selector s files key index)
-   ]
   )
 
 (defn subpanel [s files name key index]
   [:div {:id name :class [:panel-subpanel :as-panel :files :-open]}
    (file-selector s files key index)
    ] 
+  )
+ 
+(defn container [s files key index]
+  [:div {:class :overlay-panel-container}
+   (if (> (count files) 0)
+     (file-selector s files key index)
+     )
+   ]
   )
 
 (defn files [s key]

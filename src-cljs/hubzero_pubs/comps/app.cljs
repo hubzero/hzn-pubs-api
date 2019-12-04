@@ -1,11 +1,13 @@
 (ns hubzero-pubs.comps.app
   (:require
     [hubzero-pubs.utils :as utils]
+    [hubzero-pubs.data :as data]
     [hubzero-pubs.comps.panels :as panels]
     [hubzero-pubs.comps.files :as files]
     [hubzero-pubs.comps.tags :as tags]
     [hubzero-pubs.comps.authors :as authors]
     [hubzero-pubs.comps.options :as options] 
+    [hubzero-pubs.comps.licenses :as licenses] 
     [hubzero-pubs.comps.ui :as ui] 
     )
   )
@@ -98,19 +100,44 @@
   (concat classes (key {:authors-list [:options :author-selector ]}))
   )
 
+(defn selector-button [s key options-comp f]
+  [:div {:class (selector-classes s key [:selector]) }
+   [:a {:href "#"
+        :class :selector-button
+        :on-click #(f s % key)}
+    (ui/icon s "#icon-plus")
+    ] options-comp]
+  )
+
 (defn collection [s title key options-comp f]
   [:div {:class :field}
    [:label {:for :title} title]
    [:div {:class :collection}
     (items s key)
-    [:div {:class (selector-classes s key [:selector]) }
-     [:a {:href "#"
-          :class :selector-button
-          :on-click #(f s % key)}
-      (ui/icon s "#icon-plus")
-      ] options-comp ]
+    (selector-button s key options-comp f)
     ]
    ]
+  )
+
+(defn acknowledge [s]
+  [:div {:class [:details :last-child]}
+   [:div {:class :inner}
+    [:header "License acknowledgement"]
+    [:div {:class [:ui :checkbox :inline] }
+     [:input {:type :checkbox
+              :class :important
+              :name :ack
+              :checked (get-in @s [:data :ack])
+              :on-change #(swap! s update-in [:data :ack] not)
+              } ]
+     [:label {:for :poc}
+      "I have read the "
+      [:a {:href "#"} "license terms"]
+      " and agree to license my work under the attribution 3.0 unported license."
+      ]
+     ]
+    ]
+   ] 
   )
 
 (defn license-item [s name detail]
@@ -122,31 +149,28 @@
    ]
   )
 
-(defn acknowledge [s]
-  [:div {:class [:details :last-child]}
-   [:div {:class :inner}
-    [:header "License acknowledgement"]
-    [:div {:class [:ui :checkbox :inline]}
-     [:input {:type :checkbox :class :important :name :poc} ]
-     [:label {:for :poc}
-      "I have read the "
-      [:a {:href "#"} "license terms"]
-      " and agree to license my work under the attribution 3.0 unported license."
-      ]
-     ]
-    ]
-   ] 
+(defn handle-licenses-options [s e key]
+  (data/get-licenses s)
+  (panels/show s e true key)
   )
-
+ 
 (defn licenses [s]
   [:div {:class :field}
    [:label {:for :title} "License:"]
    (merge
      [:div {:class [:collection :single-item]}
-      (map (fn [l]
-             (license-item s (:name l) (:detail l))
-             ) (get-in @s [:data :licenses]))
+      [:div {:class :item}
+       [:div {:class :main}
+        [:header {:class :subject}
+         (get-in @s [:data :licenses :title])
+         ]
+        [:div {:class :meta}
+         (get-in @s [:data :licenses :info])
+         ]
+        ] 
+       ]
       (acknowledge s)
+      (selector-button s :licenses nil handle-licenses-options)
       ]   
      )
    ]
@@ -164,10 +188,11 @@
    ]
   )
 
-
 (defn handle-files-options [s e key]
+  (data/get-files s)
   (panels/show s e true key)
   )
+
 
 (defn handle-author-options [s e key]
   (.preventDefault e)
@@ -185,6 +210,7 @@
     (textarea s "Synopsis:" "synopsis")
     (collection s "Content:" :content nil handle-files-options)
     (collection s "Authors:" :authors-list (options/authors s) handle-author-options)
+    ;(collection s "License:" :licenses nil handle-licenses-options)
     (licenses s)
     (agreements s)
    ]
@@ -284,7 +310,8 @@
     (files/files s :content)
     (files/files s :images)
     (files/files s :support-docs)
-    (authors/list s :authors-list)
+    (authors/authors-list s :authors-list)
+    (licenses/license-list s :licenses)
     )
   )
  

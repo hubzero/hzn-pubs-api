@@ -6,7 +6,7 @@
   (:gen-class)
   )
 
-(def file-root "/home/jbg/Development/hub/data/srv/example/projects/")
+(def file-root "/home/jbg/Development/hzcms-docker/data/srv/example/projects/")
 (def file-dir "/files")
 
 (def db {:dbtype "mysql"

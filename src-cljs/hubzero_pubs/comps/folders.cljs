@@ -68,7 +68,7 @@
     )
   )
 
-(defn folder-selected? [s key index]
+(defn _folder-selected? [s key index]
   (as-> (:files @s) $
     (nth $ index) 
     (first $)
@@ -82,11 +82,15 @@
 
                 c)
               )
-            true (:files @s))
-    )
+            true (:files @s)) 
+    )  
   )
- 
-(defn folder [s path name key index]
+
+(defn folder-selected? [s key index]
+  (if (= (count (:files @s)) 0) false (_folder-selected? s key index))
+  )
+
+(defn folder [s path name key index subpanel]
   [:li {:key name :on-click #(folder-push s name path %)}
    [:div {:class [:inner :folder]}
     [:div {:class [:selected-indicator (if (folder-selected? s key index) :selected)] :on-click #(folder-click s key index %)}
