@@ -83,6 +83,18 @@
 	}
 }
 
+.padItemVerticallyBottom() {
+	padding-bottom: @padItem;
+
+	@media (min-width: @sizeM) {
+		padding-bottom: @padItemM;
+	}
+
+	@media (min-width: @sizeL) {
+		padding-bottom: @padItemL;
+	}
+}
+
 .padListItemVertically() {
 	padding-top: @padListItem;
 	padding-bottom: @padListItem;

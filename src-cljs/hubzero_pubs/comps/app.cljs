@@ -314,7 +314,7 @@
     (files/files s :content)
     (files/files s :images)
     (files/files s :support-docs)
-    (authors/authors-list s :authors-list)
+    (authors/list s :authors-list)
     )
   )
  

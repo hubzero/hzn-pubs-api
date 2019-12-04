@@ -40,3 +40,13 @@
         ))
   )
 
+(defn get-licenses [s]
+  (prn "GET-LICENSES" (str url "/pubs/licenses"))
+  (go (let [res (<! (http/get (str url "/pubs/licenses") (options s)))]
+        (prn (:body res))
+        (->>
+          (cljs.reader/read-string (:body res))
+          (swap! s assoc :licenses))
+        ))
+  )
+

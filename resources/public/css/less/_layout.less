@@ -16,84 +16,85 @@ body {
 		padding-top: 2rem;
 		display: flex;
 	}
-}
 
-.page > main {
+	& > main {
 
-	@media (min-width: @sizeL) {
-		flex-grow: 1;
-	}
-}
-
-.page > aside {
-	display: none;
-	max-width: 350px;
-
-	.notification {
-		background: #fff;
-		box-shadow: @layerShadow;
-		.padVertically();
-		.padFormInputHorizontally();
-
-		& > fieldset:last-child {
-			padding-bottom: 0;
-		}
-
-		header {
-			.text('xl');
-			font-weight: @fontWeightB;
-			line-height: 1.4em;
-		}
-	}
-}
-
-.page > aside:first-child {
-	padding-right: 4rem;
-	.text('sm');
-	min-width: 125px;
-
-	nav {
-		.padVertically();
-	}
-
-	ul,
-	li {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-
-	header {
-		text-transform: uppercase;
-		margin-bottom: 1rem;
-		font-weight: @fontWeightB;
-	}
-
-	ul {
-		margin-bottom: 2rem;
-
-		li {
-			line-height: 1.2em;
-			padding-top: 0.3rem;
-			padding-bottom: 0.3rem;
+		@media (min-width: @sizeL) {
+			flex-grow: 1;
 		}
 	}
 
-	@media (min-width: @sizeL) {
-		display: block;
+	& > aside {
+		display: none;
+		max-width: 350px;
+
+		.notification {
+			background: #fff;
+			box-shadow: @layerShadow;
+			.padVertically();
+			.padFormInputHorizontally();
+
+			& > fieldset:last-child {
+				padding-bottom: 0;
+			}
+
+			header {
+				.text('xl');
+				font-weight: @fontWeightB;
+				line-height: 1.4em;
+			}
+		}
+
+		&:first-child {
+			padding-right: 4rem;
+			.text('sm');
+			min-width: 125px;
+
+			nav {
+				.padVertically();
+			}
+
+			ul,
+			li {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+			}
+
+			header {
+				text-transform: uppercase;
+				margin-bottom: 1rem;
+				font-weight: @fontWeightB;
+			}
+
+			ul {
+				margin-bottom: 2rem;
+
+				li {
+					line-height: 1.2em;
+					padding-top: 0.3rem;
+					padding-bottom: 0.3rem;
+				}
+			}
+
+			@media (min-width: @sizeL) {
+				display: block;
+			}
+		}
+
+		&:last-child {
+			padding-left: 2rem;
+			flex-basis: 300px;
+
+			@media (min-width: @sizeLL) {
+				display: block;
+			}
+		}
 	}
 }
 
-.page > aside:last-child {
-	padding-left: 2rem;
-	flex-basis: 300px;
-
-	@media (min-width: @sizeLL) {
-		display: block;
-	}
-}
-
-fieldset.section {
+fieldset.section,
+section.fieldset {
 	padding-bottom: 3rem;
 	background: #fff;
 
@@ -107,6 +108,10 @@ fieldset.section {
 			box-shadow: none;
 		}
 	}
+
+	&.no-header {
+		padding-top: 2rem;
+	}
 }
 
 .field,
@@ -118,7 +123,7 @@ fieldset > header {
 	margin-bottom: 1.3rem;
 
 	.subject {
-		font-weight: @fontWeightM;
+		//font-weight: @fontWeightM;
 		margin-bottom: 0.4em;
 	}
 
@@ -134,10 +139,17 @@ fieldset > header {
 	}
 
 	input[type="text"],
-	textarea {
+	textarea,
+	.formatted-meta {
 	//.collection > .details > .inner {
 		.padFormInput();
 	}
+
+	.formatted-meta {
+		background: lightyellow;
+		border: 1px solid @colorDivider;
+	}
+
 
 	.field-wrapper .item,
 	.collection .item,
@@ -371,6 +383,13 @@ fieldset > header {
 				border-bottom: none;
 			}
 		}
+	}
+
+	.hint {
+		font-size: 0.7rem;
+		margin-top: 5px;
+		margin-bottom: 0;
+		line-height: 1.2em;
 	}
 }
 
