@@ -315,6 +315,7 @@
     (files/files s :images)
     (files/files s :support-docs)
     (authors/authors-list s :authors-list)
+    (authors/authors-new s :authors-new)
     (licenses/license-list s :licenses)
     )
   )

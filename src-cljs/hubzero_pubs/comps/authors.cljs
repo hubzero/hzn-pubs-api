@@ -49,4 +49,36 @@
    ]
   )
 
+(defn buttons-new [s key]
+  [:div {:class [:field :buttons]}
+   [:a {:class :btn :href "#"} "Add author"]
+   [:a {:class [:btn :secondary] :href "#"} "Close"]
+   ] 
+  )
+
+(defn fieldset [s key fields] 
+  [:fieldset {:class key}
+   (merge
+     [:div {:class :selected-item}]
+     (doall (map #(panels/field s key %) fields ))   
+     (buttons-new s key)
+     )
+   ]
+  )
+
+(defn authors-new [s key]
+  [:div {:class [:page-panel :as-panel key (if (get-in @s [:ui :panels key]) :open)]}
+   [:div {:class :inner}
+    (panels/header s "Add new authors")
+    (fieldset s key [ {:name "firstname" :label "First name" :type :text}
+                     {:name "lastname" :label "Last name" :type :text}
+                     {:name "organization" :label "Organization" :type :text}
+                     {:name "email" :label "Email" :type :text}
+                     {:name "buttons" :type :author-buttons}
+                     ])
+    ]
+   ]
+  )
+
+
 

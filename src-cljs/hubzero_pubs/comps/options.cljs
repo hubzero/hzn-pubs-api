@@ -51,6 +51,13 @@
   (swap! s assoc-in [:ui :panels :authors-list] true)
   )
 
+(defn handle-new-author [s e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (panels/show-overlay s true)
+  (swap! s assoc-in [:ui :panels :authors-new] true)
+  )
+
 (defn authors [s]
   [:div {:class [:authors-options
                  :options-list
@@ -60,7 +67,7 @@
     (merge
       [:ul]
       (item s "#icon-user" "Add from project" handle-add-author)
-      (item s "#icon-user" "Add new" #())
+      (item s "#icon-user" "Add new" handle-new-author)
       )
     ]
    ]

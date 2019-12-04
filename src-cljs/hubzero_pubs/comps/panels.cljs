@@ -48,5 +48,21 @@
     ]
    ] 
   )
- 
+
+(defn textfield [s key name]
+  [:input {:type :text
+           :on-change #(swap! s assoc-in [:data key (keyword name)]
+                              (-> % .-target .-value)          
+                              )}]
+  )
+
+(defn field [s key f]
+  [:div {:class :field :key (:name f)}
+   [:label {:for (:name f)} (:label f)]
+   ((:type f) {
+               :text (textfield s key (:name f))
+               })
+   ]
+  )
+
 

@@ -61,6 +61,10 @@
                            :output-dir "resources/public/js/compiled/out"
                            :source-map-timestamp true
                            ;; To console.log CLJS data-structures make sure you enable devtools in Chrome
+                           ;:install-deps true
+                           ;:npm-deps {:react "^16.12.0"
+                           ;           :react-dom "^16.12.0"
+                           ;           :react-date-picker "^7.9.0"}
                            ;; https://github.com/binaryage/cljs-devtools
                            :preloads [devtools.preload]}}
                ;; This next build is a compressed minified build for
