@@ -181,8 +181,12 @@
    [:label {:for :agreement} "Agreements"]
    [:div {:class :field-wrapper}
     [:div {:class [:item :ui :checkbox :inline]}
-     [:input {:type :checkbox :name :poc}]
-     [:label {:for :pox} "I and all publication authors have read and agree to PURR terms of deposit."]
+     [:input {:type :checkbox
+              :name :terms
+              :checked (get-in @s [:data :terms])
+              :on-change #(swap! s update-in [:data :terms] not)
+              }]
+     [:label {:for :terms} "I and all publication authors have read and agree to PURR terms of deposit."]
      ]
     ]
    ]
