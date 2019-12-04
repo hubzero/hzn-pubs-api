@@ -3,6 +3,7 @@
     [hubzero-pubs.utils :as utils]
     [hubzero-pubs.comps.panels :as panels]
     [hubzero-pubs.comps.files :as files]
+    [hubzero-pubs.comps.tags :as tags]
     [hubzero-pubs.comps.authors :as authors]
     [hubzero-pubs.comps.options :as options] 
     [hubzero-pubs.comps.ui :as ui] 
@@ -85,9 +86,11 @@
 (defn items [s key]
   (merge 
     [:ul]
-    (doall (map #(item s % key) (as-> (get-in @s [:data key]) $
-                                  (if (map? $) (vals $) $)
-                                  )))
+    (doall
+      (map #(item s % key) (as-> (get-in @s [:data key]) $
+                             (if (map? $) (vals $) $)
+                             ))  
+      )
     )
   )
 
@@ -161,39 +164,6 @@
    ]
   )
 
-(defn tag-creator [s]
-  [:a {:href "#" :class [:tag :creator]}
-   [:div {:class :inner}
-    [:div {:class [:add :icon]}
-     (ui/icon s "#icon-plus")
-     ]
-    "Add new tag"
-    ]
-   ]
-  )
-
-(defn tag [s name]
-  [:a {:href "#" :class :tag :key name}
-   [:div {:class :inner} name
-    [:div {:class [:remove :icon]}
-     (ui/icon s "#icon-cross")
-     ]
-    ]
-   ]
-  )
-
-(defn tags [s]
-  [:div {:class :field}
-   [:label {:for :tags} "Tags:"]
-   [:div {:class :field-wrapper}
-    (merge
-      [:div {:class [:item :ui :tags]}]
-      (map #(tag s %)  (get-in @s [:data :tags]))
-      (tag-creator s)
-      )
-    ]
-   ]
-  )
 
 (defn handle-files-options [s e key]
   (panels/show s e true key)
@@ -226,7 +196,7 @@
    (collection s "Image gallery:" :images nil handle-files-options)
    (textfield s "External website URL:" "url")
    (collection s "Supporting docs:" :support-docs nil handle-files-options)
-   (tags s)
+   (tags/tags s)
    (collection s "Citations:" :citations nil #())
    (textarea s "Version release notes:" "release-notes")
    ]
