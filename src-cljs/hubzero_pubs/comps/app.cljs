@@ -232,10 +232,33 @@
    ]
   )
 
+(defn pub-date [s]
+  [^{:component-did-mount
+     (fn []
+       (js/Lightpick. (clj->js {:field (.querySelector js/document "input[name=publication-date]")
+                                :onSelect (fn [date]
+                                            (swap! s assoc-in [:data :publication-date] (.format date "Do MMMM YYYY"))
+                                            )
+                                }))
+
+       (set! (.-value (.querySelector js/document "input[name=publication-date]")) (get-in @s [:data :publication-date]))
+       )
+     }
+   (fn []
+     [:div {:class :field}
+      [:label {:for :title} "Publication date:"]
+      [:input {:type :text
+               :name "publication-date" 
+               }]
+      ]
+     )
+   ]
+  )
+
 (defn publish-settings [s]
   [:fieldset {:class :section}
    [:header [:legend "Publish Settings"]]
-    (textfield s "Publication date:" "publication-date")
+    (pub-date s)
     (textarea s "Comments to the administrator:" "comments")
    ]
   )

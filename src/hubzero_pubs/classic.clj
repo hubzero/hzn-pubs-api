@@ -54,7 +54,13 @@
   (sel-prj-users {:id id})
   )
 
+(defn search-users [name]
+  (sel-users {:name name})
+  )
+
 (comment
+
+  (search-users "%j%")
 
   (get-prj 1)
 
@@ -65,6 +71,7 @@
   (get-licenses)
 
   (get-prj-users 1)
+
 
   )
 

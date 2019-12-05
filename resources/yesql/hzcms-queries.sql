@@ -6,6 +6,10 @@ SELECT * FROM jos_session WHERE session_id = :session_id
 --
 SELECT username FROM jos_users WHERE id = :user_id
 
+-- name: sel-users
+--
+SELECT u.id, u.name, u.username, u.access, (LOWER(u.name) LIKE :name OR LOWER(u.givenName) LIKE :name OR LOWER(u.surname) LIKE :name) as rel FROM `jos_users` AS u WHERE (LOWER(u.name) LIKE :name OR LOWER(u.givenName) LIKE :name OR LOWER(u.surname) LIKE :name) AND u.block=0 AND u.activation>0 AND u.email NOT LIKE '%@invalid' ORDER BY rel DESC, u.name ASC LIMIT 0,20
+
 -- name: sel-prj
 --
 SELECT * FROM jos_projects WHERE id = :id
