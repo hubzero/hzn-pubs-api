@@ -8,7 +8,7 @@ SELECT username FROM jos_users WHERE id = :user_id
 
 -- name: sel-users
 --
-SELECT u.id, u.name, u.username, u.access, (LOWER(u.name) LIKE :name OR LOWER(u.givenName) LIKE :name OR LOWER(u.surname) LIKE :name) as rel FROM `jos_users` AS u WHERE (LOWER(u.name) LIKE :name OR LOWER(u.givenName) LIKE :name OR LOWER(u.surname) LIKE :name) AND u.block=0 AND u.activation>0 AND u.email NOT LIKE '%@invalid' ORDER BY rel DESC, u.name ASC LIMIT 0,20
+SELECT u.id, u.name, u.username, u.email, up.profile_value AS 'org', u.access, (LOWER(u.name) LIKE :name OR LOWER(u.givenName) LIKE :name OR LOWER(u.surname) LIKE :name) as rel FROM `jos_users` AS u LEFT JOIN `jos_user_profiles` AS up ON u.id=up.user_id WHERE (LOWER(u.name) LIKE :name OR LOWER(u.givenName) LIKE :name OR LOWER(u.surname) LIKE :name) AND u.block=0 AND u.activation>0 AND u.email NOT LIKE '%@invalid' AND up.profile_key = 'organization' ORDER BY rel DESC, u.name ASC LIMIT 0,20
 
 -- name: sel-prj
 --

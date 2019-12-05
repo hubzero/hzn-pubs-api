@@ -47,6 +47,7 @@
   (POST "/pubs" {body :body} (->> (data2edn body) (create-pub)))
   (POST "/pubs/:id/files" req (handle-file req))
 
+  (GET "/users/:name" [name] (classic/search-users name))
   )
 
 (defroutes ui-routes

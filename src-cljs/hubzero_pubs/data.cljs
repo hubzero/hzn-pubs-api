@@ -40,6 +40,17 @@
         ))
   )
 
+(defn search-users [s]
+  (prn "SEARCH-USERS" (str url "/users/" (:user-query @s)))
+  (go (let [res (<! (http/get (str url "/users/" (:user-query @s))
+                              (options s)))]
+        (prn (:body res))
+        (->>
+          (cljs.reader/read-string (:body res))
+          (swap! s assoc :user-results))
+        ))
+  )
+
 (defn get-licenses [s]
   (prn "GET-LICENSES" (str url "/pubs/licenses"))
   (go (let [res (<! (http/get (str url "/pubs/licenses") (options s)))]
