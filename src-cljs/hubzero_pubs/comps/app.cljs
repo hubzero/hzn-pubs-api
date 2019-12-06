@@ -52,20 +52,18 @@
     )
   )
 
-(defn author [s id]
-  (let [author (get-in @s [:users id])]
-    [:li {:class :item :key (:fullname author)}
-     (ui/icon s "#icon-user")
-     [:div {:class :main}
-      [:div {:class :subject} [:a {:href "#"} (:fullname author)] ]
-      [:div {:class :meta} [:a {:href "#"} (:organization author)] ]
-      [:div {:class [:ui :checkbox :inline :meta] }
-      [:input (merge {:type :checkbox :name :poc :on-change #(handle-poc-click s % id)} {:checked (boolean (some #{id} (get-in @s [:data :poc]))) })]
-      [:label (:for :poc) "Point of contact"]
-       ]
-      ]
+(defn author [s author]
+  [:li {:class :item :key (:id author)}
+   (ui/icon s "#icon-user")
+   [:div {:class :main}
+    [:div {:class :subject} [:a {:href "#"} (:name author)] ]
+    [:div {:class :meta} [:a {:href "#"} (:org author)] ]
+    [:div {:class [:ui :checkbox :inline :meta] }
+     [:input (merge {:type :checkbox :name :poc :on-change #(handle-poc-click s % (:id author))} {:checked (boolean (some #{(:id author)} (get-in @s [:data :poc]))) })]
+     [:label (:for :poc) "Point of contact"]
      ]
-    )
+    ]
+   ] 
   )
 
 (defn image [s name]
@@ -97,7 +95,10 @@
   )
 
 (defn selector-classes [s key classes]
-  (concat classes (key {:authors-list [:options :author-selector ]}))
+  (concat classes (key {:authors-list [:options
+                                       :author-selector
+                                       (if (get-in @s [:ui :options :authors]) :open)
+                                       ]}))
   )
 
 (defn selector-button [s key options-comp f]

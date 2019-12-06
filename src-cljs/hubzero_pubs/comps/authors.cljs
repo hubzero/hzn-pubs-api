@@ -7,16 +7,19 @@
     ) 
   )
 
-(defn user-click [s id key e]
-  (swap! s update-in [:ui key id] not)
-  (if (some #{id} (get-in @s [:data key]))
-    (swap! s assoc-in [:data key] (remove #{id} (get-in @s [:data key])))
-    (swap! s update-in [:data key] conj id)
+(defn user-click [s u key e]
+  (swap! s update-in [:ui key (:id u)] not)
+  (if (get-in @s [:data key (:id u)])
+    (swap! s update-in [:data key] dissoc (:id u))
+    (swap! s assoc-in [:data key (:id u)] u)
     )
   )
 
 (defn user [s key u]
-  [:li {:key (:userid u) :on-click #(user-click s (:userid u) key %)}
+  [:li {:key (:userid u) :on-click #(user-click s {:id (:userid u)
+                                                   :name (:name u)
+                                                   :organization (:organization u)
+                                                   } key %)}
    [:div {:class :inner}
     [:div {:class [:selected-indicator (if (get-in @s [:ui key (:userid u)]) :selected)] }
      [:div {:class :icon}
@@ -50,21 +53,45 @@
    ]
   )
 
+(defn add-click [s key e u]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s update-in [:data :authors-list] assoc (:id u) u)
+  )
+
 (defn buttons-new [s key]
   [:div {:class [:field :buttons]}
-   [:a {:class :btn :href "#"} "Add author"]
-   [:a {:class [:btn :secondary] :href "#"} "Close"]
+   [:a {:class :btn
+        :href "#"
+        :on-click #(add-click s key  % {:id (get-in @s [:data key :id]) 
+                                        :name (get-in @s [:data key :name]) 
+                                        :organization (get-in @s [:data key :organization]) 
+                                        })
+        } "Add author"]
+   [:a {:class [:btn :secondary]
+        :href "#"
+        :on-click #(panels/close s)
+        } "Close"]
    ] 
+  )
+
+(defn result-click [s key e res]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s assoc-in [:data key :firstname] (str (:givenname res) " " (:middlename res)) ) 
+  (swap! s assoc-in [:data key :lastname] (:surname res))
+  (swap! s assoc-in [:data key :organization] (:org res))
+  (swap! s assoc-in [:data key :email] (:email res))
+  (swap! s assoc-in [:data key :id] (:id res))
+  (swap! s assoc-in [:data key :name] (:name res))
+  (swap! s assoc :user-query "")
+  (swap! s assoc :user-results nil)
   )
 
 (defn result [s key res]
   [:li {:class :result :key (str (:name res) (:org res))}
    [:a {:href "#"
-        :on-click (fn [e]
-                    (.preventDefault e)
-                    (.stopPropagation e)
-                    (prn "CLICK" @s)
-                    (swap! s assoc :sel-auth res))
+        :on-click #(result-click s key % res)
         } (:name res) ", " [:span (:org res)]]
    ]
   )
@@ -80,6 +107,7 @@
    [:label {:for :title} "Look up author:"]
    [:input {:class [:form-textinput :loading-circle :hide-loading-circle]
             :type :text
+            :value (:user-query @s)
             :onChange (fn [e]
                         (swap! s assoc :user-query (-> e .-target .-value))
                         (data/search-users s)

@@ -51,6 +51,7 @@
 
 (defn textfield [s key name]
   [:input {:type :text
+           :value (get-in @s [:data key (keyword name)])
            :on-change #(swap! s assoc-in [:data key (keyword name)]
                               (-> % .-target .-value)          
                               )}]
