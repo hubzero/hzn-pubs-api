@@ -9,6 +9,7 @@
     [hubzero-pubs.comps.options :as options] 
     [hubzero-pubs.comps.licenses :as licenses] 
     [hubzero-pubs.comps.ui :as ui] 
+    [hubzero-pubs.comps.summary :as summary] 
     )
   )
 
@@ -276,7 +277,10 @@
 (defn section-buttons [s]
   [:fieldset {:class [:section :buttons]}
    [:div {:class [:field :buttons]}
-    [:a {:href "#" :class :btn} "Proceed with the draft"]
+    [:a {:href "#"
+         :class :btn
+         :on-click #(swap! s assoc-in [:ui :summary] true)
+         } "Proceed with the draft"]
     ]
    ]
   )
@@ -315,8 +319,12 @@
    ]
   )
 
-(defn page [s]
-  [:div {:class :page}
+(defn page-main [s]
+  [:div {:class (concat [:page :page-main :--remove]
+                        (if (get-in @s [:ui :summary])
+                          [:hide :remove]
+                          )
+                        ) }
    (navigation s) 
    (main-form s)
    (aside-buttons s)
@@ -325,10 +333,12 @@
 
 (defn wrap [s]
   [:div {:class :wrap :on-click (fn [e] (options/close s)) }
-   [:header
-    [:h1 "New Publication"]
-    (page s)
-    ]])
+   [:header [:h1 "New Publication"]]
+   (if (get-in @s [:ui :summary])
+     (summary/page-summary s) 
+     (page-main s)
+     ) 
+   ])
 
 (defn app [s]
   (merge
