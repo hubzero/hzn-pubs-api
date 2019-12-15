@@ -28,6 +28,13 @@
    ]
   )
 
+(defn image [s i]
+  [:li {:class :item :key i}
+   [:div {:class :icon} (ui/icon s "#icon-file-picture")]
+   [:div {:class :main} i]
+   ]
+  )
+
 (defn collection [s key type]
   [:div {:class [:collection :collection-summary]}
    (merge
@@ -35,6 +42,7 @@
      (doall
        (map (fn [i] ((type {:files #(file s i)
                             :authors-list #(author s i)
+                            :images #(image s i)
                             }))) (vals (get-in @s key)))
        )
      )
@@ -46,7 +54,7 @@
    [:div {:class :inner}
     [:header "License acknowledgement"]
     [:p {:class :font-small}
-     (str "You have read the license terms and agreed to license you work under...")
+     (str "You have read the license terms and agreed to license you work under " (get-in @s [:data :licenses :name]) ".")
      ]
     ]
    ]
@@ -64,27 +72,67 @@
    ]
   )
 
+(defn tag [s t]
+  [:div {:class :tag :key t} [:div {:class :inner} t]]
+  )
+
+(defn tags [s key type]
+  [:div {:class [:item :ui :tags]}
+   (doall (map #(tag s %) (get-in @s [:data :tags]))) ] 
+  )
+
+(defn _type [s key type bold?]
+  ((type {:text #(field s key bold?)               
+          :files #(collection s key type)
+          :authors-list #(collection s key type)
+          :license #(license s (get-in @s key))
+          :images #(collection s key type)
+          :tags #(tags s key type)
+          }))
+  )
+
+(defn essentials [s]
+  [:section {:class [:fieldset :no-header]}
+   (doall (map
+            (fn [[key label type bold?]]
+              [:div {:class [:field :field-summary] :key label}
+               [:p {:class :label} (str label ":")] 
+               (_type s key type bold?)             
+               ]
+              )
+            [[[:data :title] "Title" :text true]
+             [[:data :synopsis] "Synopsis" :text false]
+             [[:data :content] "Content" :files false]
+             [[:data :authors-list] "Authors" :authors-list false]
+             [[:data :licenses] "License" :license false]
+             [[:terms] "Agreements" :text false]
+             ]))
+   ]
+  )
+
+(defn additional [s]
+  [:section {:class [:fieldset :no-header]}
+   (doall (map 
+            (fn [[key label type bold?]]
+              [:div {:class [:field :field-summary] :key label}
+               [:p {:class :label} (str label ":")]
+               (_type s key type bold?) 
+               ]
+              )
+            [[[:data :images] "Image Gallery" :images false]
+             [[:data :url] "External website URL" :text false]
+             [[:data :support-docs] "Supporting documents" :files false]
+             [[:data :tags] "Tags" :tags false]
+             ;[[:data :citations] "Citations" :files false]
+             ]
+            ))
+   ]
+  )
+
 (defn main [s]
   [:main
-   [:section {:class [:fieldset :no-header]}
-    (doall (map
-             (fn [[key label type bold?]]
-               [:div {:class [:field :field-summary] :key label}
-                [:p {:class :label} (str label ":")] 
-                ((type {:text #(field s key bold?)               
-                        :files #(collection s key type)
-                        :authors-list #(collection s key type)
-                        :license #(license s (get-in @s key))
-                        }))
-                ]
-               )
-             [[[:data :title] "Title" :text true]
-              [[:data :synopsis] "Synopsis" :text false]
-              [[:data :content] "Content" :files false]
-              [[:data :authors-list] "Authors" :authors-list false]
-              [[:data :licenses] "License" :license false]
-              ]))
-    ]
+   (essentials s)   
+   (additional s)
    ]
   )
 

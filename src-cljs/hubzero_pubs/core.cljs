@@ -7,18 +7,16 @@
 (defonce s (r/atom {:data
                     {:content {} 
                      :authors []
-                     :licenses [{:name "Attribution-NoDerivs 3.0 Unported"
-                                 :detail "You are free: to Share — to copy, distribute and transmit the work, to Remix — to adapt the work, to make commercial use of the work"
-                                 }]
+                     :licenses []
                      :citations ["Paskin, N. (1999). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
-                                 "Paskin, N. (2001). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"
-                                 ]
+                                 "Paskin, N. (2001). Toward unique identifiers. Proceedings of the IEEE, 87(7), 1208–1227. doi:10.1109/5.771073"]
                      :usage {:size 1.25
                              :units "GB"
                              :percent "25"
                              :max 5
                              }
                      }
+                    :terms "I and all publication authors have read and agree to PURR terms of deposit."
                     }
                    ))
 

@@ -188,7 +188,7 @@
               :checked (get-in @s [:data :terms])
               :on-change #(swap! s update-in [:data :terms] not)
               }]
-     [:label {:for :terms} "I and all publication authors have read and agree to PURR terms of deposit."]
+     [:label {:for :terms} (:terms @s)]
      ]
     ]
    ]
