@@ -48,6 +48,7 @@
   (POST "/pubs/:id/files" req (handle-file req))
 
   (GET "/users/:name" [name] (classic/search-users name))
+  (GET "/citations/:doi" [doi] (classic/search-citations doi))
   )
 
 (defroutes ui-routes

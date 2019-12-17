@@ -76,9 +76,8 @@
 (defn handle-doi [s e]
   (.preventDefault e)
   (.stopPropagation e)
-  ;(data/get-users s)
-  ;(panels/show-overlay s true)
-  ;(swap! s assoc-in [:ui :panels :authors-list] true)
+  (panels/show-overlay s true)
+  (swap! s assoc-in [:ui :panels :citations-doi] true)
   )
 
 (defn handle-manual [s e]

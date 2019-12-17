@@ -8,6 +8,7 @@
     [hubzero-pubs.comps.authors :as authors]
     [hubzero-pubs.comps.options :as options] 
     [hubzero-pubs.comps.licenses :as licenses] 
+    [hubzero-pubs.comps.citations :as citations] 
     [hubzero-pubs.comps.ui :as ui] 
     [hubzero-pubs.comps.summary :as summary] 
     )
@@ -99,7 +100,12 @@
   (concat classes (key {:authors-list [:options
                                        :author-selector
                                        (if (get-in @s [:ui :options :authors]) :open)
-                                       ]}))
+                                       ]
+                        :citations [:options
+                                    :citations-selector
+                                    (if (get-in @s [:ui :options :citations]) :open)
+                                    ]
+                        }))
   )
 
 (defn selector-button [s key options-comp f]
@@ -356,6 +362,7 @@
     (authors/authors-list s :authors-list)
     (authors/authors-new s :authors-new)
     (licenses/license-list s :licenses)
+    (citations/doi s :citations-doi)
     )
   )
  

@@ -58,7 +58,7 @@
   (sel-users {:name name})
   )
 
-(defn get-citations [doi]
+(defn search-citations [doi]
   (sel-citations {:doi (str "%" doi "%")})
   )
 
@@ -76,9 +76,7 @@
 
   (get-prj-users 1)
 
-  (get-citations "10")
-
-
+  (search-citations "10")
 
   )
 
