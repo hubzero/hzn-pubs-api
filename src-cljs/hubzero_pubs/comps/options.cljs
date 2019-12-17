@@ -83,8 +83,8 @@
 (defn handle-manual [s e]
   (.preventDefault e)
   (.stopPropagation e)
-  ;(panels/show-overlay s true)
-  ;(swap! s assoc-in [:ui :panels :authors-new] true)
+  (panels/show-overlay s true)
+  (swap! s assoc-in [:ui :panels :citations-manual] true)
   )
 
 

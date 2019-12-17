@@ -363,6 +363,7 @@
     (authors/authors-new s :authors-new)
     (licenses/license-list s :licenses)
     (citations/doi s :citations-doi)
+    (citations/manual s :citations-manual)
     )
   )
  

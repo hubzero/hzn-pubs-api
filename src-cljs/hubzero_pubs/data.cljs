@@ -63,7 +63,9 @@
 
 (defn search-citations [s]
   (prn "SEARCH-CITATIONS" (str url "/citations/" (:doi-query @s)))
-  (go (let [res (<! (http/get (str url "/citations/" (:doi-query @s))
+  (go (let [res (<! (http/get (str url
+                                   "/citations/"
+                                   (js/encodeURIComponent (:doi-query @s)))
                               (options s)))]
         (prn (:body res))
         (->>

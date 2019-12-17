@@ -18,7 +18,7 @@
   )
 
 (defn citation [s key c]
-  [:p {:class :formatted-meta} (utils/format-citation c)]
+  [:p {:class :formatted-meta :key (:id c)} (utils/format-citation c)]
   )
 
 (defn list-citations [s key]
@@ -44,11 +44,27 @@
    ]
   )
 
+(defn- _manual [s key]
+  [:fieldset {:class :citations-manual}
+   [:div {:class :selected-item}
+    
+    ]
+   ]
+  )
+
 (defn doi [s key]
   [:div {:class [:page-panel :as-panel key (if (get-in @s [:ui :panels key]) :open)]}
    [:div {:class :inner}
     (panels/header s "Add a DOI citation")
     (_doi s key)
+    ]
+   ]
+  )
+
+(defn manual [s key]
+  [:div {:class [:page-panel :as-panel key (if (get-in @s [:ui :panels key]) :open)]}
+   [:div {:class :inner}
+    (panels/header s "Add a citation manually")
     ]
    ]
   )
