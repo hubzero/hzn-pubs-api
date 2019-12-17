@@ -61,11 +61,11 @@ SELECT A.*, PO.invited_name, PO.invited_email  FROM jos_publication_authors as A
 
 -- name: sel-licenses
 --
-SELECT * FROM jos_publication_licenses WHERE active=1 ORDER BY ordering;
+SELECT * FROM jos_publication_licenses WHERE active=1 ORDER BY ordering
 
-
-
-
+-- name: sel-citations
+--
+SELECT * FROM jos_citations WHERE doi LIKE :doi
 
 
 

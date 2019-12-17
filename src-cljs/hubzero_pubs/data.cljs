@@ -61,3 +61,13 @@
         ))
   )
 
+(defn get-citations [s]
+  (prn "GET-CITATIONS" (str url "/pubs/citations"))
+  (go (let [res (<! (http/get (str url "/pubs/citations") (options s)))]
+        (prn (:body res))
+        (->>
+          (cljs.reader/read-string (:body res))
+          (swap! s assoc :citations))
+        ))
+  )
+

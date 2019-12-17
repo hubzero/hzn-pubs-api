@@ -58,6 +58,10 @@
   (sel-users {:name name})
   )
 
+(defn get-citations [doi]
+  (sel-citations {:doi (str "%" doi "%")})
+  )
+
 (comment
 
   (search-users "%j%")
@@ -71,6 +75,9 @@
   (get-licenses)
 
   (get-prj-users 1)
+
+  (get-citations "10")
+
 
 
   )

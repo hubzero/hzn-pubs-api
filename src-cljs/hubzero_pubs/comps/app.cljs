@@ -216,10 +216,15 @@
     (textarea s "Synopsis:" "synopsis")
     (collection s "Content:" :content nil handle-files-options)
     (collection s "Authors:" :authors-list (options/authors s) handle-author-options)
-    ;(collection s "License:" :licenses nil handle-licenses-options)
     (licenses s)
     (agreements s)
    ]
+  )
+
+(defn handle-citation-options [s e key]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s assoc-in [:ui :options :citations] true) 
   )
 
 (defn additional-details [s]
@@ -229,7 +234,7 @@
    (textfield s "External website URL:" "url")
    (collection s "Supporting docs:" :support-docs nil handle-files-options)
    (tags/tags s)
-   (collection s "Citations:" :citations nil #())
+   (collection s "Citations:" :citations (options/citations s) handle-citation-options)
    (textarea s "Version release notes:" "release-notes")
    ]
   )

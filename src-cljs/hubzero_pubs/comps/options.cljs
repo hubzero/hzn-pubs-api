@@ -72,3 +72,35 @@
     ]
    ]
   )
+
+(defn handle-doi [s e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  ;(data/get-users s)
+  ;(panels/show-overlay s true)
+  ;(swap! s assoc-in [:ui :panels :authors-list] true)
+  )
+
+(defn handle-manual [s e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  ;(panels/show-overlay s true)
+  ;(swap! s assoc-in [:ui :panels :authors-new] true)
+  )
+
+
+
+(defn citations [s]
+  [:div {:class [:citations-options
+                 :options-list
+                 (if (get-in @s [:ui :options :citations]) :open)
+                 ]}
+   [:div {:class :inner}
+    (merge
+      [:ul]
+      (item s "#icon-file-text2" "Enter a DOI" handle-doi)
+      (item s "#icon-file-text2" "Enter Manually" handle-manual)
+      )
+    ]
+   ]
+  )
