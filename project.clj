@@ -62,7 +62,10 @@
                            :source-map-timestamp true
                            ;; To console.log CLJS data-structures make sure you enable devtools in Chrome
                            ;:install-deps true
-                           ;:npm-deps { :lightpick "^1.5.2" }
+                           ;:npm-deps {:vue "^2.6.11"
+                           ;           :react "^16.12.0",
+                           ;           :react-dom "^16.12.0"
+                           ;           :vuera "^0.2.6" }
                            ;; https://github.com/binaryage/cljs-devtools
                            :preloads [devtools.preload]}}
                ;; This next build is a compressed minified build for
