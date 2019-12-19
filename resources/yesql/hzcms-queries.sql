@@ -67,6 +67,20 @@ SELECT * FROM jos_publication_licenses WHERE active=1 ORDER BY ordering
 --
 SELECT * FROM jos_citations WHERE doi LIKE :doi
 
+-- name: insert-citation<!
+--
+INSERT INTO `jos_citations` (`type`, `title`, `year`, `month`, `author`, `journal`, `booktitle`, `volume`, `number`, `pages`, `eprint`, `isbn`, `doi`, `abstract`, `series`, `edition`, `publisher`, `url`, `formatted`) VALUES (:type, :title, :year, :month, :author, :journal, :book, :volume, :issue, :pages, :eprint, :isbn, :doi, :abstract, :series, :edition, :publisher, :url, :citation)
+
+-- name: sel-citation-types
+--
+SELECT * FROM jos_citations_types
+
+
+
+
+
+
+
 
 
 

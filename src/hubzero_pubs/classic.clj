@@ -62,6 +62,18 @@
   (sel-citations {:doi (str "%" doi "%")})
   )
 
+(defn create-citation [m]
+  (->>
+    (reduce (fn [c k] (if (k c) c (assoc c k nil))) m
+            [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition])
+    (insert-citation<!)
+   )
+  )
+
+(defn get-citation-types []
+  (sel-citation-types)
+  )
+
 (comment
 
   (search-users "%j%")
@@ -77,6 +89,25 @@
   (get-prj-users 1)
 
   (search-citations "10")
+
+  (get-citation-types)
+
+  (create-citation {})
+
+  (create-citation {:type 1
+                    :title "Foobar"
+                    :year "1996"
+                    :month "January"
+                    :author "JBG"
+                    :journal "Journal for Advanced Foobaring"
+                    :volume "666"
+                    :pages "123-124"
+                    :isbn "978-3-16-148410-0"
+                    :doi "10.1000/xyz123"
+                    :abstract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                    :publisher "Grapes & Apples"
+                    :url "http://example.com"
+                    })
 
   )
 

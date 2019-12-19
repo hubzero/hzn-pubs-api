@@ -8,13 +8,6 @@
 
 (defn close [s]
   (swap! s assoc-in [:ui :options] nil)
-;  (if (not (utils/find-ancestor el ".options-list, .options"))
-;    (doall (map
-;             #(-> % .-classList (.remove "open"))
-;             (array-seq (.querySelectorAll js/document ".options-list"))
-;             ) 
-;           )
-;    )
   )
  
 (defn item [s i name f]
@@ -49,6 +42,7 @@
   (data/get-users s)
   (panels/show-overlay s true)
   (swap! s assoc-in [:ui :panels :authors-list] true)
+  (close s)
   )
 
 (defn handle-new-author [s e]
@@ -56,6 +50,7 @@
   (.stopPropagation e)
   (panels/show-overlay s true)
   (swap! s assoc-in [:ui :panels :authors-new] true)
+  (close s)
   )
 
 (defn authors [s]
@@ -78,16 +73,17 @@
   (.stopPropagation e)
   (panels/show-overlay s true)
   (swap! s assoc-in [:ui :panels :citations-doi] true)
+  (close s)
   )
 
 (defn handle-manual [s e]
   (.preventDefault e)
   (.stopPropagation e)
+  (data/get-citation-types s)
   (panels/show-overlay s true)
   (swap! s assoc-in [:ui :panels :citations-manual] true)
+  (close s)
   )
-
-
 
 (defn citations [s]
   [:div {:class [:citations-options

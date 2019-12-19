@@ -49,6 +49,8 @@
 
   (GET "/users/:name" [name] (classic/search-users name))
   (GET "/citations/:doi" [doi] (classic/search-citations doi))
+  (POST "/citations" {body :body} (->> (data2edn body) (classic/create-citation) (str)))
+  (GET "/citation-types" [] (classic/get-citation-types))
   )
 
 (defroutes ui-routes

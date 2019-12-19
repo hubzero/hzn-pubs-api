@@ -76,12 +76,24 @@
    ]
   )
 
+(defn citation [s key c]
+  [:li {:class :item :key (:id c)}
+   [:div {:class :icon} (ui/icon s "#icon-file-text2")]
+   [:div {:class :main}
+    [:div {:class :subject}
+     [:a {:href "#"} (utils/format-citation c)]
+     ]
+    ]
+   ]
+  )
+
 (defn item [s name key]
   (key {
         :content (file s key name)
         :support-docs (file s key name)
         :authors-list (author s name)
         :images (image s name)
+        :citations (citation s key name)
         })
   )
 
@@ -204,7 +216,6 @@
   (data/get-files s)
   (panels/show s e true key)
   )
-
 
 (defn handle-author-options [s e key]
   (.preventDefault e)

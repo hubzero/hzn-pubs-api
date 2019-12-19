@@ -7,6 +7,20 @@
     )
   )
 
+(defn add-citation [s e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (data/add-citation s)
+  (panels/close s)
+  )
+
+(defn add-doi [s e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s update-in [:data :citations] conj (first (:doi-results @s)))
+  (panels/close s)
+  )
+ 
 (defn search-doi [s key]
   [:div {:class :field}
    [:label {:for :doi} "DOI:"]
@@ -38,7 +52,7 @@
     ]
    [:hr]
    [:div {:class [:field :buttons]}
-    [:a {:class :btn :href "#"} "Add citation"]  
+    [:a {:class :btn :href "#" :on-click #(add-doi s %)} "Add citation"]  
     [:a {:class [:btn :secondary] :href "#"} "Close"]
     ]
    ]
@@ -63,7 +77,7 @@
     [:textarea {:name :citation :onChange (fn [e]
                                             (.preventDefault e)
                                             (.stopPropagation e)
-                                            (swap! s assoc-in [:data :key (:name f)] (-> e .-target .-value))
+                                            (swap! s assoc-in [:data key (:name f)] (-> e .-target .-value))
                                             )}]
     (if (:hint f) [:p {:class :hint} (:hint f)])
     ) 
@@ -79,8 +93,10 @@
 (defn- _manual [s key]
   [:fieldset {:class :citations-manual}
    [:div {:class :selected-item}
-    (doall (map #(field s key %) [{:name :title :label "Title" :type :text}
+    (doall (map #(field s key %) [;; Type
+                                  {:name :title :label "Title" :type :text}
                                   {:name :year :label "Year" :type :text}
+                                  ;; Month
                                   {:name :authors :label "Authors" :type :text}
                                   {:name :journal :label "Journal" :type :text}
                                   {:name :book :label "Book title" :type :text}
@@ -95,8 +111,13 @@
                                   {:name :edition :label "Edition" :type :text}
                                   {:name :publisher :label "Publisher" :type :text}
                                   {:name :url :label "URL" :type :text}
-                                  {:name :citation :label "Formatted citation" :type :textfield}
+                                  {:name :citation :label "Formatted citation" :type :textfield :hint "IF PROVIDED, FORMATTED CITATION WILL APPEAR AS TYPED. RECOMMENDED FORMAT: APA"}
                                   ] )) 
+    ]
+   [:hr]
+   [:div {:class [:field :buttons]}
+    [:a {:class :btn :href "#" :on-click #(add-citation s %)} "Add citation"]
+    [:a {:class [:btn :secondary] :href "#"} "Add citation"]
     ]
    ]
   )

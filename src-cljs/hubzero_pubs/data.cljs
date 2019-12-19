@@ -18,7 +18,6 @@
   )
 
 (defn get-files [s]
-  (prn "GET-FILES" (str url "/prjs/" (:prj-id @s) "/files"))
   (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s) "/files")
                               (options s)))]
         (prn (:body res))
@@ -28,7 +27,6 @@
   )
 
 (defn get-users [s]
-  (prn "GET-USERS" (str url "/prjs/" (:prj-id @s) "/users"))
   (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s) "/users")
                               (options s)))]
         ;(prn (:body res))
@@ -41,7 +39,6 @@
   )
 
 (defn search-users [s]
-  (prn "SEARCH-USERS" (str url "/users/" (:user-query @s)))
   (go (let [res (<! (http/get (str url "/users/" (:user-query @s))
                               (options s)))]
         (prn (:body res))
@@ -52,7 +49,6 @@
   )
 
 (defn get-licenses [s]
-  (prn "GET-LICENSES" (str url "/pubs/licenses"))
   (go (let [res (<! (http/get (str url "/pubs/licenses") (options s)))]
         (prn (:body res))
         (->>
@@ -62,7 +58,6 @@
   )
 
 (defn search-citations [s]
-  (prn "SEARCH-CITATIONS" (str url "/citations/" (:doi-query @s)))
   (go (let [res (<! (http/get (str url
                                    "/citations/"
                                    (js/encodeURIComponent (:doi-query @s)))
@@ -71,6 +66,29 @@
         (->>
           (cljs.reader/read-string (:body res))
           (swap! s assoc :doi-results))
+        ))
+  )
+
+(defn get-citation-types [s]
+  (go (let [res (<! (http/get (str url "/citation-types") (options s)))]
+        (prn (:body res))
+        (->>
+          (cljs.reader/read-string (:body res))
+          (swap! s assoc :citation-types))
+        ))
+  )
+
+(defn add-citation [s]
+  (go (let [c (get-in @s [:data :citations-manual])
+            res (<! (http/post(str url "/citations") {:edn-params c}))]
+        (prn c)
+        (prn (:body res))
+        (->>
+          (cljs.reader/read-string (:body res))
+          (:generated_key)
+          (assoc c :id)
+          (swap! s update-in [:data :citations] conj)
+          )
         ))
   )
 
