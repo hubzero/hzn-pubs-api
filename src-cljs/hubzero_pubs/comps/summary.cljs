@@ -1,5 +1,6 @@
 (ns hubzero-pubs.comps.summary
   (:require 
+    [hubzero-pubs.utils :as utils] 
     [hubzero-pubs.comps.ui :as ui] 
     )  
   )
@@ -35,6 +36,13 @@
    ]
   )
 
+(defn citation [s c]
+  [:li {:class :item :key c}
+   [:div {:class :icon} (ui/icon s "#icon-file-text2") ]
+   [:div {:class :main} (utils/format-citation c)]
+   ] 
+  )
+
 (defn collection [s key type]
   [:div {:class [:collection :collection-summary]}
    (merge
@@ -43,7 +51,8 @@
        (map (fn [i] ((type {:files #(file s i)
                             :authors-list #(author s i)
                             :images #(image s i)
-                            }))) (vals (get-in @s key)))
+                            :citations #(citation s i)
+                            }))) (as-> (get-in @s key) $ (if (map? $) (vals $) $)))
        )
      )
    ]
@@ -88,10 +97,11 @@
           :license #(license s (get-in @s key))
           :images #(collection s key type)
           :tags #(tags s key type)
+          :citations #(collection s key type)
           }))
   )
 
-(defn essentials [s]
+(defn- _section [s fields]
   [:section {:class [:fieldset :no-header]}
    (doall (map
             (fn [[key label type bold?]]
@@ -100,39 +110,41 @@
                (_type s key type bold?)             
                ]
               )
-            [[[:data :title] "Title" :text true]
-             [[:data :synopsis] "Synopsis" :text false]
-             [[:data :content] "Content" :files false]
-             [[:data :authors-list] "Authors" :authors-list false]
-             [[:data :licenses] "License" :license false]
-             [[:terms] "Agreements" :text false]
-             ]))
+            fields))
    ]
   )
 
+(defn essentials [s]
+  (_section s [[[:data :title] "Title" :text true]
+               [[:data :synopsis] "Synopsis" :text false]
+               [[:data :content] "Content" :files false]
+               [[:data :authors-list] "Authors" :authors-list false]
+               [[:data :licenses] "License" :license false]
+               [[:terms] "Agreements" :text false]
+               ]) 
+  )
+
 (defn additional [s]
-  [:section {:class [:fieldset :no-header]}
-   (doall (map 
-            (fn [[key label type bold?]]
-              [:div {:class [:field :field-summary] :key label}
-               [:p {:class :label} (str label ":")]
-               (_type s key type bold?) 
-               ]
-              )
-            [[[:data :images] "Image Gallery" :images false]
-             [[:data :url] "External website URL" :text false]
-             [[:data :support-docs] "Supporting documents" :files false]
-             [[:data :tags] "Tags" :tags false]
-             ;[[:data :citations] "Citations" :files false]
-             ]
-            ))
-   ]
+  (_section s [[[:data :images] "Image Gallery" :images false]
+               [[:data :url] "External website URL" :text false]
+               [[:data :support-docs] "Supporting documents" :files false]
+               [[:data :tags] "Tags" :tags false]
+               [[:data :citations] "Citations" :citations false]
+               [[:data :release-notes] "Version release notes" :text false]
+               ])
+  )
+
+(defn publish-settings [s]
+  (_section s [[[:data :publication-date] "Publication date" :text false]
+               [[:data :comments] "Comments to the administrator" :text false]
+               ])
   )
 
 (defn main [s]
   [:main
    (essentials s)   
    (additional s)
+   (publish-settings s)
    ]
   )
 
