@@ -9,25 +9,18 @@
                                         resource-response]]
             [ring.util.response :as response]
             [hubzero-pubs.classic :as classic]
+            [hubzero-pubs.pubs :as pubs]
             ))
 
-(defn data2edn [d]
-  (->>
-    (slurp d)
-    (clojure.edn/read-string)
-    )
-  )
-
 (defn create-pub [data]
-  (prn data)
-  "ok"
+  (pubs/create-pub data)
   )
 
-(defn handle-file [req]
-  (prn (get-in req [:multipart-params "f" :filename]))  
-  (prn (get-in req [:multipart-params "f" :tempfile]))  
-  "ok"
-  )
+;(defn handle-file [req]
+;  (prn (get-in req [:multipart-params "f" :filename]))  
+;  (prn (get-in req [:multipart-params "f" :tempfile]))  
+;  "ok"
+;  )
 
 (defn handle-prj-id [id]
   (->
@@ -44,12 +37,12 @@
   (GET "/pubs/user" req {:body (:user req)})
   (GET "/pubs/licenses" [] (classic/get-licenses))
 
-  (POST "/pubs" {body :body} (->> (data2edn body) (create-pub)))
-  (POST "/pubs/:id/files" req (handle-file req))
+  (POST "/pubs" {body :body-params} {:body (create-pub body)})
+;  (POST "/pubs/:id/files" req (handle-file req))
 
   (GET "/users/:name" [name] (classic/search-users name))
   (GET "/citations/:doi" [doi] (classic/search-citations doi))
-  (POST "/citations" {body :body} (->> (data2edn body) (classic/create-citation) (str)))
+  (POST "/citations" {body :body-params} {:body (classic/create-citation body)})
   (GET "/citation-types" [] (classic/get-citation-types))
   )
 

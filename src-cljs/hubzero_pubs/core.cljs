@@ -4,20 +4,15 @@
             )
   )
 
-(defonce s (r/atom {:data
-                    {:content {} 
-                     :authors []
-                     :licenses []
-                     :citations [] 
-                     :usage {:size 1.25
-                             :units "GB"
-                             :percent "25"
-                             :max 5
-                             }
-                     }
-                    :terms "I and all publication authors have read and agree to PURR terms of deposit."
-                    }
-                   ))
+(defonce s (r/atom {
+              :usage {:size 1.25
+                      :units "GB"
+                      :percent "25"
+                      :max 5
+                      } 
+              :terms "I and all publication authors have read and agree to PURR terms of deposit." 
+              }
+             ))
 
 (defn on-js-reload [])
 

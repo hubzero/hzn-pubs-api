@@ -63,6 +63,7 @@
   )
 
 (defn create-citation [m]
+  (prn "CREATE-CITATION" m)
   (->>
     (reduce (fn [c k] (if (k c) c (assoc c k nil))) m
             [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition])

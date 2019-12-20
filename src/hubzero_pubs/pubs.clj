@@ -2,6 +2,7 @@
   (:require [monger.core :as mg]
             [monger.collection :as mc]
             )
+  (:import org.bson.types.ObjectId)
   )
 
 (defonce db-name "hubzero")
@@ -11,8 +12,20 @@
                    (mg/get-db db-name)
                    ))
 
+(defn- _insert [pub]
+  (as-> (mc/insert-and-return mongodb col-name (assoc pub :_id (ObjectId.))) $
+    (:_id $)
+    {:_id (.toString $)} 
+    )
+  )
+
+(defn- _update [pub]
+  (mc/update-by-id mongodb col-name (ObjectId. (:_id pub)) (dissoc pub :_id))
+  {:_id (.toString (:_id pub))}
+  )
+
 (defn create-pub [pub]
-  (mc/insert-and-return mongodb col-name pub)
+  (if (:_id pub) (_update pub) (_insert pub))
   )
 
 (defn get-pubs []

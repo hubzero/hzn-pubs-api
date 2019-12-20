@@ -287,10 +287,20 @@
    ]
   )
 
+(defn proceed-draft [s e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (data/save-pub s)
+  (swap! s assoc-in [:ui :summary] true)
+  )
+ 
 (defn aside-buttons [s]
   [:aside
    [:fieldset {:class :buttons-aside}
-    [:a {:href "#" :class :btn} "Proceed with the draft"]
+    [:a {:href "#"
+         :class :btn
+         :on-click #(proceed-draft s %)
+         } "Proceed with the draft"]
     [:a {:href "#" :class [:btn :secondary]} "Submit draft"]
     ]
    ]
@@ -301,7 +311,7 @@
    [:div {:class [:field :buttons]}
     [:a {:href "#"
          :class :btn
-         :on-click #(swap! s assoc-in [:ui :summary] true)
+         :on-click #(proceed-draft s %)
          } "Proceed with the draft"]
     ]
    ]

@@ -11,7 +11,8 @@
   {
    ;:with-credentials? true 
    :headers {
-             "accept" "application/edn"
+             "Accept" "application/edn"
+             "Content-Type" "application/edn"
              ;"Authorization" (str "Bearer " (:token @s))
              }
    }
@@ -79,15 +80,32 @@
   )
 
 (defn add-citation [s]
+  (prn "ADD-CITATION" (str url "/citations") (get-in @s [:data :citations-manual]) )
   (go (let [c (get-in @s [:data :citations-manual])
-            res (<! (http/post(str url "/citations") {:edn-params c}))]
+            res (<! (http/post (str url "/citations") {:edn-params c}))]
         (prn c)
+        (prn res)
+;        (->>
+;          (cljs.reader/read-string (:body res))
+;          (:generated_key)
+;          ;(assoc c :id)
+;          ;(swap! s update-in [:data :citations] conj)
+;          (prn)
+;          )
+        ))
+  )
+
+(defn save-pub [s]
+  (go (let [pub (:data @s)
+            res (<! (http/post (str url "/pubs") {:edn-params pub}))]
+        (prn pub)
         (prn (:body res))
         (->>
           (cljs.reader/read-string (:body res))
-          (:generated_key)
-          (assoc c :id)
-          (swap! s update-in [:data :citations] conj)
+          ;(:generated_key)
+          ;(assoc pub :id)
+          ;(swap! s assoc :data pub)
+          (prn)
           )
         ))
   )

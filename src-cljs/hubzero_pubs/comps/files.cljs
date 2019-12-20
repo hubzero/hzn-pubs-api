@@ -10,21 +10,21 @@
 (defn progress [s]
   [:div {:class [:ui :progress-bar]}
    [:div {:class :status}
-    [:strong (str (get-in @s [:data :usage :size])
-                  (get-in @s [:data :usage :units])
+    [:strong (str (get-in @s [:usage :size])
+                  (get-in @s [:usage :units])
                   " ("
-                  (get-in @s [:data :usage :percent])
+                  (get-in @s [:usage :percent])
                   ")"
                   )]
     " of your "
-    [:strong (str (get-in @s [:data :usage :max])
-                  (get-in @s [:data :usage :units])
+    [:strong (str (get-in @s [:usage :max])
+                  (get-in @s [:usage :units])
                   )]
     ]
    [:div {:class :progress}
 
     [:div {:class :bar}
-     [:span (str (get-in @s [:data :usage :percent]) "%")]
+     [:span (str (get-in @s [:usage :percent]) "%")]
      ]
     ]
    ]
