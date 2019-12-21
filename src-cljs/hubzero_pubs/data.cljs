@@ -99,12 +99,13 @@
         (prn pub)
         (prn (:body res))
         (swap! s assoc :data (merge (:data @s) (:body res)))
+        (swap! s assoc :pub-id (:_id (:body res)))
         ))
   )
 
 (defn get-pub [s]
-  (prn "GET PUB" (:_id @s))
-  (go (let [res (<! (http/get (str url "/pubs/" (:_id @s)) (options s)))]
+  (prn "GET PUB" (:pub-id @s))
+  (go (let [res (<! (http/get (str url "/pubs/" (:pub-id @s)) (options s)))]
         (prn (:body res))
         (swap! s assoc :data (:body res))
         ))
@@ -115,6 +116,7 @@
   (go (let [res (<! (http/get (str url "/me") (options s)))]
         (prn (:body res))
         (reset! s (merge @s (:body res)))
+        (if-let [id (:pub-id @s)] (get-pub s))
         ))
   )
 

@@ -19,7 +19,7 @@
    [:label {:for :title} title]
    [:input {:type :text
             :name name
-            ;:value (get-in @s [:data (keyword name)])
+            :value (get-in @s [:data (keyword name)])
             :on-change #(swap! s assoc-in [:data (keyword name)] (-> % .-target .-value))
             }]
    ]
@@ -29,6 +29,7 @@
   [:div {:class :field}
    [:label {:for :title} title]
    [:textarea {:name name
+               :value (get-in @s [:data (keyword name)])
                :on-change #(swap! s assoc-in [:data (keyword name)] (-> % .-target .-value))  
                }]
    ]
@@ -39,7 +40,7 @@
    (ui/icon s "#icon-file-text2")
    [:div {:class "main"} [:a {:href "#"} name]]
    [:div {:class "options" :on-click
-          #(swap! s assoc-in [:ui :options key name] true)
+         #(swap! s assoc-in [:ui :options key name] true)
           }
     (ui/icon s "#icon-dots")
     (options/items s key name)

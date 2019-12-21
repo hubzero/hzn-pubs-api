@@ -48,7 +48,7 @@
   (GET "/pubs/licenses" [] (classic/get-licenses))
 
   (POST "/pubs" {body :body-params} {:body (create-pub body)})
-  (GET "/pubs/:id" [id] (pubs/get-pub id))
+  (GET "/pubs/:id" [id] {:body (pubs/get-pub id)})
 ;  (POST "/pubs/:id/files" req (handle-file req))
 
   (GET "/users/:name" [name] (classic/search-users name))

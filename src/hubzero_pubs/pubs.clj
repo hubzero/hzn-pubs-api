@@ -25,6 +25,7 @@
   )
 
 (defn create-pub [pub]
+  (prn "CREATE PUB" pub)
   (if (:_id pub) (_update pub) (_insert pub))
   )
 
@@ -33,7 +34,10 @@
   )
 
 (defn get-pub [id]
-  (mc/find-one-as-map mongodb col-name {:_id (ObjectId. id)})
+  (prn "GET PUB" id)
+  (as-> (mc/find-one-as-map mongodb col-name {:_id (ObjectId. id)}) $
+    (assoc $ :_id (-> (:_id $) (.toString)))
+    )
   )
 
 (comment
@@ -52,6 +56,9 @@
                :owners []
                :tags []
                })
+
+
+  (get-pub "5dfcd891abaa7d779f086de9")
 
   )
 
