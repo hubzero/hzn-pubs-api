@@ -1,6 +1,7 @@
 (ns hubzero-pubs.core
   (:require [reagent.core :as r]
             [hubzero-pubs.utils :as utils]
+            [hubzero-pubs.data :as data]
             [hubzero-pubs.comps.app :as app]
             )
   )
@@ -16,12 +17,9 @@
 
 (defn on-js-reload [])
 
-(defn ^:export run [cookie-map]
-  ;(token-request)
-  ;(prn "COOKIES" cookie-map)
-  (swap! s assoc :prj-id (:project-id cookie-map))
-  (swap! s assoc :pub-id (:publication-id cookie-map))
+(defn ^:export run []
+  (data/me s)
   (r/render [#(app/app s)] (js/document.getElementById "app")))
 
-(run (utils/eat-cookies))
+(run)
 

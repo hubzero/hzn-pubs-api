@@ -11,9 +11,13 @@
   (reduce (fn [m c]
             (as-> (clojure.string/split c #"=") $
               (assoc m 
-                     (keyword(clojure.string/trim (first $))) 
-                     (clojure.string/trim (last $))
-                     )   
+                     (keyword (clojure.string/trim (first $))) 
+                     (if (> (count $) 1)
+                       (clojure.string/trim (last $))
+                       nil
+                       )
+                     )
+
               )
             ) {} (clojure.string/split (.-cookie js/document) #";"))
   )

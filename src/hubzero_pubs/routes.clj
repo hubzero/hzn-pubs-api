@@ -22,23 +22,24 @@
 ;  "ok"
 ;  )
 
-(defn handle-ids [prj-id pub-id]
-  (->
-    (content-type (resource-response "index.html" {:root "public"}) "text/html")
-    (assoc :cookies {:project-id prj-id
-                     :publication-id pub-id
-                     })
+(defn index [prj-id & [pub-id]]
+  (as->
+    (content-type (resource-response "index.html" {:root "public"}) "text/html") $
+    (update $ :session merge {:prj-id prj-id})
+    (update $ :session merge {:pub-id pub-id})
     )
   )
 
-(defn handle-prj-id [id]
-  (->
-    (content-type (resource-response "index.html" {:root "public"}) "text/html")
-    (assoc :cookies {:project-id id})
+(defn me [req]
+  (response 
+    {:prj-id (get-in req [:session :prj-id])
+     :pub-id (get-in req [:session :pub-id])
+     }   
     )
   )
 
 (defroutes api-routes
+  (GET "/me" req (me req))
   (GET "/prjs/:id" [id] (classic/get-prj id))
   (GET "/prjs/:id/files" [id] (classic/get-files id))
   (GET "/prjs/:id/users" [id] (classic/get-users id))
@@ -57,9 +58,9 @@
   )
 
 (defroutes ui-routes
-  (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
-  (GET "/prjs/:id/pubs" [id] (handle-prj-id id))
-  (GET "/prjs/:prj-id/pubs/:pub-id" [prj-id pub-id] (handle-ids prj-id pub-id))
-  (route/resources "/")  
+  ;(GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
+  (GET "/prjs/:id/pubs" [id] (index id))
+  (GET "/prjs/:prj-id/pubs/:pub-id" [prj-id pub-id] (index prj-id pub-id))
+  (route/resources "/")
   )
 

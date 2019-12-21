@@ -110,3 +110,11 @@
         ))
   )
 
+(defn me [s]
+  (prn "GET ME")
+  (go (let [res (<! (http/get (str url "/me") (options s)))]
+        (prn (:body res))
+        (reset! s (merge @s (:body res)))
+        ))
+  )
+
