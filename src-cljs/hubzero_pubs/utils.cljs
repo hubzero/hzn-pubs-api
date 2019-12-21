@@ -7,6 +7,17 @@
     )
   )
 
+(defn eat-cookies []
+  (reduce (fn [m c]
+            (as-> (clojure.string/split c #"=") $
+              (assoc m 
+                     (keyword(clojure.string/trim (first $))) 
+                     (clojure.string/trim (last $))
+                     )   
+              )
+            ) {} (clojure.string/split (.-cookie js/document) #";"))
+  )
+
 (defn format-citation [c]
   (str (:author c) ". "
        (:year c) ". "

@@ -102,3 +102,11 @@
         ))
   )
 
+(defn get-pub [s]
+  (prn "GET PUB" (:_id @s))
+  (go (let [res (<! (http/get (str url "/pubs/" (:_id @s)) (options s)))]
+        (prn (:body res))
+        (swap! s assoc :data (:body res))
+        ))
+  )
+

@@ -19,7 +19,9 @@
    [:label {:for :title} title]
    [:input {:type :text
             :name name
-            :on-change #(swap! s assoc-in [:data (keyword name)] (-> % .-target .-value))}]
+            :value (get-in @s [:data (keyword name)])
+            ;:on-change #(swap! s assoc-in [:data (keyword name)] (-> % .-target .-value))
+            }]
    ]
   )
 

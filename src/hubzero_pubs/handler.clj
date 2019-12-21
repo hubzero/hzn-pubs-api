@@ -17,7 +17,7 @@
   :start
   (routes
     (-> #'api-routes
-        ;wrap-session
+        wrap-session
         wrap-format
         )
     (-> #'ui-routes

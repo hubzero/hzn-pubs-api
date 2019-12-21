@@ -32,7 +32,8 @@
   (mc/find-maps mongodb col-name)
   )
 
-(defn foo []
+(defn get-pub [id]
+  (mc/find-one-as-map mongodb col-name {:_id (ObjectId. id)})
   )
 
 (comment

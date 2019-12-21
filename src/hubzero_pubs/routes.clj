@@ -22,6 +22,15 @@
 ;  "ok"
 ;  )
 
+(defn handle-ids [prj-id pub-id]
+  (->
+    (content-type (resource-response "index.html" {:root "public"}) "text/html")
+    (assoc :cookies {:project-id prj-id
+                     :publication-id pub-id
+                     })
+    )
+  )
+
 (defn handle-prj-id [id]
   (->
     (content-type (resource-response "index.html" {:root "public"}) "text/html")
@@ -38,6 +47,7 @@
   (GET "/pubs/licenses" [] (classic/get-licenses))
 
   (POST "/pubs" {body :body-params} {:body (create-pub body)})
+  (GET "/pubs/:id" [id] (pubs/get-pub id))
 ;  (POST "/pubs/:id/files" req (handle-file req))
 
   (GET "/users/:name" [name] (classic/search-users name))
@@ -49,6 +59,7 @@
 (defroutes ui-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
   (GET "/prjs/:id/pubs" [id] (handle-prj-id id))
+  (GET "/prjs/:prj-id/pubs/:pub-id" [prj-id pub-id] (handle-ids prj-id pub-id))
   (route/resources "/")  
   )
 
