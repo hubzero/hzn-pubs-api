@@ -84,14 +84,12 @@
   (go (let [c (get-in @s [:data :citations-manual])
             res (<! (http/post (str url "/citations") {:edn-params c}))]
         (prn c)
-        (prn res)
-;        (->>
-;          (cljs.reader/read-string (:body res))
-;          (:generated_key)
-;          ;(assoc c :id)
-;          ;(swap! s update-in [:data :citations] conj)
-;          (prn)
-;          )
+        (->>
+          (:body res)
+          (:generated_key)
+          (assoc c :id)
+          (swap! s update-in [:data :citations] conj)
+          )
         ))
   )
 
@@ -100,13 +98,7 @@
             res (<! (http/post (str url "/pubs") {:edn-params pub}))]
         (prn pub)
         (prn (:body res))
-        (->>
-          (cljs.reader/read-string (:body res))
-          ;(:generated_key)
-          ;(assoc pub :id)
-          ;(swap! s assoc :data pub)
-          (prn)
-          )
+        (swap! s assoc :data (merge (:data @s) (:body res)))
         ))
   )
 
