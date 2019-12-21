@@ -1,6 +1,7 @@
 (ns hubzero-pubs.pubs
   (:require [monger.core :as mg]
             [monger.collection :as mc]
+            [monger.conversion :refer [from-db-object]]
             )
   (:import org.bson.types.ObjectId)
   )
@@ -35,8 +36,13 @@
 
 (defn get-pub [id]
   (prn "GET PUB" id)
-  (as-> (mc/find-one-as-map mongodb col-name {:_id (ObjectId. id)}) $
-    (assoc $ :_id (-> (:_id $) (.toString)))
+  (as-> (mc/find-one mongodb col-name {:_id (ObjectId. id)}) $
+    (map (fn [k]
+           (prn k)
+           [(keyword k)
+            (if (= k "_id") (.toString (.get $ k)) (.get $ k))]
+           ) (.keySet $))
+    (into {} $) 
     )
   )
 
@@ -58,7 +64,7 @@
                })
 
 
-  (get-pub "5dfcd891abaa7d779f086de9")
+  (get-pub "5dfe449f1bbe8f22701dcf27")
 
   )
 

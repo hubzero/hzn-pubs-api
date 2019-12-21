@@ -32,7 +32,7 @@
                               (options s)))]
         ;(prn (:body res))
         (->>
-          (cljs.reader/read-string (:body res))
+          ;(cljs.reader/read-string (:body res))
           (map (fn [u] [(:userid u) u]))
           (into {})
           (swap! s assoc :users))
