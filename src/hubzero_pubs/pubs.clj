@@ -36,14 +36,19 @@
 
 (defn get-pub [id]
   (prn "GET PUB" id)
-  (as-> (mc/find-one mongodb col-name {:_id (ObjectId. id)}) $
-    (map (fn [k]
-           (prn k)
-           [(keyword k)
-            (if (= k "_id") (.toString (.get $ k)) (.get $ k))]
-           ) (.keySet $))
-    (into {} $) 
+  (as-> (mc/find-one-as-map mongodb col-name { :_id (ObjectId. id) }) $
+    (assoc $ :_id (.toString (:_id $)))
     )
+;  (mc/find-one-as-map mongodb col-name { :_id (ObjectId. id) }) 
+;  (as-> (mc/find-one mongodb col-name {:_id (ObjectId. id)}) $
+;    (map (fn [k]
+;           (prn k)
+;           [(keyword k)
+;            (if (= k "_id") (.toString (.get $ k)) (.get $ k))]
+;           ) (.keySet $))
+;    (into {} $) 
+;    )
+;
   )
 
 (comment

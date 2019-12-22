@@ -23,6 +23,7 @@
 ;  )
 
 (defn index [prj-id & [pub-id]]
+  (prn "INDEX" prj-id pub-id)
   (as->
     (content-type (resource-response "index.html" {:root "public"}) "text/html") $
     (update $ :session merge {:prj-id prj-id})

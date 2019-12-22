@@ -2,6 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs.core.async :refer [<!]] 
             [cljs-http.client :as http]   
+            [hubzero-pubs.mutate :as mutate]
             )
   )
 
@@ -32,7 +33,7 @@
                               (options s)))]
         ;(prn (:body res))
         (->>
-          ;(cljs.reader/read-string (:body res))
+          (cljs.reader/read-string (:body res))
           (map (fn [u] [(:userid u) u]))
           (into {})
           (swap! s assoc :users))
@@ -94,9 +95,9 @@
   )
 
 (defn save-pub [s]
-  (go (let [pub (:data @s)
+  (go (let [pub (mutate/prepare (:data @s))
             res (<! (http/post (str url "/pubs") {:edn-params pub}))]
-        (prn pub)
+        (prn "BLAH" pub)
         (prn (:body res))
         (swap! s assoc :data (merge (:data @s) (:body res)))
         (swap! s assoc :pub-id (:_id (:body res)))
@@ -107,7 +108,10 @@
   (prn "GET PUB" (:pub-id @s))
   (go (let [res (<! (http/get (str url "/pubs/" (:pub-id @s)) (options s)))]
         (prn (:body res))
-        (swap! s assoc :data (:body res))
+        (->> (:body res)
+             (mutate/coerce)
+             (swap! s assoc :data)
+          )
         ))
   )
 
