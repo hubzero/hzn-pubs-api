@@ -12,7 +12,6 @@
   )
 
 (defn item [s key l]
-  (prn "ITEM" key (:id l))
   [:div {:class :inner}
    [:div {:class [:selected-indicator (if (= (get-in @s [:ui key]) (:id l)) :selected)]}
     [:div {:class :icon}

@@ -41,7 +41,7 @@
 (defn coerce [data]
   (-> (_coerce-authors data :authors-list)
       (_coerce-files :content)
-      ;(_coerce-files :images)
-      ;(_coerce-files :support-docs)
+      (_coerce-files :images)
+      (_coerce-files :support-docs)
       )
   )

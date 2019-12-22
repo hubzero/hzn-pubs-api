@@ -150,7 +150,7 @@
      [:input {:type :checkbox
               :class :important
               :name :ack
-              :checked (get-in @s [:data :ack])
+              :checked (or (get-in @s [:data :ack]) false) 
               :on-change #(swap! s update-in [:data :ack] not)
               } ]
      [:label {:for :poc}
@@ -206,7 +206,7 @@
     [:div {:class [:item :ui :checkbox :inline]}
      [:input {:type :checkbox
               :name :terms
-              :checked (get-in @s [:data :terms])
+              :checked (or (get-in @s [:data :terms]) false) 
               :on-change #(swap! s update-in [:data :terms] not)
               }]
      [:label {:for :terms} (:terms @s)]
