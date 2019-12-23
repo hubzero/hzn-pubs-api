@@ -6,10 +6,29 @@
             [ring.middleware.session :refer [wrap-session]]
             [ring.middleware.cookies :refer [wrap-cookies]]
             ;[ring.middleware.params :refer [wrap-params]]
-            [ring.middleware.session.cookie :refer [cookie-store]]
+            ;[ring.middleware.session.cookie :refer [cookie-store]]
             [ring.middleware.defaults :refer :all]
             [mount.core :refer [defstate]]
-            [hubzero-pubs.middleware :as middleware]))
+            [hubzero-pubs.auth :as auth]
+            ))
+
+(defn four-oh-1 []
+  {:status 401
+   :title "Unauthorized"
+   :body "Cookie based auth failure."} 
+  )
+
+(defn wrap-auth [handler]
+  (fn [req]
+    (try
+      (if-let [user (auth/cookie req)]
+        (handler (merge req {:user user}))
+        (four-oh-1) 
+        )   
+      (catch Exception e (four-oh-1))
+      )
+    )
+  )
 
 (defstate init-app
   :start #(prn "START handler")
@@ -26,6 +45,7 @@
           )
       (route/not-found
         (:body {:status 404 :title  "page not found"})))  
+    wrap-auth
     wrap-cookies
     wrap-session
     )

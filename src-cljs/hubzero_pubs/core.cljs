@@ -6,7 +6,9 @@
             )
   )
 
-(defonce s (r/atom {:usage {:size 1.25
+(defonce s (r/atom {:prj-id 1
+                    :pub-id "5e00e21785b4b9178270e103"
+                    :usage {:size 1.25
                             :units "GB"
                             :percent "25"
                             :max 5
@@ -18,8 +20,10 @@
 (defn on-js-reload [])
 
 (defn ^:export run []
-  (data/me s)
-  (r/render [#(app/app s)] (js/document.getElementById "app")))
+  
+  (data/get-prj s)
+  (r/render [#(app/app s)] (js/document.getElementById "app"))
+  )
 
-(run)
+(-> js/document (.addEventListener "DOMContentLoaded" run))
 

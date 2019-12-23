@@ -14,13 +14,19 @@
     )
   )
 
+(defn- _handle-value [e s name]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s assoc-in [:data (keyword name)] (-> e .-target .-value))
+  )
+
 (defn textfield [s title name]
   [:div {:class :field}
    [:label {:for :title} title]
    [:input {:type :text
             :name name
             :value (get-in @s [:data (keyword name)])
-            :on-change #(swap! s assoc-in [:data (keyword name)] (-> % .-target .-value))
+            :on-change #(_handle-value % s name)
             }]
    ]
   )
@@ -30,7 +36,7 @@
    [:label {:for :title} title]
    [:textarea {:name name
                :value (get-in @s [:data (keyword name)])
-               :on-change #(swap! s assoc-in [:data (keyword name)] (-> % .-target .-value))  
+               :on-change #(_handle-value % s name)
                }]
    ]
   )

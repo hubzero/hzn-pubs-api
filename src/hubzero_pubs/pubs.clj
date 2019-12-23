@@ -9,7 +9,7 @@
 (defonce db-name "hubzero")
 (defonce col-name "pubs")
 (defonce mongodb (->
-                   (mg/connect)
+                   (mg/connect {:host "mongodb"})
                    (mg/get-db db-name)
                    ))
 

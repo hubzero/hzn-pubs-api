@@ -6,15 +6,14 @@
             )
   )
 
-(def url "http://localhost:8888")
+(def url "https://localhost/p")
 
 (defn options [s]
   {
-   ;:with-credentials? true 
+   ;:with-credentials? true
    :headers {
              "Accept" "application/edn"
              "Content-Type" "application/edn"
-             ;"Authorization" (str "Bearer " (:token @s))
              }
    }
   )
@@ -112,15 +111,16 @@
              (mutate/coerce)
              (swap! s assoc :data)
           )
+        (prn "DATA" (:data @s))
         ))
   )
 
-(defn me [s]
-  (prn "GET ME")
-  (go (let [res (<! (http/get (str url "/me") (options s)))]
+(defn get-prj [s]
+  (prn "GET PRJ" (:prj-id @s))
+  (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s)) (options s)))]
         (prn (:body res))
-        (reset! s (merge @s (:body res)))
-        (if-let [id (:pub-id @s)] (get-pub s))
+        ;; TODO: What? - JBG
+        (if-let [id (:pub-id @s)] (get-pub s)) 
         ))
   )
 

@@ -6,15 +6,14 @@
   (:gen-class)
   )
 
-(def file-root "/home/jbg/Development/hub/data/srv/example/projects/")
+(def file-root "/srv/example/projects/")
 (def file-dir "/files")
 
 (def db {:dbtype "mysql"
          :dbname "example"
          :user "root"
          :password "PUk8zFrxsqsS83"
-         ;:host "hub-mysql"
-         :host "localhost"
+         :host "hub-mysql"
          })
 
 (defqueries "yesql/hzcms-queries.sql" { :connection db })

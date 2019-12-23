@@ -12,8 +12,10 @@
             [hubzero-pubs.pubs :as pubs]
             ))
 
-(defn create-pub [data]
-  (pubs/create-pub data)
+(defn four-oh-4 []
+  {:status 404
+   :title "Not found"
+   :body "Resource not found."} 
   )
 
 ;(defn handle-file [req]
@@ -22,35 +24,34 @@
 ;  "ok"
 ;  )
 
-(defn index [prj-id & [pub-id]]
-  (prn "INDEX" prj-id pub-id)
-  (as->
-    (content-type (resource-response "index.html" {:root "public"}) "text/html") $
-    (update $ :session merge {:prj-id prj-id})
-    (update $ :session merge {:pub-id pub-id})
+(defn get-prj [id]
+  (if-let [prj (classic/get-prj id)]
+    (as-> (response {:body prj}) $
+      (update $ :session merge {:prj-id id})
+      )
+    (four-oh-4)
     )
   )
 
-(defn me [req]
-  (response 
-    {:prj-id (get-in req [:session :prj-id])
-     :pub-id (get-in req [:session :pub-id])
-     }   
+(defn get-pub [id]
+  (if-let [pub (pubs/get-pub id)]
+    (as-> (response {:body pub}) $
+      (update $ :session merge {:pub-id id})
+      )
+    (four-oh-4)
     )
   )
 
 (defroutes api-routes
-  (GET "/me" req (me req))
-  (GET "/prjs/:id" [id] (classic/get-prj id))
+  (GET "/prjs/:id" [id] {:body (get-prj id)})
   (GET "/prjs/:id/files" [id] (classic/get-files id))
   (GET "/prjs/:id/users" [id] (classic/get-users id))
 
   (GET "/pubs/user" req {:body (:user req)})
   (GET "/pubs/licenses" [] (classic/get-licenses))
 
-  (POST "/pubs" {body :body-params} {:body (create-pub body)})
-  (GET "/pubs/:id" [id] {:body (pubs/get-pub id)})
-;  (POST "/pubs/:id/files" req (handle-file req))
+  (POST "/pubs" {body :body-params} {:body (pubs/create-pub body)})
+  (GET "/pubs/:id" [id] (get-pub id))
 
   (GET "/users/:name" [name] (classic/search-users name))
   (GET "/citations/:doi" [doi] (classic/search-citations doi))
@@ -59,9 +60,7 @@
   )
 
 (defroutes ui-routes
-  ;(GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
-  (GET "/prjs/:id/pubs" [id] (index id))
-  (GET "/prjs/:prj-id/pubs/:pub-id" [prj-id pub-id] (index prj-id pub-id))
+  (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
   (route/resources "/")
   )
 

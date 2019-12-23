@@ -29,8 +29,8 @@
   )
 
 (defn tag-input [s]
-  [^{:component-did-mount
-     #(-> js/document (.querySelector ".new-tag") (.focus))
+  [^{;:component-did-mount
+     ;#(-> js/document (.querySelector ".new-tag") (.focus))
      ;:component-did-update
      ;#(.log js/console "example-component-did-update")
      }
