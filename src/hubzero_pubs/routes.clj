@@ -35,17 +35,22 @@
 
 (defn get-pub [id]
   (if-let [pub (pubs/get-pub id)]
-    (as-> (response {:body pub}) $
+    (as-> (response pub) $
       (update $ :session merge {:pub-id id})
       )
     (four-oh-4)
     )
   )
 
+(defn get-pubs [req]
+  (response (pubs/get-pubs (:id (:params req)) (:id (:user req))))
+  )
+
 (defroutes api-routes
   (GET "/prjs/:id" [id] {:body (get-prj id)})
   (GET "/prjs/:id/files" [id] (classic/get-files id))
   (GET "/prjs/:id/users" [id] (classic/get-users id))
+  (GET "/prjs/:id/pubs" req (get-pubs req))
 
   (GET "/pubs/user" req {:body (:user req)})
   (GET "/pubs/licenses" [] (classic/get-licenses))

@@ -2,6 +2,7 @@
   (:require [monger.core :as mg]
             [monger.collection :as mc]
             [monger.conversion :refer [from-db-object]]
+            [monger.operators :refer :all]
             )
   (:import org.bson.types.ObjectId)
   )
@@ -30,8 +31,12 @@
   (if (:_id pub) (_update pub) (_insert pub))
   )
 
-(defn get-pubs []
-  (mc/find-maps mongodb col-name)
+(defn get-pubs [prj-id user-id]
+  (prn "GET PUBS" prj-id user-id)
+  ;(mc/find-maps mongodb col-name)
+  (->> (mc/find-maps mongodb col-name {(str "authors-list." user-id) {$exists true} :prj-id (Integer/parseInt prj-id)})
+    (map #(assoc % :_id (.toString (:_id %))))
+    )
   )
 
 (defn get-pub [id]
@@ -52,6 +57,8 @@
   )
 
 (comment
+
+  (get-pubs 1001)
 
   (create-pub {:title "Foobar"
                :abstract "Foostract"

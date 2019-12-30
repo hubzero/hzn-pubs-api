@@ -25,7 +25,9 @@
         (handler (merge req {:user user}))
         (four-oh-1) 
         )   
-      (catch Exception e (four-oh-1))
+      (catch Exception e
+        (.printStackTrace e)
+        (four-oh-1))
       )
     )
   )

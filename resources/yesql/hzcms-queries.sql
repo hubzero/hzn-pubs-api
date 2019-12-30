@@ -4,7 +4,7 @@ SELECT * FROM jos_session WHERE session_id = :session_id
 
 -- name: sel-user
 --
-SELECT username FROM jos_users WHERE id = :user_id
+SELECT id, username FROM jos_users WHERE id = :user_id
 
 -- name: sel-users
 --

@@ -20,7 +20,6 @@
 (defn on-js-reload [])
 
 (defn ^:export run []
-  
   (data/get-prj s)
   (r/render [#(app/app s)] (js/document.getElementById "app"))
   )

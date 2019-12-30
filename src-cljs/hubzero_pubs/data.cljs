@@ -94,7 +94,7 @@
   )
 
 (defn save-pub [s]
-  (go (let [pub (mutate/prepare (:data @s))
+  (go (let [pub (mutate/prepare (assoc (:data @s) :prj-id (:prj-id @s)))
             res (<! (http/post (str url "/pubs") {:edn-params pub}))]
         (prn "BLAH" pub)
         (prn (:body res))

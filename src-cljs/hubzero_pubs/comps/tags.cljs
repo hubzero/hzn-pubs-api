@@ -7,7 +7,7 @@
 
 (defn tag-creator [s]
   [:div {:href "#"
-         :class [:tag :creator (if (get-in @s [:ui :tag]) :hide)]
+         :class [:ptag :creator (if (get-in @s [:ui :tag]) :hide)]
          :on-click #(swap! s assoc-in [:ui :tag] true)
          }
    [:div {:class :inner}
@@ -17,7 +17,7 @@
     "Add new tag"
     ]
    ]
-)
+  )
 
 (defn add-tag [s e]
   (.preventDefault e)
@@ -43,7 +43,7 @@
      )])
 
 (defn tag-creating [s]
-  [:div {:class [:tag :creating (if (get-in @s [:ui :tag]) :show)]}
+  [:div {:class [:ptag :creating (if (get-in @s [:ui :tag]) :show)]}
    [:div {:class :inner}
     (tag-input s)    
     [:a {:class [:add :icon]
@@ -66,10 +66,10 @@
   )
 
 (defn tag [s name]
-  [:a {:href "#" :class :tag :key name :data-val name :on-click (fn [e]
-                                                                  (.preventDefault e)
-                                                                  (.stopPropagation e)
-                                                                  )}
+  [:a {:href "#" :class :ptag :key name :data-val name :on-click (fn [e]
+                                                                   (.preventDefault e)
+                                                                   (.stopPropagation e)
+                                                                   )}
    [:div {:class :inner} name
     [:div {:class [:remove :icon] :on-click #(remove-tag s %)}
      (ui/icon s "#icon-cross")
@@ -83,7 +83,7 @@
    [:label {:for :tags} "Tags:"]
    [:div {:class :field-wrapper}
     (merge
-      [:div {:class [:item :ui :tags]}]
+      [:div {:class [:item :ui :ptags]}]
       (map #(tag s %)  (get-in @s [:data :tags]))
       (tag-creator s)
       (tag-creating s)
@@ -91,4 +91,4 @@
     ]
    ]
   )
- 
+
