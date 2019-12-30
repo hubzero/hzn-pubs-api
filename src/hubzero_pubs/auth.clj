@@ -1,5 +1,8 @@
 (ns hubzero-pubs.auth
-  (:require [hubzero-pubs.classic :as classic])
+  (:require [digest :as digest]
+            [hubzero-pubs.classic :as classic]
+            [hubzero-pubs.config :refer [config]]
+            )
   )
 
 (defn- _get-user [session_id]
@@ -11,8 +14,10 @@
   )
 
 (defn cookie [req]
-  (as-> (:cookies req) $
-    ($ "66b92427391544b0181f81a94d34bce4") 
+  (as-> (:secret config) $
+    (digest/md5 $)
+    (digest/md5 $)
+    ((:cookies req) $) 
     ($ :value)
     (classic/get-session $)
     (first $)
@@ -22,7 +27,7 @@
 
 (comment
 
-  (let [req { :cookies {"66b92427391544b0181f81a94d34bce4" { :value "9fe8ba187b310778c4575ab87ab886d7" }}} ]
+  (let [req { :cookies {"947a8f2666dbaa4a2c706fac2581a4c6" { :value "9fe8ba187b310778c4575ab87ab886d7" }}} ]
     (cookie req)
     )
 

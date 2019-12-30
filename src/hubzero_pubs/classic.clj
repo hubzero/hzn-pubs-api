@@ -27,6 +27,7 @@
   )
 
 (defn get-prj [id]
+  (prn "GET PRJ" id)
   (->
     (sel-prj {:id id})
     (first)

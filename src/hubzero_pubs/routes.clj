@@ -25,6 +25,7 @@
 ;  )
 
 (defn get-prj [id]
+  (prn "R PRJ" id)
   (if-let [prj (classic/get-prj id)]
     (as-> (response {:body prj}) $
       (update $ :session merge {:prj-id id})

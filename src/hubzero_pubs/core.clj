@@ -3,7 +3,7 @@
             [mount.core :as mount :refer [defstate]]
             [clojure.tools.logging :as log]
             [hubzero-pubs.http-server :as http]
-            [hubzero-pubs.handler :as handler]  
+            [hubzero-pubs.handler :as handler]
             )
   (:gen-class))
 

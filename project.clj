@@ -23,10 +23,12 @@
                  [mysql/mysql-connector-java "8.0.17"]
                  [yesql "0.5.3"]
                  [clj-time "0.15.2"]
+                 [digest "1.4.9"]
 
                  [org.clojure/clojurescript "1.10.520"]
                  [cljs-http "0.1.46"]
                  [reagent "0.8.1"]
+                 [clj-commons/secretary "1.2.4"]
                  ;[glue "0.1.3-SNAPSHOT"]
 
                  [com.novemberain/monger "3.1.0"]
