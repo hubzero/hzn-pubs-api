@@ -2,6 +2,7 @@
   (:require
     [hubzero-pubs.utils :as utils]
     [hubzero-pubs.data :as data]
+    [hubzero-pubs.routes :as routes]
     [hubzero-pubs.comps.panels :as panels]
     [hubzero-pubs.comps.files :as files]
     [hubzero-pubs.comps.tags :as tags]
@@ -300,17 +301,20 @@
   (.preventDefault e)
   (.stopPropagation e)
   (data/save-pub s)
-  (swap! s assoc-in [:ui :summary] true)
+  ;(swap! s assoc-in [:ui :summary] true)
+  (prn "CLICK")
+  (routes/summary s)
   )
  
 (defn aside-buttons [s]
   [:aside
-   [:fieldset {:class :buttons-aside}
-    [:a {:href "#"
-         :class :btn
-         :on-click #(proceed-draft s %)
-         } "Proceed with the draft"]
-    [:a {:href "#" :class [:btn :secondary]} "Submit draft"]
+   [:div {:class :inner}
+    [:fieldset {:class :buttons-aside}
+     [:a {:href "#"
+          :class :btn
+          :on-click #(proceed-draft s %)
+          } "Proceed with the draft"]
+     ] 
     ]
    ]
   )
