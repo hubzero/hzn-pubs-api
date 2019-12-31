@@ -367,8 +367,6 @@
 
 (defn wrap [s]
   [:div {:class :wrap :on-click (fn [e] (options/close s)) }
-   [:header {:id :content-header}
-    [:h2 "New Publication"]]
    (if (get-in @s [:ui :summary])
      (summary/page-summary s) 
      (page-main s)
