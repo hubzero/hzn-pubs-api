@@ -148,6 +148,22 @@
    ]
   )
 
+(defn aside [s]
+  [:aside
+   [:div {:class :inner}
+    [:div {:class :notification}
+     [:header "Your publication is ready for submission!"]
+     [:p "Please review your publication and make sure everything looks good."]
+     [:fieldset {:class :buttons-aside}
+      [:a {:href "/#/submit" :class :btn} "Submit publication"]
+      [:a {:href (str "/#/pubs/" (:pub-id @s) "/edit")
+           :class [:btn :secondary]} "Edit draft"]
+      ]
+     ]
+    ]
+   ]
+  )
+
 (defn page-summary [s]
   [:div {:class (concat [:page :page-summary :--add :--show]
                         (if (get-in @s [:ui :summary])
@@ -155,6 +171,7 @@
                           )
                         ) }
    (main s)
+   (aside s)
    ]
   )
 

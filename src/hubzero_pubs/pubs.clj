@@ -3,6 +3,7 @@
             [monger.collection :as mc]
             [monger.conversion :refer [from-db-object]]
             [monger.operators :refer :all]
+            [hubzero-pubs.config :refer [config]]
             )
   (:import org.bson.types.ObjectId)
   )
@@ -10,7 +11,7 @@
 (defonce db-name "hubzero")
 (defonce col-name "pubs")
 (defonce mongodb (->
-                   (mg/connect {:host "mongodb"})
+                   (mg/connect (:mongodb config))
                    (mg/get-db db-name)
                    ))
 

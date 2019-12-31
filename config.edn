@@ -1,1 +1,11 @@
-{:secret "site"}
+{:secret "site"
+ :mysql {:dbtype "mysql"
+         :dbname "example"
+         :user "root"
+         :password "PUk8zFrxsqsS83"
+         ;:host "hub-mysql"
+         :host "localhost"
+         }
+ ;:mongodb {:host "mongodb" }
+ :mongodb {:host "localhost" }
+ }

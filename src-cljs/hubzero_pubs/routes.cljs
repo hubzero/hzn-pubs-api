@@ -1,58 +1,65 @@
 (ns hubzero-pubs.routes
   (:require-macros [secretary.core :refer [defroute]])
-  (:import goog.history.Html5History)
+  (:import [goog History]
+           [goog.history EventType])
   (:require [secretary.core :as secretary]
             [goog.events :as events]
-            [goog.history.EventType :as EventType]
             [reagent.core :as reagent]            
             [hubzero-pubs.data :as data]
             )
   )
 
+;; TODO: Remove me I'm for testing - JBG
+(def application
+  (js/document.getElementById "app"))
+
+(defn set-html! [el content]
+  (aset el "innerHTML" content))
+;; END TODO
+
 (defn hook-browser-navigation! []
-  (doto (Html5History.)
-    (events/listen
-      EventType/NAVIGATE
-      (fn [event]
-        (prn (.-token event))
-        (secretary/dispatch! (.-token event))))
-    (.setEnabled true)))
-
-(defn- _load-pub [s params]
-  (swap! s assoc
-           :prj-id (:prj-id params)
-           :pub-id (:pub-id params))
-    (data/get-prj s) 
-  )
-
-(defn summary [s]
-  (prn "ROUTES SUMMARY")
-  (secretary/dispatch! (str "/prjs/"
-                            (:prj-id @s)
-                            "/pubs/"
-                            (:pub-id @s)
-                            "/summary"))
+  (doto (History.)
+    (events/listen EventType.NAVIGATE #(secretary/dispatch! (.-token %)))
+    (.setEnabled true))
   )
 
 (defn app-routes [s]
   (secretary/set-config! :prefix "#")
 
-  (defroute "/prjs/:id/pubs/new" {:as params}
+  (defroute "/prjs/:id" {:as params}
     (prn "PRJ" (:id params) "NEW")
+    (swap! s assoc-in [:ui :summary] false)
     (swap! s assoc :prj-id (:id params))
     (data/get-prj s)
     )
 
-  (defroute "/prjs/:prj-id/pubs/:pub-id" {:as params}
-    (prn "ROUTE IDS" (:prj-id params) (:pub-id params))
-    (_load-pub s params)
-    )
-
-  (defroute "/prjs/:prj-id/pubs/:pub-id/summary" {:as params}
-    (prn "SUMMARY IDS" (:prj-id params) (:pub-id params))
+  (defroute "/pubs/:id" {:as params}
+    (prn "PUB" (:id params))
     (swap! s assoc-in [:ui :summary] true)
-    (_load-pub s params)  
+    (swap! s assoc :pub-id (:id params))
+    (data/get-pub s)
     )
 
-  (hook-browser-navigation!)) 
+  (defroute "/pubs/:id/edit" {:as params}
+    (swap! s assoc-in [:ui :summary] false)
+    (swap! s assoc :pub-id (:id params))
+    (data/get-pub s)
+    )
+
+  (defroute "/summary" {:as params}
+    (swap! s assoc-in [:ui :summary] true)
+    (data/save-pub s)
+    )
+
+  (defroute "/submit" {:as params}
+    (set-html! application "<h1>Submitted. :)</h1>")
+    (swap! s assoc-in [:data :submitted] true)
+    (data/save-pub s)
+    )
+
+  ;; Catch all
+  (defroute "*" []
+    (set-html! application "<h1>LOL! YOU LOST!</h1>"))
+
+  (hook-browser-navigation!))
 

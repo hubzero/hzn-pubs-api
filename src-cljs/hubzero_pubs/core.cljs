@@ -16,9 +16,9 @@
                    ))
 
 (defn on-js-reload [])
+(routes/app-routes s)
 
 (defn ^:export run []
-  (routes/app-routes s)
   (r/render [#(app/app s)] (js/document.getElementById "app"))
   )
 

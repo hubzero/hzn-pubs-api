@@ -2,19 +2,15 @@
   (:require [yesql.core :refer [defqueries]]
             [clojure.java.jdbc :as jdbc]
             [me.raynes.fs :as fs]
+            [hubzero-pubs.config :refer [config]]
             )
-  (:gen-class)
+;  (:gen-class)
   )
 
 (def file-root "/srv/example/projects/")
 (def file-dir "/files")
 
-(def db {:dbtype "mysql"
-         :dbname "example"
-         :user "root"
-         :password "PUk8zFrxsqsS83"
-         :host "hub-mysql"
-         })
+(def db (:mysql config))
 
 (defqueries "yesql/hzcms-queries.sql" { :connection db })
 

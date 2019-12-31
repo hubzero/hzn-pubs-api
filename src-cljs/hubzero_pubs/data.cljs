@@ -6,7 +6,8 @@
             )
   )
 
-(def url "https://localhost/p")
+;(def url "https://localhost/p")
+(def url "http://localhost:8888")
 
 (defn options [s]
   {
@@ -96,7 +97,6 @@
 (defn save-pub [s]
   (go (let [pub (mutate/prepare (assoc (:data @s) :prj-id (:prj-id @s)))
             res (<! (http/post (str url "/pubs") {:edn-params pub}))]
-        (prn "BLAH" pub)
         (prn (:body res))
         (swap! s assoc :data (merge (:data @s) (:body res)))
         (swap! s assoc :pub-id (:_id (:body res)))
@@ -112,6 +112,7 @@
              (swap! s assoc :data)
           )
         (prn "DATA" (:data @s))
+        (swap! s assoc :prj-id (get-in @s [:data :prj-id]))
         ))
   )
 

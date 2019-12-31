@@ -297,24 +297,14 @@
    ]
   )
 
-(defn proceed-draft [s e]
-  (.preventDefault e)
-  (.stopPropagation e)
-  (data/save-pub s)
-  ;(swap! s assoc-in [:ui :summary] true)
-  (prn "CLICK")
-  (routes/summary s)
-  )
- 
 (defn aside-buttons [s]
   [:aside
    [:div {:class :inner}
     [:fieldset {:class :buttons-aside}
-     [:a {:href "#"
+     [:a {:href "/#/summary"
           :class :btn
-          :on-click #(proceed-draft s %)
           } "Proceed with the draft"]
-     ] 
+     ]
     ]
    ]
   )
@@ -324,7 +314,7 @@
    [:div {:class [:field :buttons]}
     [:a {:href "#"
          :class :btn
-         :on-click #(proceed-draft s %)
+         ;:on-click #(proceed-draft s %)
          } "Proceed with the draft"]
     ]
    ]
