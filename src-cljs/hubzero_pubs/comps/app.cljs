@@ -301,7 +301,7 @@
   [:aside
    [:div {:class :inner}
     [:fieldset {:class :buttons-aside}
-     [:a {:href "/#/summary"
+     [:a {:href "/pubs/#/summary"
           :class :btn
           } "Proceed with the draft"]
      ]
@@ -312,9 +312,8 @@
 (defn section-buttons [s]
   [:fieldset {:class [:section :buttons]}
    [:div {:class [:field :buttons]}
-    [:a {:href "#"
+    [:a {:href "/pubs/#/summary"
          :class :btn
-         ;:on-click #(proceed-draft s %)
          } "Proceed with the draft"]
     ]
    ]

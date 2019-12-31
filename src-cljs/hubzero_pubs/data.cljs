@@ -6,8 +6,8 @@
             )
   )
 
-;(def url "https://localhost/p")
-(def url "http://localhost:8888")
+(def url "https://localhost/p")
+;(def url "http://localhost:8888")
 
 (defn options [s]
   {

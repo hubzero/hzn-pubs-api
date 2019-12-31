@@ -9,12 +9,12 @@
             )
   )
 
-;; TODO: Remove me I'm for testing - JBG
-(def application
-  (js/document.getElementById "app"))
-
-(defn set-html! [el content]
-  (aset el "innerHTML" content))
+;; TODO: Remove, I'm a placeholder! - JBG
+(defn set-html! [content]
+  (-> (js/document.getElementById "app") 
+      (aset "innerHTML" content) 
+    )
+  )
 ;; END TODO
 
 (defn hook-browser-navigation! []
@@ -52,14 +52,14 @@
     )
 
   (defroute "/submit" {:as params}
-    (set-html! application "<h1>Submitted. :)</h1>")
+    (set-html! "<h1>Submitted. :)</h1>")
     (swap! s assoc-in [:data :submitted] true)
     (data/save-pub s)
     )
 
   ;; Catch all
   (defroute "*" []
-    (set-html! application "<h1>LOL! YOU LOST!</h1>"))
+    (set-html! "<h1>LOL! YOU LOST!</h1>"))
 
   (hook-browser-navigation!))
 
