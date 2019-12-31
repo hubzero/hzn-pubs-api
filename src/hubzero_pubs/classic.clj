@@ -4,13 +4,14 @@
             [me.raynes.fs :as fs]
             [hubzero-pubs.config :refer [config]]
             )
-;  (:gen-class)
   )
 
-(def file-root "/srv/example/projects/")
-(def file-dir "/files")
+(def file-root (get-in config [:files :root]))
+(def file-dir (get-in config [:files :dir]))
 
 (def db (:mysql config))
+
+(def gb 1073741824)
 
 (defqueries "yesql/hzcms-queries.sql" { :connection db })
 
@@ -22,12 +23,27 @@
   (sel-session {:session_id id})
   )
 
-(defn get-prj [id]
+(defn- _get-prj [id]
   (prn "GET PRJ" id)
   (->
     (sel-prj {:id id})
     (first)
     )
+  )
+
+(defn- _parse-params [p]
+  (assoc p :params (reduce (fn [m p]
+                             (as-> (clojure.string/split p #"=") $
+                               (assoc m (keyword (first $)) (second $))
+                               )
+                             ) {} (clojure.string/split (:params p) #"\n")))
+  )
+
+(defn get-prj [id]
+  ;; Get the project process the params - JBG
+  (->> (_get-prj id)
+       (_parse-params)
+       )
   )
 
 (defn get-files [id]
@@ -39,6 +55,37 @@
                 dirs
                 files]
                ) $)
+    )
+  )
+
+(defn prj-size [id]
+  (reduce (fn  [c [path _ files]]
+            (reduce (fn [c f] 
+                      (prn file-dir path f) 
+                      (+ c (fs/size (str file-root "/" path "/" f)))) c files)
+            ) 0 (get-files id))
+  )
+
+(defn- _usage-size [files]
+  (reduce (fn [c f]
+            (+ c (fs/size (str file-root "/" f)))
+            ) 0 files)
+  )
+
+(defn usage [id files]
+  (let [s (_usage-size files)]
+    (as-> (get-prj id) $
+      {:size (float (/ size gb)) 
+       :units "GB"
+       :percent (->> (get-in $ [:params :pubQuota])
+                     (Integer/parseInt)
+                     (/ size)
+                     (float)
+                     (* 100)
+                     )
+       :max (float (/ (Integer/parseInt (get-in $ [:params :pubQuota])) gb)) 
+       }  
+      )   
     )
   )
 
@@ -72,11 +119,18 @@
 
 (comment
 
+  config
+
   (search-users "%j%")
 
   (get-prj 1)
 
   (get-files 1)
+
+  (prj-size 1)
+
+  (usage 1 ["prjfoobar/files/foo"
+            "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png"])
 
   (get-user 1001)
 
