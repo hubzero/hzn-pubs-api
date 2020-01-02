@@ -83,20 +83,74 @@
     ) 
   )
 
+(defn- _handle-dropdown [s key f e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s update-in [:ui key (:name f)] not)
+  )
+
+(defn- _option-click [s key f o e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s assoc-in [:data key (:name f)] o)
+  (swap! s assoc-in [:ui key (:name f)] false)
+  )
+
+(defn- _option-rm [s key f e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s assoc-in [:data key (:name f)] "")
+  (swap! s assoc-in [:ui key (:name f)] false)
+  )
+
+(defn dropdown [s key f]
+  [:div {:class :field :key (:name f)}
+   [:label {:for (:name f)} (str (:label f) ":")]
+   [:div {:class [:proto-dropdown (if (get-in @s [:ui key (:name f)]) :open)]}
+    [:div {:class :input-wrap}
+     [:input {:type :text
+              :value (get-in @s [:data key (:name f)])
+              :onChange #(swap! s assoc-in [:data key (:name f)])
+              }]
+     [:a {:class :icon :on-click #(_option-rm s key f %)}
+      (ui/icon s "#icon-cross")
+      ]
+     ]
+    (merge
+      [:ul {:class :dropdown-menu :roll :listbox}]    
+      (doall (map (fn [o] [:li {:key o
+                                :role :option
+                                :on-click #(_option-click s key f o %)
+                                } o]) (:options f)))
+      )
+    [:a {:href "#"
+         :class :icon
+         :on-click #(_handle-dropdown s key f %)
+         } (ui/icon s "#icon-left")]
+    ]
+   ]
+  )
+
 (defn field [s key f]
-  (((:type f) {
-               :text #(text s key f)
+  (((:type f) {:text #(text s key f)
                :textfield #(textfield s key f)
+               :dropdown #(dropdown s key f)
                }))
   )
 
 (defn- _manual [s key]
   [:fieldset {:class :citations-manual}
    [:div {:class :selected-item}
-    (doall (map #(field s key %) [;; Type
+    (doall (map #(field s key %) [{:name :citation-type
+                                   :label "Type"
+                                   :type :dropdown
+                                   :options ["Journal" "Article"]}
                                   {:name :title :label "Title" :type :text}
                                   {:name :year :label "Year" :type :text}
-                                  ;; Month
+                                  {:name :month
+                                   :label "Month"
+                                   :type :dropdown
+                                   :options (:months @s)}
                                   {:name :authors :label "Authors" :type :text}
                                   {:name :journal :label "Journal" :type :text}
                                   {:name :book :label "Book title" :type :text}

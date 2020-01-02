@@ -6,12 +6,8 @@
             )
   )
 
-(defonce s (r/atom {:usage {:size 1.25
-                            :units "GB"
-                            :percent "25"
-                            :max 5
-                            } 
-                    :terms "I and all publication authors have read and agree to PURR terms of deposit." 
+(defonce s (r/atom {:terms "I and all publication authors have read and agree to PURR terms of deposit." 
+                    :months ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"]
                     }
                    ))
 
