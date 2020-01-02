@@ -73,18 +73,22 @@
   )
 
 (defn usage [id files]
-  (let [s (_usage-size files)]
+  (let [size (_usage-size files)]
     (as-> (get-prj id) $
-      {:size (float (/ size gb)) 
+      {:size (clojure.core/format "%.2f" (float (/ size gb))) 
        :units "GB"
        :percent (->> (get-in $ [:params :pubQuota])
                      (Integer/parseInt)
                      (/ size)
-                     (float)
                      (* 100)
+                     (float)
+                     (clojure.core/format "%.2f")
                      )
-       :max (float (/ (Integer/parseInt (get-in $ [:params :pubQuota])) gb)) 
-       }  
+       :max (->> (/ (Integer/parseInt (get-in $ [:params :pubQuota])) gb)
+                 (float)
+                 (clojure.core/format "%.2f" )
+                 )
+       }
       )   
     )
   )

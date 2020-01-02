@@ -1,6 +1,7 @@
 (ns hubzero-pubs.comps.folders
   (:require
     [hubzero-pubs.utils :as utils] 
+    [hubzero-pubs.data :as data] 
     [hubzero-pubs.comps.ui :as ui] 
     ) 
   )
@@ -66,6 +67,7 @@
       (toggle-folder-files s key index (not (boolean (some #{"selected"} (js/Array.from classes )))))
       (.toggle classes "selected")
     )
+  (data/usage s)
   )
 
 (defn _folder-selected? [s key index]
@@ -83,7 +85,7 @@
                 c)
               )
             true (:files @s)) 
-    )  
+    )
   )
 
 (defn folder-selected? [s key index]

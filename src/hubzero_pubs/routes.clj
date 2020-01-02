@@ -47,11 +47,16 @@
   (response (pubs/get-pubs (:id (:params req)) (:id (:user req))))
   )
 
+(defn get-usage [req]
+  (response (classic/usage (:id (:params req)) (:body-params req)))
+  )
+
 (defroutes api-routes
   (GET "/prjs/:id" [id] {:body (get-prj id)})
   (GET "/prjs/:id/files" [id] (classic/get-files id))
   (GET "/prjs/:id/users" [id] (classic/get-users id))
   (GET "/prjs/:id/pubs" req (get-pubs req))
+  (POST "/prjs/:id/usage" req (get-usage req))
 
   (GET "/pubs/user" req {:body (:user req)})
   (GET "/pubs/licenses" [] (classic/get-licenses))

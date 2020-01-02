@@ -1,6 +1,7 @@
 (ns hubzero-pubs.comps.files
   (:require
     [hubzero-pubs.utils :as utils] 
+    [hubzero-pubs.data :as data]
     [hubzero-pubs.comps.ui :as ui] 
     [hubzero-pubs.comps.panels :as panels] 
     [hubzero-pubs.comps.folders :as folders] 
@@ -23,7 +24,8 @@
     ]
    [:div {:class :progress}
 
-    [:div {:class :bar}
+    [:div {:class :bar
+           :style {:right (str (- 100 (get-in @s [:usage :percent])) "%")}}
      [:span (str (get-in @s [:usage :percent]) "%")]
      ]
     ]
@@ -34,7 +36,6 @@
   [:a {:href "#"
        :class [:icon (if (> (count (get-in @s [:ui :current-folder])) 1) :show)]
        :on-click #(folders/folder-pop s %)
-
        }
    (ui/icon s "#icon-left")
    [:span {:class :name} "Return"]
@@ -70,6 +71,7 @@
       (swap! s assoc-in [:data key k] name)
       )   
     )
+  (data/usage s)
   )
  
 (defn file [s path name key]
