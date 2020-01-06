@@ -20,14 +20,14 @@
                                                    :name (:name u)
                                                    :organization (:organization u)
                                                    } key %)}
-   [:div {:class :inner}
-    [:div {:class [:selected-indicator (if (get-in @s [:ui key (:userid u)]) :selected)] }
-     [:div {:class :icon}
+   [:div.inner
+    [:div.selected-indicator {:class (if (get-in @s [:ui key (:userid u)]) :selected)}
+     [:div.icon
       (ui/icon s "#icon-checkmark")
-      [:span {:class :name} "Selected"]
+      [:span.name "Selected"]
       ]
      ]
-    [:div {:class :icon}
+    [:div.icon
      (ui/icon s "#icon-user")
      ] 
     (:fullname u)
@@ -37,7 +37,7 @@
 
 (defn users [s key]
   (merge
-    [:ul {:class [:ui :user-selector :item-selector]}]
+    [:ul.ui.user-selector.item-selector]
     (doall
       (map #(user s key %) (vals (:users @s)))
       )
@@ -45,8 +45,8 @@
   )
 
 (defn authors-list [s key]
-  [:div {:class [:page-panel :as-panel key (if (get-in @s [:ui :panels key]) :open)]}
-   [:div {:class :inner}
+  [:div.page-panel.as-panel {:class [key (if (get-in @s [:ui :panels key]) :open)]}
+   [:div.inner
     (panels/header s "Add authors from project team")
     (users s key)
     ]
@@ -60,18 +60,16 @@
   )
 
 (defn buttons-new [s key]
-  [:div {:class [:field :buttons]}
-   [:a {:class :btn
-        :href "#"
-        :on-click #(add-click s key  % {:id (get-in @s [:data key :id]) 
-                                        :name (get-in @s [:data key :name]) 
-                                        :organization (get-in @s [:data key :organization]) 
-                                        })
-        } "Add author"]
-   [:a {:class [:btn :secondary]
-        :href "#"
-        :on-click #(panels/close s)
-        } "Close"]
+  [:div.field.buttons
+   [:a.btn {:href "#"
+            :on-click #(add-click s key  % {:id (get-in @s [:data key :id]) 
+                                            :name (get-in @s [:data key :name]) 
+                                            :organization (get-in @s [:data key :organization]) 
+                                            })
+            } "Add author"]
+   [:a.btn.secondary {:href "#"
+                      :on-click #(panels/close s)
+                      } "Close"]
    ] 
   )
 
@@ -89,7 +87,7 @@
   )
 
 (defn result [s key res]
-  [:li {:class :result :key (str (:name res) (:org res))}
+  [:li.result {:key (str (:name res) (:org res))}
    [:a {:href "#"
         :on-click #(result-click s key % res)
         } (:name res) ", " [:span (:org res)]]
@@ -97,23 +95,22 @@
   )
 
 (defn results [s key]
-  (merge [:ul {:class :results}]
+  (merge [:ul.results]
          (doall (map #(result s key %) (:user-results @s)))
          )
   )
 
 (defn search [s key]
-  [:div {:class :field}
+  [:div.field
    [:label {:for :title} "Look up author:"]
-   [:input {:class [:form-textinput :loading-circle :hide-loading-circle]
-            :type :text
-            :value (:user-query @s)
-            :onChange (fn [e]
-                        (swap! s assoc :user-query (-> e .-target .-value))
-                        (data/search-users s)
-                        )
-            }]
-   [:div {:class [:ui :autocomplete]}
+   [:input.form-textinput.loading-circle.hide-loading-circle {:type :text
+                                                              :value (:user-query @s)
+                                                              :onChange (fn [e]
+                                                                          (swap! s assoc :user-query (-> e .-target .-value))
+                                                                          (data/search-users s)
+                                                                          )
+                                                              }]
+   [:div.ui.autocomplete
     (results s key)
     ]
    ]
@@ -122,7 +119,7 @@
 (defn fieldset [s key fields] 
   [:fieldset {:class key}
    (merge
-     [:div {:class :selected-item}]
+     [:div.selected-item]
      (doall (map #(panels/field s key %) fields))
      )
    [:hr]
@@ -132,8 +129,8 @@
   )
 
 (defn authors-new [s key]
-  [:div {:class [:page-panel :as-panel key (if (get-in @s [:ui :panels key]) :open)]}
-   [:div {:class :inner}
+  [:div.page-panel.as-panel {:class [key (if (get-in @s [:ui :panels key]) :open)]}
+   [:div.inner
     (panels/header s "Add new authors")
     (fieldset s key [{:name "firstname" :label "First name" :type :text}
                      {:name "lastname" :label "Last name" :type :text}
