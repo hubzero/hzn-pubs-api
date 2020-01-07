@@ -1,3 +1,14 @@
-(ns hubzero-pubs.config)
+(ns hubzero-pubs.config
+  (:require [cprop.source :as source]
+            [cprop.core :refer [load-config]]
+            [mount.core :as mount :refer [defstate]]))
 
-(defonce config (clojure.edn/read-string (slurp "config.edn")))
+(defstate config
+  :start
+  (load-config
+   :resource "pubs.config.edn"
+   :merge
+   [;; see the :options key in `env`
+    (mount/args)
+    ;(source/from-system-props)
+    (source/from-env)]))
