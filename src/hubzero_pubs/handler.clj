@@ -8,7 +8,7 @@
             ;[ring.middleware.params :refer [wrap-params]]
             ;[ring.middleware.session.cookie :refer [cookie-store]]
             [ring.middleware.defaults :refer :all]
-            [mount.core :refer [defstate]]
+            [mount.core :refer [defstate]]        
             [hubzero-pubs.auth :as auth]
             ))
 

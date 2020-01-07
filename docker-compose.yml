@@ -1,0 +1,65 @@
+version: "3.7"
+services:
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    working_dir: /app
+    networks:
+      - hz-internal
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      # enable various app configurations
+      - ./docker/nginx/app-jwtservice.conf:/etc/nginx/config.d/app-jwtservice.conf
+      - ./docker/nginx/app-uploader.conf:/etc/nginx/config.d/app-uploader.conf
+      - ./docker/nginx/app-druglib.conf:/etc/nginx/config.d/app-druglib.conf
+      - ./sscerts/localhost.crt:/etc/ssl/server.crt
+      - ./sscerts/localhost.key:/etc/ssl/server.key
+      - ./submodules/com_remedi/site/assets:/app/public
+      # Experimental 
+      - ./resources/public/index.html:/app/public/index.html
+      - ./resources/public/css/minimal.css:/app/public/css/minimal.css
+      - ./resources/public/css/slick-theme.css:/app/public/css/slick-theme.css
+      - ./resources/public/css/site.css:/app/public/css/site.css
+      - ./resources/public/js/compiled/remedi_druglib.js:/app/public/js/compiled/remedi_druglib.js
+    ports:
+      - "80:80"
+      - "443:443"
+
+  # Mysql required to test/run locally.
+  mysql:
+    image: mysql:5.6
+    container_name: hub-mysql
+    working_dir: /application
+    networks:
+      - hz-internal
+    environment:
+      - MYSQL_ROOT_PASSWORD=PUk8zFrxsqsS83
+    ports:
+      - "3306:3306"
+    volumes:
+      # bootstrapping data from the git submodule
+      - ./submodules/rche-data-mysql/hubsql:/docker-entrypoint-initdb.d
+      - ./data/mysql:/var/lib/mysql
+
+  pubs:
+    image: hz-publications:latest
+    container_name: pubs
+    working_dir: /app
+    networks:
+      - hz-internal
+    # ports:
+    #   - "3001:3000"
+    environment:
+      - SERVICE_HOST_ARGS__PORT=3000
+      - MYSQL__HOST=mysql
+      - MYSQL__USER=root
+      - MYSQL__PASSWORD=PUk8zFrxsqsS83
+      - MYSQL__DBNAME=example
+      - MONGODB__HOST=mongodb
+      # This needs to be a shared volume mount with the Hub itself.
+      - FILES__ROOT=/app/projects/
+    volumes:
+      - ./data/files/:/app/projects/files/
+      
+networks:
+  hz-internal:

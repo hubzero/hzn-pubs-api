@@ -6,8 +6,10 @@
 
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/tools.logging "0.4.1"]
+                 [org.clojure/tools.nrepl "0.2.13"]
                  [org.clojure/tools.cli "0.3.7"]
                  [org.clojure/java.jdbc "0.7.9"]
+                 [cprop "0.1.14"]                        
                  [mount "0.1.12"]
                  [org.immutant/immutant "2.1.10"]
                  [cheshire "5.9.0"]
@@ -30,7 +32,6 @@
                  [reagent "0.8.1"]
                  [clj-commons/secretary "1.2.4"]
                  ;[glue "0.1.3-SNAPSHOT"]
-
                  [me.raynes/fs "1.4.6"]
                  ]
   :plugins [[lein-figwheel "0.5.14"]
@@ -77,6 +78,7 @@
                            }
 
                 :compiler {:main hubzero-pubs.core
+
                            :asset-path "/app/components/com_pubs/site/assets/js/compiled"
                            :output-to  "/home/jbg/Development/hub/app/components/com_pubs/site/assets/js/compiled/hubzero_pubs.js"
                            :output-dir "/home/jbg/Development/hub/app/components/com_pubs/site/assets/js/compiled"
@@ -132,18 +134,12 @@
 ;; Setting up nREPL for Figwheel and ClojureScript dev
 ;; Please see:
 ;; https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl
-:profiles {:uberjar {:aot :all}
+:profiles {:uberjar {:aot :all :omit-source true}
+           :cln {:clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]}
            :dev {:dependencies [[binaryage/devtools "0.9.4"]
                                 [figwheel-sidecar "0.5.14"]
                                 [com.cemerick/piggieback "0.2.2"]]
-                 ;; need to add dev source path here to get user.clj loaded
-                 ;;:source-paths ["src-cljs"]
-                 ;; for CIDER
-                 ;; :plugins [[cider/cider-nrepl "0.12.0"]]
-                 ;;:repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
-                 ;; need to add the compliled assets to the :clean-targets
-                 :clean-targets ^{:protect false} ["resources/public/js/compiled"
-                                                   :target-path]}}
+                 }}
 
 :main ^:skip-aot hubzero-pubs.core
 :target-path "target/%s"

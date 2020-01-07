@@ -1,0 +1,14 @@
+{
+ :secret "hd3SqnDQ0gNuGVxbfFH9AmsU1KeTv6site"
+ :mysql {:dbtype "mysql"
+         :dbname "example"
+         :user "root"
+         :password "PUk8zFrxsqsS83"
+         :host "localhost"}
+ :mongodb {:host "localhost"}
+ :files {:root "/srv/example/projects/"
+         :dir "/files"}
+ 
+ :service-host-args {:host "0.0.0.0"
+                     :port 3000}
+ }

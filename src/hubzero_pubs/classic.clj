@@ -8,29 +8,31 @@
             [cheshire.core :as json]
             [hubzero-pubs.config :refer [config]]
             [hubzero-pubs.utils :as utils]
+            [mount.core :as mount :refer [defstate]]
             )
   )
 
-(def file-root (get-in config [:files :root]))
-(def file-dir (get-in config [:files :dir]))
-
-(def db (:mysql config))
+(defstate file-root :start (get-in config [:files :root]))
+(defstate file-dir  :start (get-in config [:files :dir]))
+(defstate db        :start (:mysql config))
 
 (def gb 1073741824)
 
-(defqueries "yesql/hzcms-queries.sql" { :connection db })
+(defqueries "yesql/hzcms-queries.sql" )
+(defn _connection [] {:connection db})
+
 
 (defn get-user [id]
-  (sel-user { :user_id id})
+  (sel-user { :user_id id} (_connection))
   )
 
 (defn get-session [id]
-  (sel-session {:session_id id})
+  (sel-session {:session_id id} (_connection))
   )
 
 (defn- _get-prj [id]
   (->
-    (sel-prj {:id id})
+    (sel-prj {:id id} (_connection))
     (first)
     )
   )
@@ -97,31 +99,38 @@
   )
 
 (defn get-licenses []
-  (sel-licenses)
+  (sel-licenses (_connection))
   )
 
 (defn get-users [id]
-  (sel-prj-users {:id id})
+  (sel-prj-users {:id id} (_connection))
   )
 
 (defn search-users [name]
-  (sel-users {:name name})
+  (sel-users {:name name} (_connection))
   )
 
 (defn search-citations [doi]
-  (sel-citations {:doi (str "%" doi "%")})
+  (sel-citations {:doi (str "%" doi "%")} (_connection))
   )
 
 (defn create-citation [m]
+<<<<<<< HEAD
   (->>
     (reduce (fn [c k] (if (k c) c (assoc c k nil))) m
             [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition])
     (insert-citation<!)
     )
+=======
+  (->
+   (reduce (fn [c k] (if (k c) c (assoc c k nil))) m
+           [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition])
+   (insert-citation<! (_connection)))
+>>>>>>> pass 1 docker
   )
 
 (defn get-citation-types []
-  (sel-citation-types)
+  (sel-citation-types (_connection))
   )
 
 (defn create-pub [p]

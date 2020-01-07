@@ -3,7 +3,9 @@
             [mount.core :as mount :refer [defstate]]
             [clojure.tools.logging :as log]
             [hubzero-pubs.http-server :as http]
+            [hubzero-pubs.repl-server :as repl]
             [hubzero-pubs.handler :as handler]
+            [hubzero-pubs.config :refer [config]]
             )
   (:gen-class))
 
@@ -11,11 +13,26 @@
   [["-p" "--port PORT"    "Port number" :parse-fn #(Integer/parseInt %)]
    ["-b" "--bind address" "Bind address"]])
 
+
 (defstate ^{:on-reload :noop} http-server
   :start
-  (http/start {:handler #'handler/app :port 8888 })
+  (http/start
+   (-> config
+       (assoc :handler #'handler/app)
+       (update :io-threads #(or % (* 2 (.availableProcessors (Runtime/getRuntime)))))
+       (update :host #(or (-> config :service-host-args :host) %))
+       (update :port #(or (-> config :options :port) (-> config :service-host-args :port) % 8888))))
   :stop
   (http/stop http-server))
+
+(defstate ^{:on-reload :noop} repl-server
+  :start
+  (if-let [np (get-in config [:nrepl :port])]
+    (if-let [nb (get-in config [:nrepl :bind] "localhost")]
+      (repl/start {:bind nb :port np})))
+  :stop
+  (when repl-server
+    (repl/stop repl-server)))
 
 (defn stop-app []
   (doseq [component (:stopped (mount/stop))]
@@ -30,9 +47,7 @@
     (log/info component "started"))
   (.addShutdownHook (Runtime/getRuntime) (Thread. stop-app)))
 
-(defn -main
-  "I don't do a whole lot ... yet."
+(defn -main  
   [& args]
-  (println "Hello, World!")
-  (start-app args)
-  )
+  (println "Hubzero Publications Starting ...")
+  (start-app args))
