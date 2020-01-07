@@ -33,7 +33,7 @@ SELECT * FROM `jos_publication_versions` WHERE `id` = :id
 
 -- name: insert-pub-version<!
 --
-INSERT INTO `jos_publication_versions` (`publication_id`, `main`, `state`, `title`, `description`, `abstract`, `created`, `created_by`, `secret`, `version_number`, `license_type`, `access`) VALUES (:publication_id, :main, :state, :title, :description, :abstract, :created, :created_by, :secret, :version_number, :license_type, :access)
+INSERT INTO `jos_publication_versions` (`publication_id`, `main`, `state`, `title`, `description`, `abstract`, `created`, `created_by`, `secret`, `version_number`, `license_type`, `access`, `params`) VALUES (:publication_id, :main, :state, :title, :description, :abstract, :created, :created_by, :secret, :version_number, :license_type, :access, :params)
 
 -- name: update-pub-version!
 --
@@ -50,6 +50,10 @@ UPDATE `jos_publication_attachments` SET `publication_version_id`=:publication_v
 -- name: del-attachment!
 --
 DELETE FROM `jos_publication_attachments` WHERE `id` = :id 
+
+-- name: insert-author<!
+--
+INSERT INTO jos_publication_authors (publication_version_id, user_id, ordering, name, firstName, lastName, organization, credit, created, created_by, status, project_owner_id) VALUES (:publication_version_id, :user_id, :ordering, :name, :firstname, :lastname, :org, :credit, :created, :created_by, :status, :project_owner_id)
 
 -- name: sel-prj-owners
 --

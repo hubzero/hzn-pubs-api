@@ -19,6 +19,14 @@
    }
   )
 
+(defn get-user [s]
+  (go (let [res (<! (http/get (str url "/user")
+                              (options s)))]
+        (prn "USER" (:body res))
+        (swap! s assoc :user-id (:id (:body res)))
+        ))
+  )
+
 (defn get-files [s]
   (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s) "/files")
                               (options s)))]
@@ -95,7 +103,7 @@
   )
 
 (defn save-pub [s]
-  (go (let [pub (mutate/prepare (assoc (:data @s) :prj-id (:prj-id @s)))
+  (go (let [pub (mutate/prepare (assoc (:data @s) :prj-id (:prj-id @s) :user-id (:user-id @s)))
             res (<! (http/post (str url "/pubs") {:edn-params pub}))]
         (prn (:body res))
         (swap! s assoc :data (merge (:data @s) (:body res)))

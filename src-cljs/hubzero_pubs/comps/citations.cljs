@@ -185,7 +185,7 @@
   )
 
 (defn manual [s key]
-  [:div.page-panel.as-panel {:class [key (if (get-in @s [:ui.panels key]).open)]}
+  [:div.page-panel.as-panel {:class [key (if (get-in @s [:ui.panels key]) :open)]}
    [:div.inner
     (panels/header s "Add a citation manually")
     (_manual s key)

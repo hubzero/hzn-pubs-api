@@ -2,6 +2,7 @@
   (:require [reagent.core :as r]
             [hubzero-pubs.routes :as routes]
             [hubzero-pubs.utils :as utils]
+            [hubzero-pubs.data :as data]
             [hubzero-pubs.comps.app :as app]
             )
   )
@@ -15,6 +16,7 @@
 (routes/app-routes s)
 
 (defn ^:export run []
+  (data/get-user s)
   (r/render [#(app/app s)] (js/document.getElementById "app"))
   )
 

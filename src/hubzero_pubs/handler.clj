@@ -47,8 +47,8 @@
           )
       (route/not-found
         (:body {:status 404 :title "page not found"})))  
-  ;  wrap-auth
-  ;  wrap-cookies
-  ;  wrap-session
+    wrap-auth
+    wrap-cookies
+    wrap-session
     )
   )
