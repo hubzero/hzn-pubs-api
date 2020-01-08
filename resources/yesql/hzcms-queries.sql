@@ -55,6 +55,34 @@ DELETE FROM `jos_publication_attachments` WHERE `id` = :id
 --
 INSERT INTO jos_publication_authors (publication_version_id, user_id, ordering, name, firstName, lastName, organization, credit, created, created_by, status, project_owner_id) VALUES (:publication_version_id, :user_id, :ordering, :name, :firstname, :lastname, :org, :credit, :created, :created_by, :status, :project_owner_id)
 
+-- name: sel-tag
+--
+SELECT * FROM `jos_tags` WHERE `raw_tag` = :tag
+
+-- name: sel-tag-by-id
+--
+SELECT * FROM `jos_tags` WHERE `id` = :id
+
+-- name: insert-tag<!
+--
+INSERT INTO `jos_tags` (`admin`,`raw_tag`,`description`,`created`,`created_by`,`tag`,`modified`,`modified_by`) VALUES (:admin,:raw_tag,:description,:created,:created_by,:tag,:modified,:modified_by)
+
+-- name: sel-tag-obj
+--
+SELECT * FROM `jos_tags_object` WHERE `tagid` = :tag_id AND `objectid` = :object_id AND `tbl` = :tbl
+
+-- name: insert-tag-obj<!
+--
+INSERT INTO `jos_tags_object` (`tbl`,`objectid`,`tagid`,`strength`,`taggerid`,`taggedon`) VALUES (:tbl,:object_id,:tag_id ,:strength,:tagger_id,:tagged_on)
+
+-- name: update-tag!
+--
+UPDATE `jos_tags` SET `id` = :id,`tag` = :tag,`raw_tag` = :raw_tag,`description` = :description,`admin` = :admin,`created` = :created,`created_by` = :created_by,`modified` = :modified,`modified_by` = :modified_by, `objects` = :objects,`substitutes` = :substitutes
+
+-- name: insert-tag-log<!
+--
+INSERT INTO `jos_tags_log` (`tag_id`,`action`,`comments`,`timestamp`,`user_id`,`actorid`) VALUES (:tag_id,:action,:json,:time,:user_id,:actor_id)
+
 -- name: sel-prj-owners
 --
 SELECT DISTINCT * FROM jos_project_owners AS o JOIN jos_projects as p ON o.projectid=p.id LEFT JOIN jos_publication_authors as pa ON o.id=pa.project_owner_id AND pa.publication_version_id=:publication_version_id LEFT JOIN jos_xprofiles as x ON o.userid=x.uidNumber LEFT JOIN jos_xgroups as g ON o.groupid=g.gidNumber WHERE o.projectid=:project_id AND (o.userid > 0 OR o.invited_email IS NOT null OR o.invited_name IS NOT null) AND o.status NOT IN (2,4) GROUP BY o.id, pa.name, pa.organization, pa.credit

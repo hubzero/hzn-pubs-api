@@ -4,6 +4,7 @@
             [yesql.core :refer [defqueries]]
             [clojure.java.jdbc :as jdbc]
             [me.raynes.fs :as fs]
+            [cheshire.core :as json]
             [hubzero-pubs.config :refer [config]]
             [hubzero-pubs.utils :as utils]
             )
@@ -169,8 +170,8 @@
                          :license_type (:id (:licenses p))
                          :access 0
                          :secret (utils/rand-str 10)
-                         :params (_params-str pub)
-                         :release_notes (:notes p)
+                         :params (_params-str p)
+                         :release_notes (:notes p "")
                          :published_up (_fmt-pub-date (:publication-date p))
                          })
   )
@@ -208,7 +209,91 @@
     )
   )
 
+(defn get-tag [s]
+  (first (sel-tag {:tag s}))
+  )
+
+(defn- _add-tag [s pub]
+  (insert-tag<! {:admin 0
+                 :raw_tag s 
+                 :description ""
+                 :created (f/unparse (:mysql f/formatters) (t/now))
+                 :created_by (:user-id pub)
+                 :tag (clojure.string/replace s #"[^\w]+" "")
+                 :modified (f/unparse (:mysql f/formatters) (t/now))
+                 :modified_by (:user-id pub)
+                 })
+  )
+
+(defn tag-obj-exists? [tag ver-id pub]
+  (> (count (sel-tag-obj {:tag_id (:id tag)
+                          :object_id ver-id
+                          :tbl "publications"
+                          })) 0)
+  )
+
+(defn- _add-tag-obj [tag ver-id pub]
+  (if (not (tag-obj-exists? tag ver-id pub)) 
+    (insert-tag-obj<! {:tbl "publications"
+                       :object_id ver-id
+                       :tag_id (:id tag)
+                       :strength 1
+                       :tagger_id (:user-id pub) 
+                       :tagged_on (f/unparse (:mysql f/formatters) (t/now))
+                       })
+    )
+  )
+
+(defn- _update-tag [tag pub]
+  (update-tag! (-> tag
+                   (update :objects inc)
+                   (assoc :modified (f/unparse (:mysql f/formatters) (t/now)))
+                   (assoc :modified_by (:user-id pub))
+                   ))
+  )
+
+(defn- _log-tag [tag action pub]
+  (insert-tag-log<! {:tag_id (:id tag)
+                     :action action
+                     :json (json/generate-string tag)
+                     :time (f/unparse (:mysql f/formatters) (t/now))
+                     :user_id (:user-id pub)
+                     :actor_id (:user-id pub)
+                     })
+  )
+
+(defn- _tag [tag ver-id pub]
+  (prn "Updating old tag..." (:id tag))
+  (_add-tag-obj tag ver-id pub)
+  (_update-tag tag pub)
+  (_log-tag tag "tag_edited" pub)
+  )
+
+(defn _create-tag [s pub]
+  (prn "Creating new tag...")
+  (as-> (_add-tag s pub) $
+    (:generated_key $)
+    (sel-tag-by-id {:id $}) 
+    (first $)
+    (_log-tag $ "tag_created" pub)
+    )
+  )
+
+(defn tag [pub ver-id i]
+  (let [s (nth (:tags pub) i)]
+    (if-let [tag (get-tag s)]
+      (_tag tag ver-id pub)
+      (_create-tag s pub)
+      )
+    )
+  )
+
 (comment
+
+
+  (first (get-tag "foooo"))
+
+  
 
   (f/show-formatters)
   (t/now)
@@ -255,15 +340,24 @@
                     :url "http://example.com"
                     })
 
+
 (def pub-id (-> (create-pub pub) (:generated_key))) 
 (prn pub-id)
 
 (def ver-id (-> (create-pub-version pub-id pub) (:generated_key)))
 (prn ver-id)
 
+(tag pub ver-id 1)
+
+(_create-tag (utils/rand-str 10) pub)
+
+(def tag (get-tag "admin"))
+(prn tag)
+(tag-obj-exists? tag ver-id pub)
+
 (add-author ver-id pub 0)
 
-(add-file pub-id ver-id pub 0)
+(add-file pub-id ver-id pub 0 :content)
 
   (prn pub)
 
@@ -342,7 +436,10 @@
               :accession_number "",
               :booktitle "",
               :exp_data nil}],
-            :ack true}
+            :ack true
+            :publication-date "11th January 2020"
+            :tags ["admin" "bar" "foo"]
+            }
     )
 
 

@@ -10,7 +10,7 @@
                  [org.clojure/java.jdbc "0.7.9"]
                  [mount "0.1.12"]
                  [org.immutant/immutant "2.1.10"]
-                 [cheshire "5.8.0"]
+                 [cheshire "5.9.0"]
                  [compojure "1.6.1"]
                  [com.cognitect/transit-clj "0.8.309"]
                  [markdown-clj "1.0.2"]
