@@ -17,12 +17,9 @@
 
   )
 
-(defn close [s]
-;  (doall (map
-;           #(-> % .-classList (.remove "open"))
-;           (array-seq (.querySelectorAll js/document ".page-panel, .as-panel"))
-;           )
-;         )
+(defn close [s e]
+  (.preventDefault e)
+  (.stopPropagation e)
   (swap! s assoc-in [:ui :panels] nil)
   (show-overlay s false)
   )
@@ -34,12 +31,12 @@
   )
 
 (defn overlay [s]
-  [:div {:class :page-overlay :on-click #(close s) }]
+  [:div {:class :page-overlay :on-click #(close s %) }]
   )
 
 (defn header [s title]
   [:header
-   [:a {:href "#" :class :icon :on-click #(close s)}
+   [:a {:href "#" :class :icon :on-click #(close s %)}
     (ui/icon s "#icon-left")
     [:span {:class :name} "Return"]
     ]

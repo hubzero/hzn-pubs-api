@@ -330,7 +330,7 @@
   )
 
 (defn- _menu-item [id label & [header?]]
-  [:li.item {:class (if header? :header)}
+  [:li.item {:key id :class (if header? :header)}
    [:a {:href id :on-click #(_handle-nav id %)} label]]
   )
 
