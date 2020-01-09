@@ -57,9 +57,14 @@
                            }
 
                 :compiler {:main hubzero-pubs.core
-                           :asset-path "/js/compiled/out"
+                           ;:asset-path "/js/compiled/out"
+                           ;:output-to "resources/public/js/compiled/hubzero_pubs.js"
+                           ;:output-dir "resources/public/js/compiled/out"
+
+                           ; fix this make new profile for ilya's stuff
+                           :asset-path "/app/components/com_pubs/site/assets/js/compiled"
                            :output-to "resources/public/js/compiled/hubzero_pubs.js"
-                           :output-dir "resources/public/js/compiled/out"
+                           :output-dir "resources/public/js/compiled"
                            :source-map-timestamp true
                            ;; To console.log CLJS data-structures make sure you enable devtools in Chrome
                            ;:install-deps true
