@@ -6,12 +6,12 @@
   )
 
 (defn tag-creator [s]
-  [:div {:href "#"
-         :class [:ptag :creator (if (get-in @s [:ui :tag]) :hide)]
-         :on-click #(swap! s assoc-in [:ui :tag] true)
-         }
-   [:div {:class :inner}
-    [:div {:class [:add :icon]}
+  [:div.ptag.creator {:href "#"
+                      :class (if (get-in @s [:ui :tag]) :hide)
+                      :on-click #(swap! s assoc-in [:ui :tag] true)
+                      }
+   [:div.inner
+    [:div.add.icon
      (ui/icon s "#icon-plus")
      ]
     "Add new tag"
@@ -35,22 +35,20 @@
      ;#(.log js/console "example-component-did-update")
      }
    (fn [] 
-     [:input {:class :new-tag
-              :type :text
-              :placeholder "Enter tag"
-              :onKeyUp #(if (= 13 (.-keyCode %)) (add-tag s %))
-              }] 
+     [:input.new-tag {
+                      :type :text
+                      :placeholder "Enter tag"
+                      :onKeyUp #(if (= 13 (.-keyCode %)) (add-tag s %))
+                      }] 
      )])
 
 (defn tag-creating [s]
-  [:div {:class [:ptag :creating (if (get-in @s [:ui :tag]) :show)]}
-   [:div {:class :inner}
+  [:div.ptag.creating {:class (if (get-in @s [:ui :tag]) :show)}
+   [:div.inner
     (tag-input s)    
-    [:a {:class [:add :icon]
-         :on-click #(add-tag s %)
-         }
+    [:a.add.icon { :on-click #(add-tag s %) }
      (ui/icon s "#icon-plus")
-     [:span {:class :name} "Add"]
+     [:span.name "Add"]
      ] 
     ]
    ]
@@ -66,12 +64,12 @@
   )
 
 (defn tag [s name]
-  [:a {:href "#" :class :ptag :key name :data-val name :on-click (fn [e]
-                                                                   (.preventDefault e)
-                                                                   (.stopPropagation e)
-                                                                   )}
-   [:div {:class :inner} name
-    [:div {:class [:remove :icon] :on-click #(remove-tag s %)}
+  [:a.ptag {:href "#" :key name :data-val name :on-click (fn [e]
+                                                           (.preventDefault e)
+                                                           (.stopPropagation e)
+                                                           )}
+   [:div.inner name
+    [:div.remove.icon {:on-click #(remove-tag s %)}
      (ui/icon s "#icon-cross")
      ]
     ]
@@ -79,11 +77,11 @@
   )
 
 (defn tags [s]
-  [:div {:class :field}
+  [:div#a-tags.field
    [:label {:for :tags} "Tags:"]
-   [:div {:class :field-wrapper}
+   [:div.field-wrapper
     (merge
-      [:div {:class [:item :ui :ptags]}]
+      [:div.item.ui.ptags]
       (map #(tag s %)  (get-in @s [:data :tags]))
       (tag-creator s)
       (tag-creating s)

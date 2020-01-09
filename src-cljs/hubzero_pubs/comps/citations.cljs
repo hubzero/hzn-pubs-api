@@ -20,9 +20,9 @@
   (swap! s update-in [:data :citations] conj (first (:doi-results @s)))
   (panels/close s)
   )
- 
+
 (defn search-doi [s key]
-  [:div {:class :field}
+  [:div.field
    [:label {:for :doi} "DOI:"]
    [:input {:type :text :onChange (fn [e]
                                     (swap! s assoc :doi-query (-> e .-target .-value))
@@ -32,12 +32,12 @@
   )
 
 (defn citation [s key c]
-  [:p {:class :formatted-meta :key (:id c)} (utils/format-citation c)]
+  [:p.formatted-meta.key {:class (:id c)} (utils/format-citation c)]
   )
 
 (defn list-citations [s key]
   (merge
-    [:div {:class :field}] 
+    [:div.field] 
     (doall (map #(citation s key %)
                 (:doi-results @s)
                 ))
@@ -45,58 +45,111 @@
   )
 
 (defn- _doi [s key]
-  [:fieldset {:class :citations-doi}
-   [:div {:class :selected-item}
+  [:fieldset.citations-doi
+   [:div.selected-item
     (search-doi s key)
     (list-citations s key)
     ]
    [:hr]
-   [:div {:class [:field :buttons]}
-    [:a {:class :btn :href "#" :on-click #(add-doi s %)} "Add citation"]  
-    [:a {:class [:btn :secondary] :href "#"} "Close"]
+   [:div.field.buttons
+    [:a.btn {:href "#" :on-click #(add-doi s %)} "Add citation"]  
+    [:a.btn.secondary {:href "#"} "Close"]
     ]
    ]
   )
 
 (defn text [s key f]
-  [:div {:class :field :key (:name f)}
+  [:div.field {:key (:name f)}
    [:label {:for :title} (str (:label f) ":")]
    [:input {:type :text :onChange (fn [e]
                                     (.preventDefault e)
                                     (.stopPropagation e)
                                     (swap! s assoc-in [:data key (:name f)] (-> e .-target .-value))
                                     )}]
-   
+
    ]
   )
 
 (defn textfield [s key f]
   (merge
-    [:div {:class :field :key (:name f)}]
+    [:div.field {:key (:name f)}]
     [:label {:for :citation} (str (:label f) ":")]
     [:textarea {:name :citation :onChange (fn [e]
                                             (.preventDefault e)
                                             (.stopPropagation e)
                                             (swap! s assoc-in [:data key (:name f)] (-> e .-target .-value))
                                             )}]
-    (if (:hint f) [:p {:class :hint} (:hint f)])
+    (if (:hint f) [:p.hint (:hint f)])
     ) 
   )
 
+(defn- _handle-dropdown [s key f e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s update-in [:ui key (:name f)] not)
+  )
+
+(defn- _option-click [s key f o e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s assoc-in [:data key (:name f)] o)
+  (swap! s assoc-in [:ui key (:name f)] false)
+  )
+
+(defn- _option-rm [s key f e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s assoc-in [:data key (:name f)] "")
+  (swap! s assoc-in [:ui key (:name f)] false)
+  )
+
+(defn dropdown [s key f]
+  [:div.field {:key (:name f)}
+   [:label {:for (:name f)} (str (:label f) ":")]
+   [:div.proto-dropdown {:class (if (get-in @s [:ui key (:name f)]) :open)}
+    [:div.input-wrap
+     [:input {:type :text
+              :value (get-in @s [:data key (:name f)])
+              :onChange #(swap! s assoc-in [:data key (:name f)])
+              }]
+     [:a.icon {:on-click #(_option-rm s key f %)}
+      (ui/icon s "#icon-cross")
+      ]
+     ]
+    (merge
+      [:ul.dropdown-menu.roll.listbox]    
+      (doall (map (fn [o] [:li {:key o
+                                :role :option
+                                :on-click #(_option-click s key f o %)
+                                } o]) (:options f)))
+      )
+    [:a.icon {:href "#"
+              :on-click #(_handle-dropdown s key f %)
+              } (ui/icon s "#icon-left")]
+    ]
+   ]
+  )
+
 (defn field [s key f]
-  (((:type f) {
-               :text #(text s key f)
+  (((:type f) {:text #(text s key f)
                :textfield #(textfield s key f)
+               :dropdown #(dropdown s key f)
                }))
   )
 
 (defn- _manual [s key]
-  [:fieldset {:class :citations-manual}
-   [:div {:class :selected-item}
-    (doall (map #(field s key %) [;; Type
+  [:fieldset.citations-manual
+   [:div.selected-item
+    (doall (map #(field s key %) [{:name :citation-type
+                                   :label "Type"
+                                   :type :dropdown
+                                   :options ["Journal" "Article"]}
                                   {:name :title :label "Title" :type :text}
                                   {:name :year :label "Year" :type :text}
-                                  ;; Month
+                                  {:name :month
+                                   :label "Month"
+                                   :type :dropdown
+                                   :options (:months @s)}
                                   {:name :authors :label "Authors" :type :text}
                                   {:name :journal :label "Journal" :type :text}
                                   {:name :book :label "Book title" :type :text}
@@ -115,16 +168,16 @@
                                   ] )) 
     ]
    [:hr]
-   [:div {:class [:field :buttons]}
-    [:a {:class :btn :href "#" :on-click #(add-citation s %)} "Add citation"]
-    [:a {:class [:btn :secondary] :href "#"} "Add citation"]
+   [:div.field.buttons
+    [:a.btn {:href "#" :on-click #(add-citation s %)} "Add citation"]
+    [:a.btn.secondary {:href "#"} "Add citation"]
     ]
    ]
   )
 
 (defn doi [s key]
-  [:div {:class [:page-panel :as-panel key (if (get-in @s [:ui :panels key]) :open)]}
-   [:div {:class :inner}
+  [:div.page-panel.as-panel {:class [key (if (get-in @s [:ui :panels key]) :open)]}
+   [:div.inner
     (panels/header s "Add a DOI citation")
     (_doi s key)
     ]
@@ -132,8 +185,8 @@
   )
 
 (defn manual [s key]
-  [:div {:class [:page-panel :as-panel key (if (get-in @s [:ui :panels key]) :open)]}
-   [:div {:class :inner}
+  [:div.page-panel.as-panel {:class [key (if (get-in @s [:ui.panels key]).open)]}
+   [:div.inner
     (panels/header s "Add a citation manually")
     (_manual s key)
     ]

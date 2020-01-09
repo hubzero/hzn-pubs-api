@@ -6,8 +6,8 @@
             )
   )
 
-;(def url "https://localhost/p")
-(def url "http://localhost:8888")
+(def url "https://localhost/p")
+;(def url "http://localhost:8888")
 
 (defn options [s]
   {
@@ -106,6 +106,13 @@
     )
   )
 
+(defn usage [s]
+  (go (let [res (<! (http/post (str url "/prjs/" (:prj-id @s) "/usage" ) {:edn-params (keys (get-in @s [:data :content] {}))}))]
+        (prn (:body res))
+        (swap! s assoc :usage (:body res))
+        ))
+  )
+
 (defn get-pub [s]
   (prn "GET PUB" (:pub-id @s))
   (go (let [res (<! (http/get (str url "/pubs/" (:pub-id @s)) (options s)))]
@@ -116,6 +123,7 @@
           )
         (prn "DATA" (:data @s))
         (swap! s assoc :prj-id (get-in @s [:data :prj-id]))
+        (usage s)
         ))
   )
 
@@ -125,6 +133,7 @@
         (prn (:body res))
         ;; TODO: What? - JBG
         (if-let [id (:pub-id @s)] (get-pub s)) 
+        (usage s)
         ))
   )
 

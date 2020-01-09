@@ -21,8 +21,8 @@
   (swap! s assoc-in [:data (keyword name)] (-> e .-target .-value))
   )
 
-(defn textfield [s title name]
-  [:div {:class :field}
+(defn textfield [s id title name]
+  [:div.field {:id id}
    [:label {:for :title} title]
    [:input {:type :text
             :name name
@@ -32,8 +32,8 @@
    ]
   )
 
-(defn textarea [s title name]
-  [:div {:class :field}
+(defn textarea [s id title name]
+  [:div.field {:id id}
    [:label {:for :title} title]
    [:textarea {:name name
                :value (get-in @s [:data (keyword name)])
@@ -43,12 +43,10 @@
   )
 
 (defn file [s key name]
-  [:li {:class :item :key name}
+  [:li.item {:key name}
    (ui/icon s "#icon-file-text2")
-   [:div {:class "main"} [:a {:href "#"} name]]
-   [:div {:class "options" :on-click
-         #(swap! s assoc-in [:ui :options key name] true)
-          }
+   [:div.main [:a {:href "#"} name]]
+   [:div.options {:on-click #(swap! s assoc-in [:ui :options key name] true)}
     (ui/icon s "#icon-dots")
     (options/items s key name)
     ]
@@ -65,12 +63,12 @@
   )
 
 (defn author [s author]
-  [:li {:class :item :key (:id author)}
+  [:li.item {:key (:id author)}
    (ui/icon s "#icon-user")
-   [:div {:class :main}
-    [:div {:class :subject} [:a {:href "#"} (:name author)] ]
-    [:div {:class :meta} [:a {:href "#"} (:org author)] ]
-    [:div {:class [:ui :checkbox :inline :meta] }
+   [:div.main
+    [:div.subject [:a {:href "#"} (:name author)] ]
+    [:div.meta [:a {:href "#"} (:org author)] ]
+    [:div.ui.checkbox.inline.meta
      [:input (merge {:type :checkbox :name :poc :on-change #(handle-poc-click s % (:id author))} {:checked (boolean (some #{(:id author)} (get-in @s [:data :poc]))) })]
      [:label (:for :poc) "Point of contact"]
      ]
@@ -79,18 +77,18 @@
   )
 
 (defn image [s name]
-  [:li {:class :item :key name}
+  [:li.item {:key name}
    (ui/icon s "#icon-file-picture")
-   [:div {:class :main} [:a {:href "#"} name]]
+   [:div.main [:a {:href "#"} name]]
    (ui/icon s "#icon-dots")
    ]
   )
 
 (defn citation [s key c]
-  [:li {:class :item :key (:id c)}
-   [:div {:class :icon} (ui/icon s "#icon-file-text2")]
-   [:div {:class :main}
-    [:div {:class :subject}
+  [:li.item {:key (:id c)}
+   [:div.icon (ui/icon s "#icon-file-text2")]
+   [:div.main
+    [:div.subject
      [:a {:href "#"} (utils/format-citation c)]
      ]
     ]
@@ -132,17 +130,15 @@
 
 (defn selector-button [s key options-comp f]
   [:div {:class (selector-classes s key [:selector]) }
-   [:a {:href "#"
-        :class :selector-button
-        :on-click #(f s % key)}
+   [:a.selector-button {:href "#" :on-click #(f s % key)}
     (ui/icon s "#icon-plus")
     ] options-comp]
   )
 
-(defn collection [s title key options-comp f]
-  [:div {:class :field}
+(defn collection [s id title key options-comp f]
+  [:div.field {:id id}
    [:label {:for :title} title]
-   [:div {:class :collection}
+   [:div.collection
     (items s key)
     (selector-button s key options-comp f)
     ]
@@ -150,16 +146,15 @@
   )
 
 (defn acknowledge [s]
-  [:div {:class [:details :last-child]}
-   [:div {:class :inner}
+  [:div.details.last-child
+   [:div.inner
     [:header "License acknowledgement"]
-    [:div {:class [:ui :checkbox :inline] }
-     [:input {:type :checkbox
-              :class :important
-              :name :ack
-              :checked (or (get-in @s [:data :ack]) false) 
-              :on-change #(swap! s update-in [:data :ack] not)
-              } ]
+    [:div.ui.checkbox.inline
+     [:input.important {:type :checkbox
+                        :name :ack
+                        :checked (or (get-in @s [:data :ack]) false) 
+                        :on-change #(swap! s update-in [:data :ack] not)
+                        } ]
      [:label {:for :poc}
       "I have read the "
       [:a {:href "#"} "license terms"]
@@ -171,10 +166,10 @@
   )
 
 (defn license-item [s name detail]
-  [:div {:class :item :key name}
-   [:div {:class :main}
-    [:header {:class :subject} name]   
-    [:div {:class [:details :meta]} detail]  
+  [:div.item {:key name}
+   [:div.main
+    [:header.subject name]   
+    [:div.details.meta detail]  
     ]
    ]
   )
@@ -183,18 +178,18 @@
   (data/get-licenses s)
   (panels/show s e true key)
   )
- 
+
 (defn licenses [s]
-  [:div {:class :field}
+  [:div.field
    [:label {:for :title} "License:"]
    (merge
-     [:div {:class [:collection :single-item]}
-      [:div {:class :item}
-       [:div {:class :main}
-        [:header {:class :subject}
+     [:div.collection.single-item
+      [:div.item
+       [:div.main
+        [:header.subject
          (get-in @s [:data :licenses :title])
          ]
-        [:div {:class :meta}
+        [:div.meta
          (get-in @s [:data :licenses :info])
          ]
         ] 
@@ -207,10 +202,10 @@
   )
 
 (defn agreements [s]
-  [:div {:class :field}
+  [:div.field
    [:label {:for :agreement} "Agreements"]
-   [:div {:class :field-wrapper}
-    [:div {:class [:item :ui :checkbox :inline]}
+   [:div.field-wrapper
+    [:div.item.ui.checkbox.inline
      [:input {:type :checkbox
               :name :terms
               :checked (or (get-in @s [:data :terms]) false) 
@@ -234,17 +229,17 @@
   )
 
 (defn essentials [s]
-  [:fieldset {:class :section}
+  [:fieldset.section
    [:header
     [:legend "Essentials"]
-    [:div {:class "note"} "all field required"]
+    [:div.note "all field required"]
     ]
-    (textfield s "Title:" "title")
-    (textarea s "Synopsis:" "synopsis")
-    (collection s "Content:" :content nil handle-files-options)
-    (collection s "Authors:" :authors-list (options/authors s) handle-author-options)
-    (licenses s)
-    (agreements s)
+   (textfield s "a-title" "Title:" "title")
+   (textarea s "a-synopsis" "Synopsis:" "synopsis")
+   (collection s "a-content" "Content:" :content nil handle-files-options)
+   (collection s "a-authors" "Authors:" :authors-list (options/authors s) handle-author-options)
+   (licenses s)
+   (agreements s)
    ]
   )
 
@@ -255,14 +250,14 @@
   )
 
 (defn additional-details [s]
-  [:fieldset {:class :section}
+  [:fieldset.section
    [:header [:legend "Additional Details"]]
-   (collection s "Image gallery:" :images nil handle-files-options)
-   (textfield s "External website URL:" "url")
-   (collection s "Supporting docs:" :support-docs nil handle-files-options)
+   (collection s "a-image-gallery" "Image gallery:" :images nil handle-files-options)
+   (textfield s "a-url" "External website URL:" "url")
+   (collection s "a-docs" "Supporting docs:" :support-docs nil handle-files-options)
    (tags/tags s)
-   (collection s "Citations:" :citations (options/citations s) handle-citation-options)
-   (textarea s "Version release notes:" "release-notes")
+   (collection s "a-citations" "Citations:" :citations (options/citations s) handle-citation-options)
+   (textarea s "a-verion-notes" "Version release notes:" "release-notes")
    ]
   )
 
@@ -279,7 +274,7 @@
        )
      }
    (fn []
-     [:div {:class :field}
+     [:div#a-pub-date.field.anchor
       [:label {:for :title} "Publication date:"]
       [:input {:type :text
                :name "publication-date" 
@@ -290,32 +285,27 @@
   )
 
 (defn publish-settings [s]
-  [:fieldset {:class :section}
-   [:header [:legend "Publish Settings"]]
-    (pub-date s)
-    (textarea s "Comments to the administrator:" "comments")
+  [:fieldset.section
+   [:header#a-pub-settings.anchor.a-header [:legend "Publish Settings"]]
+   (pub-date s)
+   (textarea s "a-comments" "Comments to the administrator:" "comments")
    ]
   )
 
 (defn aside-buttons [s]
   [:aside
-   [:div {:class :inner}
-    [:fieldset {:class :buttons-aside}
-     [:a {:href "/#/summary"
-          :class :btn
-          } "Proceed with the draft"]
+   [:div.inner
+    [:fieldset.buttons-aside
+     [:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
      ]
     ]
    ]
   )
 
 (defn section-buttons [s]
-  [:fieldset {:class [:section :buttons]}
-   [:div {:class [:field :buttons]}
-    [:a {:href "#"
-         :class :btn
-         ;:on-click #(proceed-draft s %)
-         } "Proceed with the draft"]
+  [:fieldset.section.buttons
+   [:div.field.buttons
+    [:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
     ]
    ]
   )
@@ -331,21 +321,48 @@
    ]
   )
 
-(defn nav-section [s]
-  [:div
-   [:header "Essentials"]
-   [:ul
-    [:li [:a {:href "#"} "Title"]]
-    [:li "Synopsis"]
-    [:li "Content"]
-    [:li "Authors"]
-    [:li "License"]
-    [:li "Point of Contact"]
-    [:li "Agreements"]
-    ]
-   ]
+(defn- _handle-nav [id e]
+  (.preventDefault e)
+  (.stopPropagation e) 
+  (-> (.getElementById js/document id)
+      (.scrollIntoView (clj->js {:behavior :smooth}))
+      )
   )
- 
+
+(defn- _menu-item [id label & [header?]]
+  [:li.item {:class (if header? :header)}
+   [:a {:href id :on-click #(_handle-nav id %)} label]]
+  )
+
+(defn nav-section [s]
+  (merge 
+    [:ul]
+    (doall (map (fn [{id :id label :label header :header}]
+                  (_menu-item id label header)
+                  ) [{:id "a-essentials" :label "Essentials" :header true}
+                     {:id "a-title" :label "Title"}
+                     {:id "a-synopsis" :label "Synopsis"}
+                     {:id "a-content" :label "Content"}
+                     {:id "a-authors" :label "Authors"}
+                     {:id "a-license" :label "License"}
+
+                     {:id "a-details" :label "Additional Details" :header true}
+                     {:id "a-image-gallery" :label "Image gallery"}
+                     {:id "a-url" :label "External website URL"}
+                     {:id "a-docs" :label "Supporting documents"}
+                     {:id "a-tags" :label "Tags"}
+                     {:id "a-citations" :label "Citations"}
+                     {:id "a-version-notes" :label "Version release notes"}
+
+                     {:id "a-pub-settings" :label "Publishing Settings" :header true}
+                     {:id "a-pub-date" :label "Publication date"}
+                     {:id "a-comments" :label "Comments to the administrator"}
+
+
+                     ]))
+    )
+  )
+
 (defn navigation [s]
   [:aside
    [:nav
@@ -367,9 +384,7 @@
   )
 
 (defn wrap [s]
-  [:div {:class :wrap :on-click (fn [e] (options/close s)) }
-   [:header {:id :content-header}
-    [:h2 "New Publication"]]
+  [:div.wrap {:on-click (fn [e] (options/close s)) }
    (if (get-in @s [:ui :summary])
      (summary/page-summary s) 
      (page-main s)
@@ -391,4 +406,4 @@
     (citations/manual s :citations-manual)
     )
   )
- 
+

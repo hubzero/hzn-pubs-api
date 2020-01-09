@@ -155,8 +155,8 @@
      [:header "Your publication is ready for submission!"]
      [:p "Please review your publication and make sure everything looks good."]
      [:fieldset {:class :buttons-aside}
-      [:a {:href "/#/submit" :class :btn} "Submit publication"]
-      [:a {:href (str "/#/pubs/" (:pub-id @s) "/edit")
+      [:a {:href "/pubs/#/submit" :class :btn} "Submit publication"]
+      [:a {:href (str "/pubs/#/pubs/" (:pub-id @s) "/edit")
            :class [:btn :secondary]} "Edit draft"]
       ]
      ]
