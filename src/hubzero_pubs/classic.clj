@@ -4,11 +4,10 @@
             [me.raynes.fs :as fs]
             [hubzero-pubs.config :refer [config]]
             )
-;  (:gen-class)
   )
 
-(def file-root "/srv/example/projects/")
-(def file-dir "/files")
+(def file-root (get-in config [:files :root]))
+(def file-dir (get-in config [:files :dir]))
 
 (def db (:mysql config))
 
