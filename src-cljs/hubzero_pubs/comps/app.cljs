@@ -235,7 +235,7 @@
     [:div.note "all field required"]
     ]
    (textfield s "a-title" "Title:" "title")
-   (textarea s "a-synopsis" "Synopsis:" "synopsis")
+   (textarea s "a-synopsis" "Abstract:" "synopsis")
    (collection s "a-content" "Content:" :content nil handle-files-options)
    (collection s "a-authors" "Authors:" :authors-list (options/authors s) handle-author-options)
    (tags/tags s)
