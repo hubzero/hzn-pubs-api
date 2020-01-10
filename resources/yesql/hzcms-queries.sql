@@ -77,7 +77,7 @@ INSERT INTO `jos_tags_object` (`tbl`,`objectid`,`tagid`,`strength`,`taggerid`,`t
 
 -- name: update-tag!
 --
-UPDATE `jos_tags` SET `id` = :id,`tag` = :tag,`raw_tag` = :raw_tag,`description` = :description,`admin` = :admin,`created` = :created,`created_by` = :created_by,`modified` = :modified,`modified_by` = :modified_by, `objects` = :objects,`substitutes` = :substitutes
+UPDATE `jos_tags` SET `modified` = :modified,`modified_by` = :modified_by,`objects` = :objects WHERE `id` = :id
 
 -- name: insert-tag-log<!
 --

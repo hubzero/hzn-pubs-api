@@ -347,7 +347,7 @@
 (def ver-id (-> (create-pub-version pub-id pub) (:generated_key)))
 (prn ver-id)
 
-(tag pub ver-id 1)
+(tag pub ver-id 0)
 
 (_create-tag (utils/rand-str 10) pub)
 
