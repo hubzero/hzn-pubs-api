@@ -238,6 +238,7 @@
    (textarea s "a-synopsis" "Synopsis:" "synopsis")
    (collection s "a-content" "Content:" :content nil handle-files-options)
    (collection s "a-authors" "Authors:" :authors-list (options/authors s) handle-author-options)
+   (tags/tags s)
    (licenses s)
    (agreements s)
    ]
@@ -255,7 +256,6 @@
    (collection s "a-image-gallery" "Image gallery:" :images nil handle-files-options)
    (textfield s "a-url" "External website URL:" "url")
    (collection s "a-docs" "Supporting docs:" :support-docs nil handle-files-options)
-   (tags/tags s)
    (collection s "a-citations" "Citations:" :citations (options/citations s) handle-citation-options)
    (textarea s "a-verion-notes" "Version release notes:" "release-notes")
    ]
