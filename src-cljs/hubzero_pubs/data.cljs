@@ -95,12 +95,15 @@
   )
 
 (defn save-pub [s]
-  (go (let [pub (mutate/prepare (assoc (:data @s) :prj-id (:prj-id @s)))
-            res (<! (http/post (str url "/pubs") {:edn-params pub}))]
+  (as-> (:data @s) $
+    (if (:prj-id $) $ (assoc $ :prj-id (:prj-id @s)))
+    (mutate/prepare $)
+(go (let [res (<! (http/post (str url "/pubs") {:edn-params $}))]
         (prn (:body res))
         (swap! s assoc :data (merge (:data @s) (:body res)))
         (swap! s assoc :pub-id (:_id (:body res)))
         ))
+    )
   )
 
 (defn usage [s]

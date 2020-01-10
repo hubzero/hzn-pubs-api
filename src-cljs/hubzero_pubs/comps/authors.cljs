@@ -68,7 +68,7 @@
                                             })
             } "Add author"]
    [:a.btn.secondary {:href "#"
-                      :on-click #(panels/close s)
+                      :on-click #(panels/close s %)
                       } "Close"]
    ] 
   )
