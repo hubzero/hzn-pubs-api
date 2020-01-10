@@ -116,7 +116,7 @@
 
 (defn essentials [s]
   (_section s [[[:data :title] "Title" :text true]
-               [[:data :synopsis] "Synopsis" :text false]
+               [[:data :synopsis] "Abstract" :text false]
                [[:data :content] "Content" :files false]
                [[:data :authors-list] "Authors" :authors-list false]
                [[:data :licenses] "License" :license false]

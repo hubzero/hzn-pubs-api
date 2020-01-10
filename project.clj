@@ -78,9 +78,9 @@
                            }
 
                 :compiler {:main hubzero-pubs.core
-                           :asset-path "/app/components/com_pubs/site/assets/js"
-                           :output-to "/home/jbg/Development/hub/app/components/com_pubs/site/assets/js/hubzero_pubs.js"
-                           :output-dir "/home/jbg/Development/hub/app/components/com_pubs/site/assets/js"
+                           :asset-path "/app/components/com_pubs/site/assets/js/compiled"
+                           :output-to  "/home/jbg/Development/hub/app/components/com_pubs/site/assets/js/compiled/hubzero_pubs.js"
+                           :output-dir "/home/jbg/Development/hub/app/components/com_pubs/site/assets/js/compiled"
                            :source-map-timestamp true
                            :preloads [devtools.preload]}}
 

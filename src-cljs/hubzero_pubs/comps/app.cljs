@@ -235,9 +235,10 @@
     [:div.note "all field required"]
     ]
    (textfield s "a-title" "Title:" "title")
-   (textarea s "a-synopsis" "Synopsis:" "synopsis")
+   (textarea s "a-synopsis" "Abstract:" "synopsis")
    (collection s "a-content" "Content:" :content nil handle-files-options)
    (collection s "a-authors" "Authors:" :authors-list (options/authors s) handle-author-options)
+   (tags/tags s)
    (licenses s)
    (agreements s)
    ]
@@ -255,7 +256,6 @@
    (collection s "a-image-gallery" "Image gallery:" :images nil handle-files-options)
    (textfield s "a-url" "External website URL:" "url")
    (collection s "a-docs" "Supporting docs:" :support-docs nil handle-files-options)
-   (tags/tags s)
    (collection s "a-citations" "Citations:" :citations (options/citations s) handle-citation-options)
    (textarea s "a-verion-notes" "Version release notes:" "release-notes")
    ]
@@ -330,7 +330,7 @@
   )
 
 (defn- _menu-item [id label & [header?]]
-  [:li.item {:class (if header? :header)}
+  [:li.item {:key id :class (if header? :header)}
    [:a {:href id :on-click #(_handle-nav id %)} label]]
   )
 
@@ -341,7 +341,7 @@
                   (_menu-item id label header)
                   ) [{:id "a-essentials" :label "Essentials" :header true}
                      {:id "a-title" :label "Title"}
-                     {:id "a-synopsis" :label "Synopsis"}
+                     {:id "a-synopsis" :label "Abstract"}
                      {:id "a-content" :label "Content"}
                      {:id "a-authors" :label "Authors"}
                      {:id "a-license" :label "License"}

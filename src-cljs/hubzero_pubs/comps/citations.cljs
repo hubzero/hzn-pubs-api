@@ -11,14 +11,14 @@
   (.preventDefault e)
   (.stopPropagation e)
   (data/add-citation s)
-  (panels/close s)
+  (panels/close s e)
   )
 
 (defn add-doi [s e]
   (.preventDefault e)
   (.stopPropagation e)
   (swap! s update-in [:data :citations] conj (first (:doi-results @s)))
-  (panels/close s)
+  (panels/close s e)
   )
 
 (defn search-doi [s key]
@@ -185,7 +185,7 @@
   )
 
 (defn manual [s key]
-  [:div.page-panel.as-panel {:class [key (if (get-in @s [:ui.panels key]) :open)]}
+  [:div.page-panel.as-panel {:class [key (if (get-in @s [:ui :panels key]) :open)]}
    [:div.inner
     (panels/header s "Add a citation manually")
     (_manual s key)
