@@ -341,7 +341,7 @@
                   (_menu-item id label header)
                   ) [{:id "a-essentials" :label "Essentials" :header true}
                      {:id "a-title" :label "Title"}
-                     {:id "a-synopsis" :label "Synopsis"}
+                     {:id "a-synopsis" :label "Abstract"}
                      {:id "a-content" :label "Content"}
                      {:id "a-authors" :label "Authors"}
                      {:id "a-license" :label "License"}
