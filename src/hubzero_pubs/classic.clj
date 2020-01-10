@@ -34,19 +34,19 @@
     )
   )
 
-(defn- _parse-params [p]
-  (assoc p :params (reduce (fn [m p]
-                             (as-> (clojure.string/split p #"=") $
-                               (assoc m (keyword (first $)) (second $))
-                               )
-                             ) {} (clojure.string/split (:params p) #"\n")))
+(defn- _parse-params [s]
+  (->> (clojure.string/split s #"\n")
+       (reduce (fn [m p] (as-> (clojure.string/split p #"=") $
+                              (assoc m (keyword (first $)) (last $))
+                      )) {})
+       )
   )
-
+ 
 (defn get-prj [id]
   ;; Get the project process the params - JBG
-  (->> (_get-prj id)
-       (_parse-params)
-       )
+  (as-> (_get-prj id) $
+    (assoc $ :params (_parse-params (:params $)))
+    )
   )
 
 (defn get-files [id]
@@ -134,12 +134,14 @@
                  })
   )
 
-(defn _params-str [pub]
+(defn- _params-str [pub]
   (str
     (if (:ack pub) "licenseagreement=1\n")
     ;; Is there more, who knows - JBG
     )
   )
+
+;; BLAH
 
 (defn _fmt-pub-date [dstr]
   (as-> (clojure.string/split dstr #" ") $
@@ -204,7 +206,7 @@
                           :type "file"
                           :ordering i
                           :element_id (type {:content 1 :images 2 :support-docs 3})
-                          :path (:name file) ; Not sure why name? - JBG
+                          :path (str (:path file) "/" (:name file))
                           })
     )
   )
@@ -288,12 +290,57 @@
     )
   )
 
+(defn- _filename [s]
+  (->> (clojure.string/split s #"/")
+       (peek)
+       )
+  )
+
+(defn _files [files]
+  (reduce (fn [c f]
+            (update c ({1 :content 2 :images 3 :support-docs} (:element_id f)) conj {:path (:path f) :name (_filename (:path f))})
+            ) {} files)
+  )
+
+(defn pub [ver-id]
+  (let [pub-ver (first (sel-pub-version {:id ver-id}))
+        pub (first (sel-pub {:id (:publication_id pub-ver)}))
+        files (sel-attachment {:publication_version_id ver-id})
+        params (_parse-params (:params pub-ver))
+        ]
+    [pub-ver pub files]
+    (->
+      {:prj-id (:project_id pub)
+       :user-id (:created_by pub) 
+
+       :title (:title pub-ver)
+       :synopsis (:description pub-ver)
+       :notes (:release_notes pub-ver)
+       :publication-date (:published_up pub-ver)
+       :ack (= (:licenseagreement params) "1")
+       }   
+      (merge (_files files))
+      )
+    )
+  )
+
 (comment
 
+  (def pub-ver (first (sel-pub-version {:id ver-id})))
+  (prn pub-ver)
+
+  (:params pub-ver)
+
+  (def params (_parse-params (:params pub-ver)))
+  (prn params)
+
+  (def files (sel-attachment {:publication_version_id ver-id}))
+  (prn files)
+  (_files files)
+
+  (pub ver-id)
 
   (first (get-tag "foooo"))
-
-  
 
   (f/show-formatters)
   (t/now)

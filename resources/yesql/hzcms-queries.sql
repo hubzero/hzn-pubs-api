@@ -27,6 +27,10 @@ C.checked_out, C.checked_out_time, C.rating as master_rating, C.group_owner, C.m
 --
 INSERT INTO `jos_publications` (`category`, `master_type`, `project_id`, `access`, `created_by`, `created` ) VALUES (:category, :master_type, :project_id, :access, :created_by, :created)
 
+-- name: sel-pub
+--
+SELECT * FROM `jos_publications` WHERE `id` = :id
+
 -- name: sel-pub-version
 --
 SELECT * FROM `jos_publication_versions` WHERE `id` = :id
@@ -41,11 +45,15 @@ UPDATE `jos_publication_versions` SET `publication_id`=:publication_id, `main`=:
 
 -- name: insert-attachment<!
 --
-INSERT INTO `jos_publication_attachments` (`publication_version_id`,`publication_id`,`created`,`created_by`,`role`,`path`,`type`,`ordering`,`element_id`) VALUES (:publication_version_id, :publication_id, :created, :created_by, :role, :path, :type, :ordering, element_id)
+INSERT INTO `jos_publication_attachments` (`publication_version_id`,`publication_id`,`created`,`created_by`,`role`,`path`,`type`,`ordering`,`element_id`) VALUES (:publication_version_id, :publication_id, :created, :created_by, :role, :path, :type, :ordering, :element_id)
 
 -- name: update-attachment!
 --
 UPDATE `jos_publication_attachments` SET `publication_version_id`=:publication_version_id, `publication_id`=:publication_id, `created`=:created, `created_by`=:created_by, `role`=:role, `path`=:path, `type`=:type, `ordering`=:ordering, `content_hash`=:content_hash, `element_id`=:element_id, `modified_by`=:modified_by, `object_id`=:object_id, `object_name`=:object_name, `object_instance`=object_instance, `object_revision`=:object_revision WHERE `id`=:id
+
+-- name: sel-attachment
+--
+SELECT * FROM `jos_publication_attachments` WHERE `publication_version_id`=:publication_version_id
 
 -- name: del-attachment!
 --
