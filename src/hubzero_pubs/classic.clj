@@ -227,6 +227,23 @@
                  })
   )
 
+(defn- _get-tag-by-id [id]
+  (first (sel-tag-by-id {:id id})) 
+  )
+
+(defn get-tags [ver-id]
+  (->>
+    (sel-tag-objs {:object_id ver-id
+                   :tbl "publications"
+                   })
+    (map (fn [to]
+           (:raw_tag (_get-tag-by-id (:tagid to))) 
+           ))
+    )
+  )
+
+(get-tags ver-id)
+
 (defn tag-obj-exists? [tag ver-id pub]
   (> (count (sel-tag-obj {:tag_id (:id tag)
                           :object_id ver-id
@@ -302,6 +319,21 @@
             ) {} files)
   )
 
+(defn get-authors [ver-id]
+  (->>
+    (sel-pub-authors {:publication_version_id ver-id})
+    (reduce (fn [m a]
+              (assoc m (:user_id a) {:id (:user_id a)
+                                     :name (:name a)
+                                     :organization (:organization a)
+                                     })) {})
+    )
+  )
+
+(defn get-license [lic-id]
+  (first (sel-license-by-id {:id lic-id}))
+  )
+
 (defn pub [ver-id]
   (let [pub-ver (first (sel-pub-version {:id ver-id}))
         pub (first (sel-pub {:id (:publication_id pub-ver)}))
@@ -318,6 +350,11 @@
        :notes (:release_notes pub-ver)
        :publication-date (:published_up pub-ver)
        :ack (= (:licenseagreement params) "1")
+       :author-list (get-authors ver-id)
+       :licenses (get-license (:license_type pub-ver))
+       :release-notes (:release_notes pub-ver)
+       :tags (get-tags ver-id)
+
        }   
       (merge (_files files))
       )
@@ -337,6 +374,11 @@
   (def files (sel-attachment {:publication_version_id ver-id}))
   (prn files)
   (_files files)
+
+  (def authors (get-authors ver-id))
+  (prn authors)
+
+  (get-license 2)
 
   (pub ver-id)
 
@@ -394,9 +436,11 @@
 (def ver-id (-> (create-pub-version pub-id pub) (:generated_key)))
 (prn ver-id)
 
-(tag pub ver-id 0)
+(prn (:tags pub))
 
-(_create-tag (utils/rand-str 10) pub)
+(get-tags ver-id)
+
+(tag pub ver-id 0)
 
 (def tag (get-tag "admin"))
 (prn tag)

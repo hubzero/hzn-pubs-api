@@ -63,6 +63,10 @@ DELETE FROM `jos_publication_attachments` WHERE `id` = :id
 --
 INSERT INTO jos_publication_authors (publication_version_id, user_id, ordering, name, firstName, lastName, organization, credit, created, created_by, status, project_owner_id) VALUES (:publication_version_id, :user_id, :ordering, :name, :firstname, :lastname, :org, :credit, :created, :created_by, :status, :project_owner_id)
 
+-- name: sel-pub-authors
+--
+SELECT * FROM jos_publication_authors WHERE `publication_version_id` = :publication_version_id
+
 -- name: sel-tag
 --
 SELECT * FROM `jos_tags` WHERE `raw_tag` = :tag
@@ -78,6 +82,10 @@ INSERT INTO `jos_tags` (`admin`,`raw_tag`,`description`,`created`,`created_by`,`
 -- name: sel-tag-obj
 --
 SELECT * FROM `jos_tags_object` WHERE `tagid` = :tag_id AND `objectid` = :object_id AND `tbl` = :tbl
+
+-- name: sel-tag-objs
+--
+SELECT * FROM `jos_tags_object` WHERE `objectid` = :object_id AND `tbl` = :tbl
 
 -- name: insert-tag-obj<!
 --
@@ -102,6 +110,10 @@ SELECT A.*, PO.invited_name, PO.invited_email  FROM jos_publication_authors as A
 -- name: sel-licenses
 --
 SELECT * FROM jos_publication_licenses WHERE active=1 ORDER BY ordering
+
+-- name: sel-license-by-id
+--
+SELECT * FROM jos_publication_licenses WHERE `id` = :id
 
 -- name: sel-citations
 --
