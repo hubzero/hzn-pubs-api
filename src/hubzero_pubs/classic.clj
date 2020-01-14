@@ -334,13 +334,12 @@
   (first (sel-license-by-id {:id lic-id}))
   )
 
-(defn pub [ver-id]
+(defn get-pub [ver-id]
   (let [pub-ver (first (sel-pub-version {:id ver-id}))
         pub (first (sel-pub {:id (:publication_id pub-ver)}))
         files (sel-attachment {:publication_version_id ver-id})
         params (_parse-params (:params pub-ver))
         ]
-    [pub-ver pub files]
     (->
       {:prj-id (:project_id pub)
        :user-id (:created_by pub) 
@@ -354,7 +353,6 @@
        :licenses (get-license (:license_type pub-ver))
        :release-notes (:release_notes pub-ver)
        :tags (get-tags ver-id)
-
        }   
       (merge (_files files))
       )
@@ -380,7 +378,7 @@
 
   (get-license 2)
 
-  (pub ver-id)
+  (get-pub ver-id)
 
   (first (get-tag "foooo"))
 
