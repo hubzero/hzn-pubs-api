@@ -175,6 +175,7 @@
                          :params (_params-str p)
                          :release_notes (:notes p "")
                          :published_up (_fmt-pub-date (:publication-date p))
+                         :doi (:doi p)
                          })
   )
 
@@ -353,6 +354,7 @@
        :licenses (get-license (:license_type pub-ver))
        :release-notes (:release_notes pub-ver)
        :tags (get-tags ver-id)
+       :doi (:doi pub-ver)
        }   
       (merge (_files files))
       )
@@ -451,6 +453,7 @@
   (prn pub)
 
   (def pub {:_id "5e13137085b4b9002ed5dc58",
+            :doi "10.1000/xyz123"
             :prj-id "1",
             :authors-list {1001 {:id 1001, :name "J B G", :organization ""}},
             :content [{:path "prjfoobar/files/foo", :name "foo"} {:path "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png", :name "Screenshot from 2019-09-09 20-35-28.png"}]
