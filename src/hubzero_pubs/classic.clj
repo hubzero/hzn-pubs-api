@@ -141,23 +141,12 @@
     )
   )
 
-;; BLAH
-
 (defn _fmt-pub-date [dstr]
-  (as-> (clojure.string/split dstr #" ") $
-    (f/parse (f/formatter "dd MMMM yyyy") (clojure.string/join " " 
-                                                               [
-                                                               (re-find #"\d+" (first $))
-                                                               (second $)
-                                                               (last $)  
-                                                                ]
-                                                               
-                                                               ))
+  (as-> (f/formatter "MM/dd/yyyy") $
+    (f/parse $ dstr)
     (f/unparse (:mysql f/formatters) $)
     )
   )
-
-(_fmt-pub-date "11th January 2020")
 
 (defn create-pub-version [pub-id p]
   (insert-pub-version<! {:publication_id pub-id
@@ -179,37 +168,33 @@
                          })
   )
 
-(defn add-author [ver-id pub i]
-  (let [a (nth (vals (:authors-list pub)) i)]
-    (insert-author<! {:publication_version_id ver-id
-                      :user_id (:id a)
-                      :ordering i
-                      :name (:name a)
-                      :firstname (:firstname a "")
-                      :lastname (:lastname a "")
-                      :org (:organization a "")
-                      :credit ""
-                      :created (f/unparse (:mysql f/formatters) (t/now))
-                      :created_by (:user-id pub)
-                      :status 1
-                      :project_owner_id (:prj-id pub)
-                      })
-    )
+(defn add-author [pub ver-id a]
+  (insert-author<! {:publication_version_id ver-id
+                    :user_id (:id a)
+                    :ordering i
+                    :name (:name a)
+                    :firstname (:firstname a "")
+                    :lastname (:lastname a "")
+                    :org (:organization a "")
+                    :credit ""
+                    :created (f/unparse (:mysql f/formatters) (t/now))
+                    :created_by (:user-id pub)
+                    :status 1
+                    :project_owner_id (:prj-id pub)
+                    })
   )
 
-(defn add-file [pub-id ver-id pub i type]
-  (let [file (nth (type pub) i)]
-    (insert-attachment<! {:publication_version_id ver-id 
-                          :publication_id pub-id
-                          :created (f/unparse (:mysql f/formatters) (t/now))
-                          :created_by (:user-id pub)
-                          :role 1
-                          :type "file"
-                          :ordering i
-                          :element_id (type {:content 1 :images 2 :support-docs 3})
-                          :path (str (:path file) "/" (:name file))
-                          })
-    )
+(defn add-file [pub ver-id pub-id f type]
+  (insert-attachment<! {:publication_version_id ver-id 
+                        :publication_id pub-id
+                        :created (f/unparse (:mysql f/formatters) (t/now))
+                        :created_by (:user-id pub)
+                        :role 1
+                        :type "file"
+                        :ordering i
+                        :element_id (type {:content 1 :images 2 :support-docs 3})
+                        :path (str (:path file) "/" (:name file))
+                        })
   )
 
 (defn get-tag [s]
@@ -242,8 +227,6 @@
            ))
     )
   )
-
-(get-tags ver-id)
 
 (defn tag-obj-exists? [tag ver-id pub]
   (> (count (sel-tag-obj {:tag_id (:id tag)
@@ -299,13 +282,11 @@
     )
   )
 
-(defn tag [pub ver-id i]
-  (let [s (nth (:tags pub) i)]
-    (if-let [tag (get-tag s)]
-      (_tag tag ver-id pub)
-      (_create-tag s pub)
-      )
-    )
+(defn tag [pub ver-id s]
+  (if-let [tag (get-tag s)]
+    (_tag tag ver-id pub)
+    (_create-tag s pub)
+    ) 
   )
 
 (defn- _filename [s]
@@ -358,6 +339,19 @@
        }   
       (merge (_files files))
       )
+    )
+  )
+
+(defn save-pub [pub]
+  (let [pub-id (-> (create-pub pub) (:generated_key)) 
+        ver-id (-> (create-pub-version pub-id pub) (:generated_key))
+
+        ]
+    (map #(tag pub ver-id %) (:tags pub))
+    (map #(add-author pub ver-id %) (vals (:authors-list pub)))
+    (map (fn [file-type]
+           (map #(add-file pub ver-id pub-id % file-type) (file-type pub))
+           ) [:content :images :support-docs])
     )
   )
 
@@ -440,15 +434,11 @@
 
 (get-tags ver-id)
 
-(tag pub ver-id 0)
-
 (def tag (get-tag "admin"))
 (prn tag)
 (tag-obj-exists? tag ver-id pub)
 
-(add-author ver-id pub 0)
 
-(add-file pub-id ver-id pub 0 :content)
 
   (prn pub)
 

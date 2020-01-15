@@ -266,7 +266,7 @@
      (fn []
        (js/Lightpick. (clj->js {:field (.querySelector js/document "input[name=publication-date]")
                                 :onSelect (fn [date]
-                                            (swap! s assoc-in [:data :publication-date] (.format date "Do MMMM YYYY"))
+                                            (swap! s assoc-in [:data :publication-date] (.format date "MM/DD/YYYY"))
                                             )
                                 }))
 
