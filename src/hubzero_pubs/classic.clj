@@ -168,7 +168,8 @@
                          })
   )
 
-(defn add-author [pub ver-id a]
+(defn add-author [pub ver-id i a]
+  ;(prn "ADD AUTHOR" ver-id i a)
   (insert-author<! {:publication_version_id ver-id
                     :user_id (:id a)
                     :ordering i
@@ -184,7 +185,8 @@
                     })
   )
 
-(defn add-file [pub ver-id pub-id f type]
+(defn add-file [pub ver-id pub-id i f type]
+  (prn "ADD FILE" ver-id pub-id i f type)
   (insert-attachment<! {:publication_version_id ver-id 
                         :publication_id pub-id
                         :created (f/unparse (:mysql f/formatters) (t/now))
@@ -193,7 +195,7 @@
                         :type "file"
                         :ordering i
                         :element_id (type {:content 1 :images 2 :support-docs 3})
-                        :path (str (:path file) "/" (:name file))
+                        :path (str (:path f) "/" (:name f))
                         })
   )
 
@@ -266,14 +268,14 @@
   )
 
 (defn- _tag [tag ver-id pub]
-  (prn "Updating old tag..." (:id tag))
+  ;(prn "Updating old tag..." (:id tag))
   (_add-tag-obj tag ver-id pub)
   (_update-tag tag pub)
   (_log-tag tag "tag_edited" pub)
   )
 
 (defn _create-tag [s pub]
-  (prn "Creating new tag...")
+  ;(prn "Creating new tag...")
   (as-> (_add-tag s pub) $
     (:generated_key $)
     (sel-tag-by-id {:id $}) 
@@ -283,6 +285,7 @@
   )
 
 (defn tag [pub ver-id s]
+  ;(prn "TAG" ver-id s)
   (if-let [tag (get-tag s)]
     (_tag tag ver-id pub)
     (_create-tag s pub)
@@ -316,11 +319,20 @@
   (first (sel-license-by-id {:id lic-id}))
   )
 
+(defn add-citation [pub ver-id c]
+  (insert-citation-assoc<! {:cid (:id c)
+                            :oid ver-id
+                            :type nil
+                            :tbl "publications"
+                            })
+  )
+
 (defn get-pub [ver-id]
   (let [pub-ver (first (sel-pub-version {:id ver-id}))
         pub (first (sel-pub {:id (:publication_id pub-ver)}))
         files (sel-attachment {:publication_version_id ver-id})
         params (_parse-params (:params pub-ver))
+        citations (sel-citation-assocs-oid {:oid ver-id})
         ]
     (->
       {:prj-id (:project_id pub)
@@ -331,11 +343,12 @@
        :notes (:release_notes pub-ver)
        :publication-date (:published_up pub-ver)
        :ack (= (:licenseagreement params) "1")
-       :author-list (get-authors ver-id)
+       :authors-list (get-authors ver-id)
        :licenses (get-license (:license_type pub-ver))
        :release-notes (:release_notes pub-ver)
        :tags (get-tags ver-id)
        :doi (:doi pub-ver)
+       :citations (map #(first (sel-citation-by-id %)) citations)
        }   
       (merge (_files files))
       )
@@ -347,11 +360,13 @@
         ver-id (-> (create-pub-version pub-id pub) (:generated_key))
 
         ]
-    (map #(tag pub ver-id %) (:tags pub))
-    (map #(add-author pub ver-id %) (vals (:authors-list pub)))
-    (map (fn [file-type]
-           (map #(add-file pub ver-id pub-id % file-type) (file-type pub))
-           ) [:content :images :support-docs])
+    (doall (map #(tag pub ver-id %) (:tags pub)))
+    (doall (map #(add-citation pub ver-id %) (:citations pub)))                   
+    (doall (map-indexed (fn [i a] (add-author pub ver-id i a)) (vals (:authors-list pub))))
+    (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :content)) (:content pub)))
+    (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :images)) (:images pub)))
+    (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :support-docs)) (:support-docs pub)))
+    [pub-id ver-id]
     )
   )
 
@@ -369,12 +384,9 @@
   (prn files)
   (_files files)
 
-  (def authors (get-authors ver-id))
-  (prn authors)
 
   (get-license 2)
 
-  (get-pub ver-id)
 
   (first (get-tag "foooo"))
 
@@ -437,6 +449,22 @@
 (def tag (get-tag "admin"))
 (prn tag)
 (tag-obj-exists? tag ver-id pub)
+
+(def ids (save-pub pub))
+(prn ids)
+(def ver-id (second ids))
+
+
+(def p (get-pub ver-id)) 
+(prn (:content p))
+
+(prn p)
+
+(prn (:authors-list p))
+
+  (def authors (get-authors ver-id))
+  (prn authors)
+ 
 
 
 
@@ -519,7 +547,7 @@
               :booktitle "",
               :exp_data nil}],
             :ack true
-            :publication-date "11th January 2020"
+            :publication-date "01/16/2020"
             :tags ["admin" "bar" "foo"]
             }
     )

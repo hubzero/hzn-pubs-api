@@ -119,6 +119,14 @@ SELECT * FROM jos_publication_licenses WHERE `id` = :id
 --
 SELECT * FROM jos_citations WHERE doi LIKE :doi
 
+-- name: sel-citation-assocs-oid
+--
+SELECT id FROM jos_citations_assoc WHERE `oid` = :oid
+
+-- name: sel-citation-by-id
+--
+SELECT * FROM jos_citations WHERE `id` = :id
+
 -- name: insert-citation<!
 --
 INSERT INTO `jos_citations` (`type`, `title`, `year`, `month`, `author`, `journal`, `booktitle`, `volume`, `number`, `pages`, `eprint`, `isbn`, `doi`, `abstract`, `series`, `edition`, `publisher`, `url`, `formatted`) VALUES (:type, :title, :year, :month, :author, :journal, :book, :volume, :issue, :pages, :eprint, :isbn, :doi, :abstract, :series, :edition, :publisher, :url, :citation)
@@ -127,11 +135,10 @@ INSERT INTO `jos_citations` (`type`, `title`, `year`, `month`, `author`, `journa
 --
 SELECT * FROM jos_citations_types
 
+-- name: insert-citation-assoc<!
+--
 
-
-
-
-
+INSERT INTO `jos_citations_assoc` (`cid`, `oid`, `type`, `tbl`) VALUES (:cid, :oid, :type, :tbl)
 
 
 
