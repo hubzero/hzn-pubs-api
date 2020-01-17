@@ -185,6 +185,29 @@
                     })
   )
 
+(defn- _update-author [i a]
+  (update-author! {:ordering i
+                   :name (:name a)
+                   :firstname (:firstname a "")
+                   :lastname (:lastname a "")
+                   :org (:organization a "")
+                   })
+  )
+
+(defn update-authors [p]
+  (let [va (group-by :user_id (sel-pub-authors {:publication_version_id (:ver-id p)}))
+        pa (:authors p)
+        ]
+    (doall (map-indexed (fn [i a] (if (not (va a))
+                          (add-author p (:ver-id p) i (pa a))
+                          (update-author i (pa a))
+                          )) (keys pa)))
+    (doall (map (fn [a] (if (not (pa a))
+                          (del-author! (:ver-id p) a)
+                          )) (keys va)))
+    )
+  )
+
 (defn add-file [pub ver-id pub-id i f type]
   (prn "ADD FILE" ver-id pub-id i f type)
   (insert-attachment<! {:publication_version_id ver-id 
@@ -284,12 +307,31 @@
     )
   )
 
-(defn tag [pub ver-id s]
+(defn add-tag [pub ver-id s]
   ;(prn "TAG" ver-id s)
   (if-let [tag (get-tag s)]
     (_tag tag ver-id pub)
     (_create-tag s pub)
     ) 
+  )
+
+(defn _remove-tag [ver-id tag-id]
+  (del-tag-obj! {:tag_id tag-id
+                     :object_id ver-id
+                     })
+  )
+
+(defn update-tags [p]
+  (let [ver-tags (group-by :raw_tag (sel-tag-objs {:object_id (:ver-id p)}))
+        ptags (:tags p)
+        ]
+    (doall (map (fn [t] (if (not (some #{t} ptags))
+                          (_remove-tag (:ver-id p) (:tagid (ver-tags t)))
+                          )) (keys ver-tags)))
+    (doall (map (fn [t] (if (not (ver-tags p))
+                          (add-tag p (:ver-id p) t)
+                          )) ptags))
+    )
   )
 
 (defn- _filename [s]
@@ -327,6 +369,19 @@
                             })
   )
 
+(defn update-citations [p]
+  (let [vc (group-by :id (sel-citation-assocs-oid {:oid (:ver-id p)}))
+        pc (group-by :id (:citations p))
+        ]
+    (doall (map (fn [c] (if (not (vc c))
+                          (add-citation p (:ver-id p) (vc c))
+                          )) (keys pc)))
+    (doall (map (fn [c] (if (not (pc c))
+                          (del-citation-assoc! c)
+                          )) (keys vc)))
+    )
+  )
+
 (defn get-pub [ver-id]
   (let [pub-ver (first (sel-pub-version {:id ver-id}))
         pub (first (sel-pub {:id (:publication_id pub-ver)}))
@@ -360,7 +415,7 @@
         ver-id (-> (create-pub-version pub-id pub) (:generated_key))
 
         ]
-    (doall (map #(tag pub ver-id %) (:tags pub)))
+    (doall (map #(add-tag pub ver-id %) (:tags pub)))
     (doall (map #(add-citation pub ver-id %) (:citations pub)))                   
     (doall (map-indexed (fn [i a] (add-author pub ver-id i a)) (vals (:authors-list pub))))
     (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :content)) (:content pub)))
