@@ -148,24 +148,53 @@
     )
   )
 
+(defn- _mutate
+  "Fields come from client with different names, map them - JBG"
+  [p]
+  (merge p {:created_by (:user-id p)
+            :license_type (:id (:licenses p))
+            :params (_params-str p)
+            :release_notes (:notes p "")
+            :published_up (if-let [dstr (:publication-date p)] (_fmt-pub-date dstr))
+            })
+  )
+
 (defn create-pub-version [pub-id p]
-  (insert-pub-version<! {:publication_id pub-id
-                         :main 1
-                         :state 3
-                         :title (:title p) 
-                         :description (:description p "")
-                         :abstract (:abstract p "")
-                         :created (f/unparse (:mysql f/formatters) (t/now))
-                         :created_by (:user-id p)
-                         :version_number 1
-                         :license_type (:id (:licenses p))
-                         :access 0
-                         :secret (utils/rand-str 10)
-                         :params (_params-str p)
-                         :release_notes (:notes p "")
-                         :published_up (_fmt-pub-date (:publication-date p))
-                         :doi (:doi p)
-                         })
+  (-> (_mutate p)
+      (merge {:publication_id pub-id
+              :main 1
+              :state 3
+              :created (f/unparse (:mysql f/formatters) (t/now))
+              :version_number 1
+              :access 0
+              :secret (utils/rand-str 10)
+              })
+      (insert-pub-version<! )
+      )
+  )
+
+(defn- _update-pub-version [ver-id p]
+  (-> (first (sel-pub-version {:id ver-id}))
+      (merge (_mutate p))
+      (merge {:modified (f/unparse (:mysql f/formatters) (t/now)) 
+              :modified_by (:user-id p)
+              })
+      (update-pub-version!)
+      )
+  )
+
+(defn- _update-pub-files [ver-id p type]
+  (let [vf (group-by :path (sel-attachment {:publication_version_id ver-id}))
+        pf (group-by :path (type p))]
+    ;; New files add them - JBG
+    (doall (map-indexed (fn [i p] (if (not (vf p))
+                                    (add-file (:ver-id p) (:pub-id p) i (pf p))
+                                    )) (keys pf)))
+    ;; Delete removed files - JBG
+    (doall (map (fn [p] (if (not (pf p))
+                          (del-attachment! (:id (vf p)))
+                          )) (keys vf)))
+    )
   )
 
 (defn add-author [pub ver-id i a]
@@ -337,7 +366,8 @@
     (->
       {:prj-id (:project_id pub)
        :user-id (:created_by pub) 
-
+       :pub-id (:publication_id pub-ver)  
+       :ver-id ver-id
        :title (:title pub-ver)
        :synopsis (:description pub-ver)
        :notes (:release_notes pub-ver)
@@ -358,7 +388,6 @@
 (defn save-pub [pub]
   (let [pub-id (-> (create-pub pub) (:generated_key)) 
         ver-id (-> (create-pub-version pub-id pub) (:generated_key))
-
         ]
     (doall (map #(tag pub ver-id %) (:tags pub)))
     (doall (map #(add-citation pub ver-id %) (:citations pub)))                   
@@ -366,7 +395,7 @@
     (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :content)) (:content pub)))
     (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :images)) (:images pub)))
     (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :support-docs)) (:support-docs pub)))
-    [pub-id ver-id]
+    {:pub-id pub-id :ver-id ver-id}
     )
   )
 
@@ -554,5 +583,7 @@
 
 
 (utils/rand-str 10)
+
+(sel-attachment {:publication_version_id ver-id})
 
 )

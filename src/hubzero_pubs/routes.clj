@@ -35,11 +35,17 @@
   )
 
 (defn get-pub [id]
-  (if-let [pub (pubs/get-pub id)]
-    (as-> (response pub) $
-      (update $ :session merge {:pub-id id})
-      )
+  (if-let [pub (classic/get-pub id)]
+    (response pub)
     (four-oh-4)
+    )
+  )
+
+(defn save-pub [data]
+  (prn "SAVE PUB" data)
+  (->
+    (classic/save-pub data)
+    (response)
     )
   )
 
@@ -61,7 +67,7 @@
 
   (GET "/pubs/licenses" [] (classic/get-licenses))
 
-  (POST "/pubs" {body :body-params} {:body (pubs/create-pub body)})
+  (POST "/pubs" {body :body-params} (save-pub body))
   (GET "/pubs/:id" [id] (get-pub id))
 
   (GET "/users/:name" [name] (classic/search-users name))

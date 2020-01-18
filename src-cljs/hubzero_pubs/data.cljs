@@ -104,12 +104,11 @@
 
 (defn save-pub [s]
   (as-> (:data @s) $
-    (if (:prj-id $) $ (assoc $ :prj-id (:prj-id @s)))
+    (if (:prj-id $) $ (assoc $ :prj-id (:prj-id @s) :user-id (:user-id @s)))
     (mutate/prepare $)
     (go (let [res (<! (http/post (str url "/pubs") {:edn-params $}))]
           (prn (:body res))
-          (swap! s assoc :data (merge (:data @s) (:body res)))
-          (swap! s assoc :pub-id (:_id (:body res)))
+          (update s merge (:body res))
           ))
     )
   )
