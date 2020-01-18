@@ -63,6 +63,14 @@ DELETE FROM `jos_publication_attachments` WHERE `id` = :id
 --
 INSERT INTO jos_publication_authors (publication_version_id, user_id, ordering, name, firstName, lastName, organization, credit, created, created_by, status, project_owner_id) VALUES (:publication_version_id, :user_id, :ordering, :name, :firstname, :lastname, :org, :credit, :created, :created_by, :status, :project_owner_id)
 
+-- name: update-author!
+--
+UPDATE `jos_publication_authors` SET `ordering` = :ordering, `name` = :name, `firstName` = :firstname, `lastName` = lastname, `organization` = :org 
+
+-- name: del-author!
+--
+DELETE FROM jos_pulications_authors WHERE `publication_version_id` = :publication_version_id AND `user_id` = :user_id
+
 -- name: sel-pub-authors
 --
 SELECT * FROM jos_publication_authors WHERE `publication_version_id` = :publication_version_id
@@ -90,6 +98,10 @@ SELECT * FROM `jos_tags_object` WHERE `objectid` = :object_id AND `tbl` = :tbl
 -- name: insert-tag-obj<!
 --
 INSERT INTO `jos_tags_object` (`tbl`,`objectid`,`tagid`,`strength`,`taggerid`,`taggedon`) VALUES (:tbl,:object_id,:tag_id ,:strength,:tagger_id,:tagged_on)
+
+-- name: del-tag-obj!
+--
+DELETE FROM `jos_tags_object` WHERE `tag_id` = :tagid AND `objectid` = :object_id
 
 -- name: update-tag!
 --
@@ -122,6 +134,10 @@ SELECT * FROM jos_citations WHERE doi LIKE :doi
 -- name: sel-citation-assocs-oid
 --
 SELECT id FROM jos_citations_assoc WHERE `oid` = :oid
+
+-- name: del-citation-assoc!
+--
+DELETE FROM jos_citations_assoc WHERE `id` = :id 
 
 -- name: sel-citation-by-id
 --
