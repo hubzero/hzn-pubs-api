@@ -360,18 +360,19 @@
 
 (defn _remove-tag [ver-id tag-id]
   (del-tag-obj! {:tag_id tag-id
-                     :object_id ver-id
-                     })
+                 :object_id ver-id
+                 })
   )
 
 (defn update-tags [p]
-  (let [ver-tags (group-by :raw_tag (sel-tag-objs {:object_id (:ver-id p)}))
+  (let [ver-tags (get-tags (:ver-id p))
         ptags (:tags p)
         ]
+    (prn "UPDATE TAGS" ver-tags ptags)
     (doall (map (fn [t] (if (not (some #{t} ptags))
-                          (_remove-tag (:ver-id p) (:tagid (ver-tags t)))
-                          )) (keys ver-tags)))
-    (doall (map (fn [t] (if (not (ver-tags p))
+                          (_remove-tag (:ver-id p) (:id (get-tag t)))
+                          )) ver-tags))
+    (doall (map (fn [t] (if (not (some #{t} ver-tags))
                           (add-tag p (:ver-id p) t)
                           )) ptags))
     )
@@ -475,6 +476,7 @@
   (_update-pub-files p :support-docs)
   (update-authors p)
   (update-citations p)
+  (update-tags p)
   )
 
 (comment
@@ -567,9 +569,10 @@
   )
 
 (def p (get-pub ver-id)) 
+(prn (:tags p))
+
+
 (prn (count (:citations p)))
-
-
 (prn (:authors-list p))
 (prn (:release-notes p))
 (prn (:title p))
@@ -587,6 +590,7 @@ p
                         ;1000 {:id 1000 :name "admin" :organization ""}
                         },
          :citations [{:id 2}]
+         :tags ["bar" "foo" "admin"]
          )
   (update-pub)
   )

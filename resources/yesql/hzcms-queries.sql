@@ -101,7 +101,7 @@ INSERT INTO `jos_tags_object` (`tbl`,`objectid`,`tagid`,`strength`,`taggerid`,`t
 
 -- name: del-tag-obj!
 --
-DELETE FROM `jos_tags_object` WHERE `tag_id` = :tagid AND `objectid` = :object_id
+DELETE FROM `jos_tags_object` WHERE `tagid` = :tag_id AND `objectid` = :object_id
 
 -- name: update-tag!
 --
