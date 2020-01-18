@@ -238,6 +238,7 @@
   )
 
 (defn- _update-author [i a]
+  (prn "UPDATING AUTHOR" i a)
   (update-author! {:ordering i
                    :name (:name a)
                    :firstname (:firstname a "")
@@ -247,15 +248,33 @@
   )
 
 (defn update-authors [p]
+  (prn "UPDATING AUTHORS...")
   (let [va (group-by :user_id (sel-pub-authors {:publication_version_id (:ver-id p)}))
-        pa (:authors p)
+        pa (:authors-list p)
         ]
     (doall (map-indexed (fn [i a] (if (not (va a))
-                          (add-author p (:ver-id p) i (pa a))
+
+(do
+
+ (prn "ADDING" i (pa a)) 
+     (add-author p (:ver-id p) i (pa a))
+  )
+(do
                           (_update-author i (pa a))
+  )
+                       
+ 
+
                           )) (keys pa)))
     (doall (map (fn [a] (if (not (pa a))
-                          (del-author! (:ver-id p) a)
+(do
+  (prn "DELETING AUTHOR" (:ver-id p) a)
+  
+                          (del-author! {:publication_version_id (:ver-id p)
+                                        :user_id a
+                                        })
+  )
+
                           )) (keys va)))
     )
   )
@@ -467,6 +486,7 @@
 (defn update-pub [p]
   (_update-pub-version p)
   (_update-pub-files p :content)
+  (update-authors p)
   )
 
 (comment
@@ -559,6 +579,9 @@
   )
 
 (def p (get-pub ver-id)) 
+(prn (:authors-list p))
+
+
 (prn (:release-notes p))
 (prn (:title p))
 (prn (:content p))
@@ -571,6 +594,9 @@ p
          :notes "Updated!"
          :title "I'm updated."
          :content [{:path "prjfoobar/files/foo", :name "foo"}]
+         :authors-list {1001 {:id 1001 :name "J B G" :organization ""}
+                        ;1000 {:id 1000 :name "admin" :organization ""}
+                        },
          )
   (update-pub)
   )

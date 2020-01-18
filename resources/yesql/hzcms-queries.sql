@@ -69,7 +69,7 @@ UPDATE `jos_publication_authors` SET `ordering` = :ordering, `name` = :name, `fi
 
 -- name: del-author!
 --
-DELETE FROM jos_pulications_authors WHERE `publication_version_id` = :publication_version_id AND `user_id` = :user_id
+DELETE FROM jos_publication_authors WHERE `publication_version_id` = :publication_version_id AND `user_id` = :user_id
 
 -- name: sel-pub-authors
 --
