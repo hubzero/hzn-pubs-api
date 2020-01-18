@@ -238,7 +238,6 @@
   )
 
 (defn- _update-author [i a]
-  (prn "UPDATING AUTHOR" i a)
   (update-author! {:ordering i
                    :name (:name a)
                    :firstname (:firstname a "")
@@ -248,33 +247,19 @@
   )
 
 (defn update-authors [p]
-  (prn "UPDATING AUTHORS...")
   (let [va (group-by :user_id (sel-pub-authors {:publication_version_id (:ver-id p)}))
         pa (:authors-list p)
         ]
     (doall (map-indexed (fn [i a] (if (not (va a))
 
-(do
+                                    (add-author p (:ver-id p) i (pa a))
+                                    (_update-author i (pa a))
 
- (prn "ADDING" i (pa a)) 
-     (add-author p (:ver-id p) i (pa a))
-  )
-(do
-                          (_update-author i (pa a))
-  )
-                       
- 
-
-                          )) (keys pa)))
+                                    )) (keys pa)))
     (doall (map (fn [a] (if (not (pa a))
-(do
-  (prn "DELETING AUTHOR" (:ver-id p) a)
-  
                           (del-author! {:publication_version_id (:ver-id p)
                                         :user_id a
-                                        })
-  )
-
+                                        }) 
                           )) (keys va)))
     )
   )
@@ -432,10 +417,10 @@
         pc (group-by :id (:citations p))
         ]
     (doall (map (fn [c] (if (not (vc c))
-                          (add-citation p (:ver-id p) (vc c))
+                          (add-citation p (:ver-id p) (first (vc c)))
                           )) (keys pc)))
     (doall (map (fn [c] (if (not (pc c))
-                          (del-citation-assoc! c)
+                          (del-citation-assoc! {:id c})
                           )) (keys vc)))
     )
   )
@@ -486,7 +471,10 @@
 (defn update-pub [p]
   (_update-pub-version p)
   (_update-pub-files p :content)
+  (_update-pub-files p :images)
+  (_update-pub-files p :support-docs)
   (update-authors p)
+  (update-citations p)
   )
 
 (comment
@@ -579,9 +567,10 @@
   )
 
 (def p (get-pub ver-id)) 
+(prn (count (:citations p)))
+
+
 (prn (:authors-list p))
-
-
 (prn (:release-notes p))
 (prn (:title p))
 (prn (:content p))
@@ -597,6 +586,7 @@ p
          :authors-list {1001 {:id 1001 :name "J B G" :organization ""}
                         ;1000 {:id 1000 :name "admin" :organization ""}
                         },
+         :citations [{:id 2}]
          )
   (update-pub)
   )
@@ -624,71 +614,7 @@ p
             :user-id 1001
             :licenses {:restriction nil, :opensource false, :name "cc", :agreement 1, :icon "/components/com_publications/assets/img/logos/cc.gif", :title "CC0 - Creative Commons", :customizable 0, :ordering 2, :active 1, :id 2, :info "CC0 enables scientists, educators, artists and other creators and owners of copyright- or database-protected content to waive those interests in their works and thereby place them as completely as possible in the public domain, so that others may freely build upon, enhance and reuse the works for any purposes without restriction under copyright or database law.", :url "http://creativecommons.org/about/cc0", :main 1, :derivatives 1, :text ""}
             :citations
-            [{:institution "",
-              :date_publish nil,
-              :software_use nil,
-              :address "",
-              :format "apa",
-              :fundedby 0,
-              :publisher "",
-              :key nil,
-              :series "",
-              :number "8",
-              :school "",
-              :short_title "",
-              :custom3 nil,
-              :call_number "",
-              :uid 1292,
-              :formatted "",
-              :res_edu nil,
-              :author_address "",
-              :ref_type "",
-              :params "{\"exclude\":\"\",\"rollover\":1}",
-              :abstract
-              "<p>Using transparent microfluidic cells to study the two-phase properties of a synthetic porous medium, we establish that the interfacial area per volume between nonwetting and wetting fluids lifts the ambiguity associated with the hysteretic relationship between capillary pressure and saturation in porous media. The interface between the nonwetting and wetting phases is composed of two subsets: one with a unique curvature determined by the capillary pressure, and the other with a distribution of curvatures dominated by disjoining pressure. This work provides experimental support for recent theoretical predictions that the capillary-dominated subset plays a role analogous to a state variable. Any comprehensive description of multiphase flow properties must include this interfacial area with the traditional variables of pressure and fluid saturation.</p>",
-              :month "April",
-              :date_accept nil,
-              :type "2",
-              :created #inst "2013-09-24T17:39:09.000-00:00",
-              :howpublished "",
-              :organization nil,
-              :isbn "",
-              :scope "hub",
-              :journal "Geophysical Research Letters",
-              :doi "10.1029/2003GL019282",
-              :keywords "",
-              :title
-              "Linking Pressure and Saturation through Interfacial Areas in Porous Media",
-              :pages "",
-              :volume "310",
-              :note "",
-              :author
-              "Cheng, J.-T., Pyrak-Nolte, L. J., Nolte, D. D. and N. J. Giordano",
-              :chapter nil,
-              :year "2004",
-              :date_submit nil,
-              :research_notes "",
-              :language nil,
-              :label nil,
-              :id 1,
-              :notes nil,
-              :eprint
-              "http://www.physics.purdue.edu/rockphys/docs/publications/porous-media/LinkingPressure.pdf",
-              :scope_id "0",
-              :exp_list_exp_data nil,
-              :url "http://onlinelibrary.wiley.com/doi/10.1029/2003GL019282/full",
-              :editor "",
-              :custom2 nil,
-              :affiliated 1,
-              :edition "",
-              :custom1 nil,
-              :location "",
-              :cite "",
-              :published 1,
-              :custom4 nil,
-              :accession_number "",
-              :booktitle "",
-              :exp_data nil}],
+            [{:id 1} {:id 2}],
             :ack true
             :publication-date "01/16/2020"
             :tags ["admin" "bar" "foo"]
