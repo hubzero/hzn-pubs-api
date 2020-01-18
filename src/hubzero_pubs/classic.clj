@@ -151,11 +151,15 @@
 (defn- _mutate
   "Fields come from client with different names, map them - JBG"
   [p]
+  (prn "MUTATING .... " (:notes p))
   (merge p {:created_by (:user-id p)
             :license_type (:id (:licenses p))
             :params (_params-str p)
             :release_notes (:notes p "")
             :published_up (if-let [dstr (:publication-date p)] (_fmt-pub-date dstr))
+            :description (:description p "")
+            :abstract (:abstract p "")
+            :doi (:doi p)
             })
   )
 
@@ -173,8 +177,9 @@
       )
   )
 
-(defn- _update-pub-version [ver-id p]
-  (-> (first (sel-pub-version {:id ver-id}))
+(defn- _update-pub-version [p]
+  (prn "UPDATE PUB VERSION" (:note p))
+  (-> (first (sel-pub-version {:id (:ver-id p)}))
       (merge (_mutate p))
       (merge {:modified (f/unparse (:mysql f/formatters) (t/now)) 
               :modified_by (:user-id p)
@@ -183,17 +188,35 @@
       )
   )
 
-(defn- _update-pub-files [ver-id p type]
-  (let [vf (group-by :path (sel-attachment {:publication_version_id ver-id}))
+(defn add-file [pub ver-id pub-id i f type]
+  (prn "ADD FILE" ver-id pub-id i f type)
+  (insert-attachment<! {:publication_version_id ver-id 
+                        :publication_id pub-id
+                        :created (f/unparse (:mysql f/formatters) (t/now))
+                        :created_by (:user-id pub)
+                        :role 1
+                        :type "file"
+                        :ordering i
+                        :element_id (type {:content 1 :images 2 :support-docs 3})
+                        :path (:path f)
+                        })
+  )
+
+(defn- _update-pub-files [p type]
+  (prn "UPDATE PUB FILES" (:ver-id p) (:pub-id p))
+  (let [ver-id (:ver-id p)
+        vf (group-by :path (sel-attachment {:publication_version_id ver-id}))
         pf (group-by :path (type p))]
     ;; New files add them - JBG
-    (doall (map-indexed (fn [i p] (if (not (vf p))
-                                    (add-file (:ver-id p) (:pub-id p) i (pf p))
-                                    )) (keys pf)))
+    (doall (map-indexed (fn [i path]
+                          (if (not (vf path))
+                            (add-file p ver-id (:pub-id p) i (first (pf path)) type)
+                            )) (keys pf)))
     ;; Delete removed files - JBG
-    (doall (map (fn [p] (if (not (pf p))
-                          (del-attachment! (:id (vf p)))
-                          )) (keys vf)))
+    (doall (map (fn [path]
+                  (if (not (pf path))
+                    (del-attachment! {:id (:id (first (vf path)))})
+                    )) (keys vf)))
     )
   )
 
@@ -229,7 +252,7 @@
         ]
     (doall (map-indexed (fn [i a] (if (not (va a))
                           (add-author p (:ver-id p) i (pa a))
-                          (update-author i (pa a))
+                          (_update-author i (pa a))
                           )) (keys pa)))
     (doall (map (fn [a] (if (not (pa a))
                           (del-author! (:ver-id p) a)
@@ -237,19 +260,6 @@
     )
   )
 
-(defn add-file [pub ver-id pub-id i f type]
-  (prn "ADD FILE" ver-id pub-id i f type)
-  (insert-attachment<! {:publication_version_id ver-id 
-                        :publication_id pub-id
-                        :created (f/unparse (:mysql f/formatters) (t/now))
-                        :created_by (:user-id pub)
-                        :role 1
-                        :type "file"
-                        :ordering i
-                        :element_id (type {:content 1 :images 2 :support-docs 3})
-                        :path (str (:path f) "/" (:name f))
-                        })
-  )
 
 (defn get-tag [s]
   (first (sel-tag {:tag s}))
@@ -371,7 +381,7 @@
 
 (defn _files [files]
   (reduce (fn [c f]
-            (update c ({1 :content 2 :images 3 :support-docs} (:element_id f)) conj {:path (:path f) :name (_filename (:path f))})
+            (update c ({1 :content 2 :images 3 :support-docs} (:element_id f)) conj {:path (:path f) :name (_filename (:path f)) :id (:id f)})
             ) {} files)
   )
 
@@ -452,6 +462,11 @@
     (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :support-docs)) (:support-docs pub)))
     {:pub-id pub-id :ver-id ver-id}
     )
+  )
+
+(defn update-pub [p]
+  (_update-pub-version p)
+  (_update-pub-files p :content)
   )
 
 (comment
@@ -536,11 +551,29 @@
 
 (def ids (save-pub pub))
 (prn ids)
-(def ver-id (second ids))
+(def ver-id (:ver-id ids))
 
+(->>
+  (get-pub ver-id)
+  (keys)
+  )
 
 (def p (get-pub ver-id)) 
+(prn (:release-notes p))
+(prn (:title p))
 (prn (:content p))
+(prn (:pub-id p))
+
+p
+
+(->
+  (assoc p
+         :notes "Updated!"
+         :title "I'm updated."
+         :content [{:path "prjfoobar/files/foo", :name "foo"}]
+         )
+  (update-pub)
+  )
 
 (prn p)
 
