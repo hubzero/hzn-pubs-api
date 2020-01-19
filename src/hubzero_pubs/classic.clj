@@ -1,6 +1,7 @@
 (ns hubzero-pubs.classic
   (:require [clj-time.core :as t]
             [clj-time.format :as f] 
+            [clj-time.coerce :as c]
             [yesql.core :refer [defqueries]]
             [clojure.java.jdbc :as jdbc]
             [me.raynes.fs :as fs]
@@ -142,6 +143,7 @@
   )
 
 (defn _fmt-pub-date [dstr]
+  (prn "FORMAT" dstr)
   (as-> (f/formatter "MM/dd/yyyy") $
     (f/parse $ dstr)
     (f/unparse (:mysql f/formatters) $)
@@ -151,7 +153,7 @@
 (defn- _mutate
   "Fields come from client with different names, map them - JBG"
   [p]
-  (prn "MUTATING .... " (:notes p))
+  (prn "MUTATING .... " (:publication-date p))
   (merge p {:created_by (:user-id p)
             :license_type (:id (:licenses p))
             :params (_params-str p)
@@ -160,6 +162,7 @@
             :description (:description p "")
             :abstract (:abstract p "")
             :doi (:doi p)
+            :popupURL (:url p)
             })
   )
 
@@ -178,7 +181,7 @@
   )
 
 (defn- _update-pub-version [p]
-  (prn "UPDATE PUB VERSION" (:note p))
+  (prn "UPDATE PUB VERSION" (:ver-id p))
   (-> (first (sel-pub-version {:id (:ver-id p)}))
       (merge (_mutate p))
       (merge {:modified (f/unparse (:mysql f/formatters) (t/now)) 
@@ -205,8 +208,11 @@
 (defn- _update-pub-files [p type]
   (prn "UPDATE PUB FILES" (:ver-id p) (:pub-id p))
   (let [ver-id (:ver-id p)
-        vf (group-by :path (sel-attachment {:publication_version_id ver-id}))
+        vf (group-by :path (sel-attachment-with-type {:publication_version_id ver-id
+                                                      :element_id (type {:content 1 :images 2 :support-docs 3})
+                                                      }))
         pf (group-by :path (type p))]
+
     ;; New files add them - JBG
     (doall (map-indexed (fn [i path]
                           (if (not (vf path))
@@ -246,7 +252,7 @@
                    })
   )
 
-(defn update-authors [p]
+(defn _update-authors [p]
   (let [va (group-by :user_id (sel-pub-authors {:publication_version_id (:ver-id p)}))
         pa (:authors-list p)
         ]
@@ -364,7 +370,7 @@
                  })
   )
 
-(defn update-tags [p]
+(defn _update-tags [p]
   (let [ver-tags (get-tags (:ver-id p))
         ptags (:tags p)
         ]
@@ -413,7 +419,7 @@
                             })
   )
 
-(defn update-citations [p]
+(defn _update-citations [p]
   (let [vc (group-by :id (sel-citation-assocs-oid {:oid (:ver-id p)}))
         pc (group-by :id (:citations p))
         ]
@@ -432,16 +438,19 @@
         files (sel-attachment {:publication_version_id ver-id})
         params (_parse-params (:params pub-ver))
         citations (sel-citation-assocs-oid {:oid ver-id})
+        history
+        (sel-curation-hist {:publication_version_id ver-id})
         ]
     (->
       {:prj-id (:project_id pub)
        :user-id (:created_by pub) 
        :pub-id (:publication_id pub-ver)  
-       :ver-id ver-id
+       :ver-id ver-id 
        :title (:title pub-ver)
-       :synopsis (:description pub-ver)
+       :abstract (:abstract pub-ver)
        :notes (:release_notes pub-ver)
-       :publication-date (:published_up pub-ver)
+       :publication-date (if-let [d (:published_up pub-ver)]
+                           (f/unparse (f/formatter "MM/dd/yyyy") (c/from-long (.getTime d)))) 
        :ack (= (:licenseagreement params) "1")
        :authors-list (get-authors ver-id)
        :licenses (get-license (:license_type pub-ver))
@@ -449,13 +458,30 @@
        :tags (get-tags ver-id)
        :doi (:doi pub-ver)
        :citations (map #(first (sel-citation-by-id %)) citations)
-       }   
+       :url (:popupurl pub-ver)
+       :comments (:comment (last history))
+       }
       (merge (_files files))
       )
     )
   )
 
-(defn save-pub [pub]
+(defn- _add-curation-hist [ver-id p]
+  (prn "HIST" (:state p 3) (:user-id p) ver-id (:comments p))
+  (as-> (get-pub ver-id) $
+    (insert-curation-hist<! {:publication_version_id ver-id 
+                             :created (f/unparse (:mysql f/formatters) (t/now))
+                             :created_by (:user-id p)
+                             :changelog ""
+                             :curator 0 
+                             :oldstatus (:state $ 3)
+                             :newstatus (:state p 3)
+                             :comment (:comments p)
+                             })
+    )
+  )
+
+(defn- _save-pub [pub]
   (let [pub-id (-> (create-pub pub) (:generated_key)) 
         ver-id (-> (create-pub-version pub-id pub) (:generated_key))
         ]
@@ -465,18 +491,35 @@
     (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :content)) (:content pub)))
     (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :images)) (:images pub)))
     (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :support-docs)) (:support-docs pub)))
+    (_add-curation-hist ver-id pub)
     {:pub-id pub-id :ver-id ver-id}
     )
   )
 
-(defn update-pub [p]
+(defn- _update-pub [p]
   (_update-pub-version p)
   (_update-pub-files p :content)
   (_update-pub-files p :images)
   (_update-pub-files p :support-docs)
-  (update-authors p)
-  (update-citations p)
-  (update-tags p)
+  (_update-authors p)
+  (_update-citations p)
+  (_update-tags p)
+  (_add-curation-hist (:ver-id p) p)
+  {:pub-id (:pub-id p) :ver-id (:ver-id p)}
+  )
+
+(defn save-pub [p]
+  (prn "CLASSIC SAVE PUB" (:ver-id p))
+  (if (:ver-id p)
+    (do
+    (prn "UPDATING...." (:content p))
+    (_update-pub p)
+      )
+    (do
+    (prn "SAVING................")  
+    (_save-pub p)
+      )
+    )
   )
 
 (comment
@@ -563,13 +606,18 @@
 (prn ids)
 (def ver-id (:ver-id ids))
 
+ver-id
+
 (->>
-  (get-pub ver-id)
+  (get-pub 83)
   (keys)
   )
 
-(def p (get-pub ver-id)) 
-(prn (:tags p))
+(def p (get-pub ver-id))
+(prn (:url p))
+(prn (:comments p)) 
+
+(prn (:publication-date p))
 
 
 (prn (count (:citations p)))
@@ -591,8 +639,11 @@ p
                         },
          :citations [{:id 2}]
          :tags ["bar" "foo" "admin"]
+         :publication-date "01/31/2020"
+         :comments "Admin note..."
+         :url "http://example.com"
          )
-  (update-pub)
+  (save-pub)
   )
 
 (prn p)
@@ -622,6 +673,7 @@ p
             :ack true
             :publication-date "01/16/2020"
             :tags ["admin" "bar" "foo"]
+            :url "http://example.com"
             }
     )
 

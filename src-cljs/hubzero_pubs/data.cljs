@@ -106,9 +106,9 @@
   (as-> (:data @s) $
     (if (:prj-id $) $ (assoc $ :prj-id (:prj-id @s) :user-id (:user-id @s)))
     (mutate/prepare $)
+
     (go (let [res (<! (http/post (str url "/pubs") {:edn-params $}))]
           (prn (:body res))
-          (update s merge (:body res))
           ))
     )
   )

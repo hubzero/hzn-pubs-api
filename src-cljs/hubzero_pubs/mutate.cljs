@@ -25,7 +25,7 @@
 
 (defn- _coerce-authors [data ak]
   (->> (ak data)
-       (map (fn [[k v]] [(js/parseInt (name k)) v]))
+       (map (fn [[k v]] [k v]))
        (into {}) 
        (assoc data ak)
        )

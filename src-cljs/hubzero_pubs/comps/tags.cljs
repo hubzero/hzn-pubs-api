@@ -59,7 +59,7 @@
   (.stopPropagation e)
   (swap! s assoc-in [:data :tags] (remove #{(-> e
                                                 .-target
-                                                (utils/find-ancestor ".tag")
+                                                (utils/find-ancestor ".ptag")
                                                 (.getAttribute "data-val"))} (get-in @s [:data :tags])))
   )
 

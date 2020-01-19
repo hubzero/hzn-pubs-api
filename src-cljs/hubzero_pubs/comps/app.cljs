@@ -235,7 +235,7 @@
     [:div.note "all field required"]
     ]
    (textfield s "a-title" "Title:" "title")
-   (textarea s "a-synopsis" "Abstract:" "synopsis")
+   (textarea s "a-abstract" "Abstract:" "abstract")
    (collection s "a-content" "Content:" :content nil handle-files-options)
    (collection s "a-authors" "Authors:" :authors-list (options/authors s) handle-author-options)
    (tags/tags s)
@@ -341,7 +341,7 @@
                   (_menu-item id label header)
                   ) [{:id "a-essentials" :label "Essentials" :header true}
                      {:id "a-title" :label "Title"}
-                     {:id "a-synopsis" :label "Abstract"}
+                     {:id "a-abstract" :label "Abstract"}
                      {:id "a-content" :label "Content"}
                      {:id "a-authors" :label "Authors"}
                      {:id "a-license" :label "License"}

@@ -48,7 +48,7 @@
   )
 
 (defn- _descriptions [pub]
-  {:tag :descriptions :content [{:tag :description :attrs {:descriptionType "Abstract"} :content [(:synopsis pub "")]}]}
+  {:tag :descriptions :content [{:tag :description :attrs {:descriptionType "Abstract"} :content [(:abstract pub "")]}]}
   )
 
 (defn- _resource [pub]
