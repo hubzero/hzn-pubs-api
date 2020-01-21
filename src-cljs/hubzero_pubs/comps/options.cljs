@@ -20,22 +20,23 @@
    ]
   )
 
-(defn- _remove-file [s e k v]
+(defn- _remove [s e k id]
+  (prn "REMOVE" k id)
   (.preventDefault e)
   (.stopPropagation e)
-  (swap! s assoc-in [:data k] (dissoc (get-in @s [:data k]) v))
+  (swap! s assoc-in [:data k] (dissoc (get-in @s [:data k]) id))
   )
 
-(defn items [s k v]
+(defn items [s k v id]
   [:div.options-list.--as-panel {:class (if (get-in @s [:ui :options k v]) :open) }
    [:div.inner
     (merge
       [:ul]
       ;(item s "#icon-edit" "Rename" #())
-      (item s "#icon-download" "Download" #())
-      (item s "#icon-delete" "Remove"  (fn [s e]
-                                         (_remove-file s e k v)
-                                         )))
+      ;(item s "#icon-download" "Download" #())
+      (item s "#icon-delete" "Remove" (fn [s e]
+                                        (_remove s e k id)
+                                        )))
     ]
    ]
   )

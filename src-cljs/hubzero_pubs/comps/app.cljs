@@ -42,17 +42,17 @@
    ]
   )
 
-(defn file [s key name]
-  [:li.item {:key name}
+(defn file [s k v id]
+  [:li.item {:key v}
    (ui/icon s "#icon-file-text2")
-   [:div.main [:a {:href "#"} name]]
+   [:div.main [:a {:href "#"} v]]
    [:div.options {:on-click (fn [e]
                               (.preventDefault e)
                               (.stopPropagation e)
-                              (swap! s assoc-in [:ui :options key name] true)
+                              (swap! s assoc-in [:ui :options k v] true)
                               )}
     (ui/icon s "#icon-dots")
-    (options/items s key name)
+    (options/items s k v id)
     ]
    ] 
   )
@@ -66,25 +66,40 @@
     )
   )
 
-(defn author [s author]
-  [:li.item {:key (:id author)}
+(defn author [s k v]
+  [:li.item {:key (:id v)}
    (ui/icon s "#icon-user")
    [:div.main
-    [:div.subject [:a {:href "#"} (:name author)] ]
-    [:div.meta [:a {:href "#"} (:org author)] ]
+    [:div.subject [:a {:href "#"} (:name v)] ]
+    [:div.meta [:a {:href "#"} (:org v)] ]
     [:div.ui.checkbox.inline.meta
-     [:input (merge {:type :checkbox :name :poc :on-change #(handle-poc-click s % (:id author))} {:checked (boolean (some #{(:id author)} (get-in @s [:data :poc]))) })]
+     [:input (merge {:type :checkbox :name :poc :on-change #(handle-poc-click s % (:id v))} {:checked (boolean (some #{(:id v)} (get-in @s [:data :poc]))) })]
      [:label (:for :poc) "Point of contact"]
      ]
+    ]
+   [:div.options {:on-click (fn [e]
+                              (.preventDefault e)
+                              (.stopPropagation e)
+                              (swap! s assoc-in [:ui :options k v] true)
+                              )}
+    (ui/icon s "#icon-dots")
+    (options/items s k v (:id v))
     ]
    ] 
   )
 
-(defn image [s name]
-  [:li.item {:key name}
+(defn image [s k v id]
+  [:li.item {:key v}
    (ui/icon s "#icon-file-picture")
-   [:div.main [:a {:href "#"} name]]
-   (ui/icon s "#icon-dots")
+   [:div.main [:a {:href "#"} v]]
+   [:div.options {:on-click (fn [e]
+                              (.preventDefault e)
+                              (.stopPropagation e)
+                              (swap! s assoc-in [:ui :options k v] true)
+                              )}
+    (ui/icon s "#icon-dots")
+    (options/items s k v id)
+    ]
    ]
   )
 
@@ -101,10 +116,10 @@
 
 (defn item [s k v]
   (k {
-      :content (file s k (first v))
-      :support-docs (file s k (second v))
-      :authors-list (author s (second v))
-      :images (image s (second v))
+      :content (file s k (second v) (first v))
+      :support-docs (file s k (second v) (first v))
+      :authors-list (author s k (second v))
+      :images (image s k (second v) (first v))
       :citations (citation s k v)
       })
   )
