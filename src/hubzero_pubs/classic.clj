@@ -180,7 +180,7 @@
   )
 
 (defn- _update-pub-version [p]
-  (-> (first (sel-pub-version {:id (:ver-id p)}))
+  (-> (first (sel-pub-version {:id (:ver-id p)} (_connection)))
       (merge (_mutate p))
       (merge {:modified (f/unparse (:mysql f/formatters) (t/now)) 
               :modified_by (:user-id p)
@@ -289,7 +289,7 @@
                    :tbl "publications"
                    } (_connection))
     (map (fn [to]
-           (:raw_tag (_get-tag-by-id (:tagid to) (_connection)))
+           (:raw_tag (_get-tag-by-id (:tagid to)))
            ))
     )
   )
@@ -386,7 +386,7 @@
 
 (defn get-authors [ver-id]
   (->>
-    (sel-pub-authors {:publication_version_id ver-id})
+    (sel-pub-authors {:publication_version_id ver-id} (_connection))
     (reduce (fn [m a]
               (assoc m (:user_id a) {:id (:user_id a)
                                      :name (:name a)
@@ -396,7 +396,7 @@
   )
 
 (defn get-license [lic-id]
-  (first (sel-license-by-id {:id lic-id}))
+  (first (sel-license-by-id {:id lic-id} (_connection)))
   )
 
 (defn add-citation [pub ver-id c]
@@ -404,29 +404,29 @@
                             :oid ver-id
                             :type nil
                             :tbl "publications"
-                            })
+                            } (_connection))
   )
 
 (defn _update-citations [p]
-  (let [vc (group-by :id (sel-citation-assocs-oid {:oid (:ver-id p)}))
+  (let [vc (group-by :id (sel-citation-assocs-oid {:oid (:ver-id p)} (_connection)))
         pc (group-by :id (:citations p))
         ]
     (doall (map (fn [c] (if (not (vc c))
                           (add-citation p (:ver-id p) (first (vc c)))
                           )) (keys pc)))
     (doall (map (fn [c] (if (not (pc c))
-                          (del-citation-assoc! {:id c})
+                          (del-citation-assoc! {:id c} (_connection))
                           )) (keys vc)))
     )
   )
 
 (defn get-pub [ver-id]
-  (let [pub-ver (first (sel-pub-version {:id ver-id}))
-        pub (first (sel-pub {:id (:publication_id pub-ver)}))
-        files (sel-attachment {:publication_version_id ver-id})
+  (let [pub-ver (first (sel-pub-version {:id ver-id} (_connection)))
+        pub (first (sel-pub {:id (:publication_id pub-ver)} (_connection)))
+        files (sel-attachment {:publication_version_id ver-id} (_connection))
         params (_parse-params (:params pub-ver))
-        citations (sel-citation-assocs-oid {:oid ver-id})
-        history (sel-curation-hist {:publication_version_id ver-id})
+        citations (sel-citation-assocs-oid {:oid ver-id} (_connection))
+        history (sel-curation-hist {:publication_version_id ver-id} (_connection))
         ]
     (->
       {:prj-id (:project_id pub)
@@ -443,7 +443,7 @@
        :release-notes (:release_notes pub-ver)
        :tags (get-tags ver-id)
        :doi (:doi pub-ver)
-       :citations (map #(first (sel-citation-by-id %)) citations)
+       :citations (map #(first (sel-citation-by-id % (_connection))) citations)
        :url (:popupurl pub-ver)
        :comments (:comment (last history))
        }
@@ -462,9 +462,7 @@
                              :oldstatus (:state $ 3)
                              :newstatus (:state p 3)
                              :comment (:comments p)
-                             })
-    )
-  )
+                             } (_connection))))
 
 (defn- _save-pub [pub]
   (let [pub-id (-> (create-pub pub) (:generated_key)) 
