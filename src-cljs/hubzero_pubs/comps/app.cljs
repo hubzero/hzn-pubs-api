@@ -46,7 +46,11 @@
   [:li.item {:key name}
    (ui/icon s "#icon-file-text2")
    [:div.main [:a {:href "#"} name]]
-   [:div.options {:on-click #(swap! s assoc-in [:ui :options key name] true)}
+   [:div.options {:on-click (fn [e]
+                              (.preventDefault e)
+                              (.stopPropagation e)
+                              (swap! s assoc-in [:ui :options key name] true)
+                              )}
     (ui/icon s "#icon-dots")
     (options/items s key name)
     ]
@@ -95,23 +99,23 @@
    ]
   )
 
-(defn item [s name key]
-  (key {
-        :content (file s key name)
-        :support-docs (file s key name)
-        :authors-list (author s name)
-        :images (image s name)
-        :citations (citation s key name)
-        })
+(defn item [s k v]
+  (k {
+      :content (file s k (first v))
+      :support-docs (file s k (second v))
+      :authors-list (author s (second v))
+      :images (image s (second v))
+      :citations (citation s k v)
+      })
   )
 
-(defn items [s key]
+(defn items [s k]
   (merge 
     [:ul]
     (doall
-      (map #(item s % key) (as-> (get-in @s [:data key]) $
-                             (if (map? $) (vals $) $)
-                             ))  
+      (map #(item s k %) (as-> (get-in @s [:data k]) $
+                           (if (map? $) (into [] $) $)
+                           ))  
       )
     )
   )

@@ -73,19 +73,19 @@
     )
   (data/usage s)
   )
- 
+
 (defn file [s path name key]
   [:li {:key name :on-click #(file-click s path name key %)}
-   [:div {:class [:inner] }
-    [:div {:class [:selected-indicator (if (get-in @s [:data key (folders/spf path name)]) :selected)] }
-     [:div {:class :icon}
+   [:div.inner
+    [:div.selected-indicator {:class (if (get-in @s [:data key (folders/spf path name)]) :selected)}
+     [:div.icon
       (ui/icon s "#icon-checkmark")
-      [:span {:class :name} "Selected"]
+      [:span.name "Selected"]
       ]
      ]
-    [:div {:class :icon}
+    [:div.icon
      (ui/icon s "#icon-file-text2")
-     [:span {:class :name} "Remove"]
+     [:span.name "Remove"]
      ] 
     name
     ]
@@ -93,7 +93,7 @@
   )
 
 (defn file-selector [s files key index]
-  [:ul {:class [:ui :file-selector :item-selector]}
+  [:ul.ui.file-selection.item-selector
    (select-all s key index)
    (doall (map (fn [[path name]] (file s path name key)) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (last $)))))
    (doall (map (fn [[path name]] (folders/folder s path name key (inc index) subpanel)) (as-> files $ (nth $ index) (map (fn [f] [(first $) f]) (second $)))))
@@ -101,13 +101,13 @@
   )
 
 (defn subpanel [s files name key index]
-  [:div {:id name :class [:panel-subpanel :as-panel :files :-open]}
+  [:div.panel-subpanel.as-panel.files.-open {:id name}
    (file-selector s files key index)
    ] 
   )
- 
+
 (defn container [s files key index]
-  [:div {:class :overlay-panel-container}
+  [:div.overlay-panel-container
    (if (> (count files) 0)
      (file-selector s files key index)
      )
@@ -115,8 +115,8 @@
   )
 
 (defn files [s key]
-  [:div {:class [:page-panel :as-panel key :-open (if (get-in @s [:ui :panels key]) :open)]}
-   [:div {:class :inner}
+  [:div.page-panel.as-panel.-open {:class [key (if (get-in @s [:ui :panels key]) :open)]}
+   [:div.inner
     (panels/header s "Add files from project")  
     (progress s)
     (subheader s)
