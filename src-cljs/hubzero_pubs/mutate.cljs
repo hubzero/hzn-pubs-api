@@ -2,7 +2,7 @@
 
 (defn- _prepare-authors [data ak]
   (->> (ak data)
-       (map (fn [[k v]] [(str k) v]))
+       (map (fn [[k v]] [k v]))
        (into {})
        (assoc data ak)
        )
@@ -25,7 +25,7 @@
 
 (defn- _coerce-authors [data ak]
   (->> (ak data)
-       (map (fn [[k v]] [k v]))
+       (map (fn [[k v]] [(js/parseInt k) v]))
        (into {}) 
        (assoc data ak)
        )

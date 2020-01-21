@@ -65,7 +65,6 @@
 (defn prj-size [id]
   (reduce (fn  [c [path _ files]]
             (reduce (fn [c f] 
-                      (prn file-dir path f) 
                       (+ c (fs/size (str file-root "/" path "/" f)))) c files)
             ) 0 (get-files id))
   )
@@ -143,7 +142,6 @@
   )
 
 (defn _fmt-pub-date [dstr]
-  (prn "FORMAT" dstr)
   (as-> (f/formatter "MM/dd/yyyy") $
     (f/parse $ dstr)
     (f/unparse (:mysql f/formatters) $)
@@ -153,11 +151,10 @@
 (defn- _mutate
   "Fields come from client with different names, map them - JBG"
   [p]
-  (prn "MUTATING .... " (:publication-date p))
   (merge p {:created_by (:user-id p)
             :license_type (:id (:licenses p))
             :params (_params-str p)
-            :release_notes (:notes p "")
+            :release_notes (:release-notes p "")
             :published_up (if-let [dstr (:publication-date p)] (_fmt-pub-date dstr))
             :description (:description p "")
             :abstract (:abstract p "")
@@ -181,7 +178,6 @@
   )
 
 (defn- _update-pub-version [p]
-  (prn "UPDATE PUB VERSION" (:ver-id p))
   (-> (first (sel-pub-version {:id (:ver-id p)}))
       (merge (_mutate p))
       (merge {:modified (f/unparse (:mysql f/formatters) (t/now)) 
@@ -192,7 +188,6 @@
   )
 
 (defn add-file [pub ver-id pub-id i f type]
-  (prn "ADD FILE" ver-id pub-id i f type)
   (insert-attachment<! {:publication_version_id ver-id 
                         :publication_id pub-id
                         :created (f/unparse (:mysql f/formatters) (t/now))
@@ -206,7 +201,6 @@
   )
 
 (defn- _update-pub-files [p type]
-  (prn "UPDATE PUB FILES" (:ver-id p) (:pub-id p))
   (let [ver-id (:ver-id p)
         vf (group-by :path (sel-attachment-with-type {:publication_version_id ver-id
                                                       :element_id (type {:content 1 :images 2 :support-docs 3})
@@ -227,7 +221,6 @@
   )
 
 (defn add-author [pub ver-id i a]
-  ;(prn "ADD AUTHOR" ver-id i a)
   (insert-author<! {:publication_version_id ver-id
                     :user_id (:id a)
                     :ordering i
@@ -257,19 +250,16 @@
         pa (:authors-list p)
         ]
     (doall (map-indexed (fn [i a] (if (not (va a))
-
                                     (add-author p (:ver-id p) i (pa a))
                                     (_update-author i (pa a))
-
                                     )) (keys pa)))
     (doall (map (fn [a] (if (not (pa a))
                           (del-author! {:publication_version_id (:ver-id p)
                                         :user_id a
-                                        }) 
+                                        })  
                           )) (keys va)))
     )
   )
-
 
 (defn get-tag [s]
   (first (sel-tag {:tag s}))
@@ -340,14 +330,12 @@
   )
 
 (defn- _tag [tag ver-id pub]
-  ;(prn "Updating old tag..." (:id tag))
   (_add-tag-obj tag ver-id pub)
   (_update-tag tag pub)
   (_log-tag tag "tag_edited" pub)
   )
 
 (defn _create-tag [s pub]
-  ;(prn "Creating new tag...")
   (as-> (_add-tag s pub) $
     (:generated_key $)
     (sel-tag-by-id {:id $}) 
@@ -357,7 +345,6 @@
   )
 
 (defn add-tag [pub ver-id s]
-  ;(prn "TAG" ver-id s)
   (if-let [tag (get-tag s)]
     (_tag tag ver-id pub)
     (_create-tag s pub)
@@ -374,7 +361,6 @@
   (let [ver-tags (get-tags (:ver-id p))
         ptags (:tags p)
         ]
-    (prn "UPDATE TAGS" ver-tags ptags)
     (doall (map (fn [t] (if (not (some #{t} ptags))
                           (_remove-tag (:ver-id p) (:id (get-tag t)))
                           )) ver-tags))
@@ -438,8 +424,7 @@
         files (sel-attachment {:publication_version_id ver-id})
         params (_parse-params (:params pub-ver))
         citations (sel-citation-assocs-oid {:oid ver-id})
-        history
-        (sel-curation-hist {:publication_version_id ver-id})
+        history (sel-curation-hist {:publication_version_id ver-id})
         ]
     (->
       {:prj-id (:project_id pub)
@@ -448,7 +433,6 @@
        :ver-id ver-id 
        :title (:title pub-ver)
        :abstract (:abstract pub-ver)
-       :notes (:release_notes pub-ver)
        :publication-date (if-let [d (:published_up pub-ver)]
                            (f/unparse (f/formatter "MM/dd/yyyy") (c/from-long (.getTime d)))) 
        :ack (= (:licenseagreement params) "1")
@@ -467,7 +451,6 @@
   )
 
 (defn- _add-curation-hist [ver-id p]
-  (prn "HIST" (:state p 3) (:user-id p) ver-id (:comments p))
   (as-> (get-pub ver-id) $
     (insert-curation-hist<! {:publication_version_id ver-id 
                              :created (f/unparse (:mysql f/formatters) (t/now))
@@ -509,16 +492,9 @@
   )
 
 (defn save-pub [p]
-  (prn "CLASSIC SAVE PUB" (:ver-id p))
   (if (:ver-id p)
-    (do
-    (prn "UPDATING...." (:content p))
     (_update-pub p)
-      )
-    (do
-    (prn "SAVING................")  
     (_save-pub p)
-      )
     )
   )
 
@@ -608,13 +584,11 @@
 
 ver-id
 
-(->>
-  (get-pub 83)
-  (keys)
-  )
+(def ver-id 86)
 
 (def p (get-pub ver-id))
-(prn (:url p))
+(prn (:notes p))
+
 (prn (:comments p)) 
 
 (prn (:publication-date p))
