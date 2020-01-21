@@ -40,7 +40,18 @@
   ;;:source-paths ["src-cljs"]
 
   :cljsbuild {:builds
-              [{:id "dev"
+              [{:id "local"
+                :source-paths ["src-cljs"]
+                :figwheel {:on-jsload "hubzero-pubs.core/on-js-reload"
+                           :websocket-url "ws://0.0.0.0:3449/figwheel-ws"}
+                :compiler {:main hubzero-pubs.core
+                           :asset-path "/js/compiled/out"
+                           :output-to "resources/public/js/compiled/hubzero_pubs.js"
+                           :output-dir "resources/public/js/compiled/out"
+                           :source-map-timestamp true
+                           :preloads [devtools.preload]}}
+
+               {:id "dev"
                 :source-paths ["src-cljs"]
 
                 ;; The presence of a :figwheel configuration here
