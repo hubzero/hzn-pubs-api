@@ -115,18 +115,11 @@
   )
 
 (defn create-citation [m]
-<<<<<<< HEAD
-  (->>
-    (reduce (fn [c k] (if (k c) c (assoc c k nil))) m
-            [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition])
-    (insert-citation<!)
-    )
-=======
   (->
    (reduce (fn [c k] (if (k c) c (assoc c k nil))) m
            [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition])
    (insert-citation<! (_connection)))
->>>>>>> pass 1 docker
+
   )
 
 (defn get-citation-types []
@@ -182,7 +175,7 @@
               :access 0
               :secret (utils/rand-str 10)
               })
-      (insert-pub-version<! )
+      (insert-pub-version<! (_connection))
       )
   )
 
@@ -192,7 +185,7 @@
       (merge {:modified (f/unparse (:mysql f/formatters) (t/now)) 
               :modified_by (:user-id p)
               })
-      (update-pub-version!)
+      (update-pub-version! (_connection))
       )
   )
 
@@ -206,14 +199,14 @@
                         :ordering i
                         :element_id (type {:content 1 :images 2 :support-docs 3})
                         :path (:path f)
-                        })
+                        } (_connection))
   )
 
 (defn- _update-pub-files [p type]
   (let [ver-id (:ver-id p)
         vf (group-by :path (sel-attachment-with-type {:publication_version_id ver-id
                                                       :element_id (type {:content 1 :images 2 :support-docs 3})
-                                                      }))
+                                                      } (_connection)))
         pf (group-by :path (type p))]
 
     ;; New files add them - JBG
@@ -224,7 +217,7 @@
     ;; Delete removed files - JBG
     (doall (map (fn [path]
                   (if (not (pf path))
-                    (del-attachment! {:id (:id (first (vf path)))})
+                    (del-attachment! {:id (:id (first (vf path)))} (_connection))
                     )) (keys vf)))
     )
   )
@@ -242,7 +235,7 @@
                     :created_by (:user-id pub)
                     :status 1
                     :project_owner_id (:prj-id pub)
-                    })
+                    } (_connection))
   )
 
 (defn- _update-author [i a]
@@ -251,11 +244,11 @@
                    :firstname (:firstname a "")
                    :lastname (:lastname a "")
                    :org (:organization a "")
-                   })
+                   } (_connection))
   )
 
 (defn _update-authors [p]
-  (let [va (group-by :user_id (sel-pub-authors {:publication_version_id (:ver-id p)}))
+  (let [va (group-by :user_id (sel-pub-authors {:publication_version_id (:ver-id p)} (_connection)))
         pa (:authors-list p)
         ]
     (doall (map-indexed (fn [i a] (if (not (va a))
@@ -265,13 +258,13 @@
     (doall (map (fn [a] (if (not (pa a))
                           (del-author! {:publication_version_id (:ver-id p)
                                         :user_id a
-                                        })  
+                                        } (_connection))
                           )) (keys va)))
     )
   )
 
 (defn get-tag [s]
-  (first (sel-tag {:tag s}))
+  (first (sel-tag {:tag s} (_connection)))
   )
 
 (defn- _add-tag [s pub]
@@ -283,20 +276,20 @@
                  :tag (clojure.string/replace s #"[^\w]+" "")
                  :modified (f/unparse (:mysql f/formatters) (t/now))
                  :modified_by (:user-id pub)
-                 })
+                 } (_connection))
   )
 
 (defn- _get-tag-by-id [id]
-  (first (sel-tag-by-id {:id id})) 
+  (first (sel-tag-by-id {:id id} (_connection)))
   )
 
 (defn get-tags [ver-id]
   (->>
     (sel-tag-objs {:object_id ver-id
                    :tbl "publications"
-                   })
+                   } (_connection))
     (map (fn [to]
-           (:raw_tag (_get-tag-by-id (:tagid to))) 
+           (:raw_tag (_get-tag-by-id (:tagid to) (_connection)))
            ))
     )
   )
@@ -305,7 +298,7 @@
   (> (count (sel-tag-obj {:tag_id (:id tag)
                           :object_id ver-id
                           :tbl "publications"
-                          })) 0)
+                          } (_connection))) 0)
   )
 
 (defn- _add-tag-obj [tag ver-id pub]
@@ -316,7 +309,7 @@
                        :strength 1
                        :tagger_id (:user-id pub) 
                        :tagged_on (f/unparse (:mysql f/formatters) (t/now))
-                       })
+                       } (_connection))
     )
   )
 
@@ -325,7 +318,7 @@
                    (update :objects inc)
                    (assoc :modified (f/unparse (:mysql f/formatters) (t/now)))
                    (assoc :modified_by (:user-id pub))
-                   ))
+                   ) (_connection))
   )
 
 (defn- _log-tag [tag action pub]
@@ -335,7 +328,7 @@
                      :time (f/unparse (:mysql f/formatters) (t/now))
                      :user_id (:user-id pub)
                      :actor_id (:user-id pub)
-                     })
+                     } (_connection))
   )
 
 (defn- _tag [tag ver-id pub]
@@ -347,7 +340,7 @@
 (defn _create-tag [s pub]
   (as-> (_add-tag s pub) $
     (:generated_key $)
-    (sel-tag-by-id {:id $}) 
+    (sel-tag-by-id {:id $} (_connection))
     (first $)
     (_log-tag $ "tag_created" pub)
     )
@@ -363,7 +356,7 @@
 (defn _remove-tag [ver-id tag-id]
   (del-tag-obj! {:tag_id tag-id
                  :object_id ver-id
-                 })
+                 } (_connection))
   )
 
 (defn _update-tags [p]
@@ -509,7 +502,7 @@
 
 (comment
 
-  (def pub-ver (first (sel-pub-version {:id ver-id})))
+  (def pub-ver (first (sel-pub-version {:id ver-id}) (_connection)))
   (prn pub-ver)
 
   (:params pub-ver)

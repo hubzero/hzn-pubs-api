@@ -4,8 +4,7 @@
             [cheshire.core :as json]
             [hubzero-pubs.config :refer [config]]
             )
-  (:import java.util.Base64)
-  )
+  (:import java.util.Base64))
 
 (defn- _year [pub]
   (-> (:publication-date pub)
