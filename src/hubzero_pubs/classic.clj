@@ -133,7 +133,7 @@
                  :access 0
                  :created_by (:user-id p)
                  :created (f/unparse (:mysql f/formatters) (t/now))
-                 })
+                 } (_connection))
   )
 
 (defn- _params-str [pub]
