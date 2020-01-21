@@ -15,7 +15,7 @@
    [:a {:href "#" :on-click #(f s %)}
     [:div {:class :icon}
      [:svg [:use {:xlinkHref i}]]
-     [:span {:class :name} name]
+     [:span.name name]
      ] name]
    ]
   )
@@ -58,11 +58,8 @@
   )
 
 (defn authors [s]
-  [:div {:class [:authors-options
-                 :options-list
-                 (if (get-in @s [:ui :options :authors]) :open)
-                 ]}
-   [:div {:class :inner}
+  [:div.authors-options.options-list {:class (if (get-in @s [:ui :options :authors]) :open)}
+   [:div.inner
     (merge
       [:ul]
       (item s "#icon-user" "Add from project" handle-add-author)
@@ -90,11 +87,8 @@
   )
 
 (defn citations [s]
-  [:div {:class [:citations-options
-                 :options-list
-                 (if (get-in @s [:ui :options :citations]) :open)
-                 ]}
-   [:div {:class :inner}
+  [:div.citations-options.options-list {:class (if (get-in @s [:ui :options :citations]) :open)}
+   [:div.inner
     (merge
       [:ul]
       (item s "#icon-file-text2" "Enter a DOI" handle-doi)
