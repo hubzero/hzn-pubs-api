@@ -364,10 +364,25 @@
   )
 
 (defn navigation [s]
-  [:aside
-   [:nav
-    (nav-section s)
-    ]
+  [^{:component-did-mount
+     (fn []
+       (js/StickySidebar. "#sidebar" (clj->js {:containerSelector "#aside"
+                                               :innerWrapperSelector ".sidebar__inner"
+                                               :topSpacing 0
+                                               :bottomSpacing 0
+                                               :minWidth 1000
+                                               }))
+       )
+     }
+   (fn []
+     [:aside#aside
+      [:nav#sidebar.internal.is-affixed
+       [:div.sidebar__inner
+        (nav-section s)
+        ]
+       ]
+      ]    
+     )
    ]
   )
 

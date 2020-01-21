@@ -56,6 +56,21 @@
 	}
 }
 
+.marginVertically() {
+	margin-top: @pad;
+	margin-bottom: @pad;
+
+	@media (min-width: @sizeM) {
+		margin-top: @padM;
+		margin-bottom: @padM;
+	}
+
+	@media (min-width: @sizeL) {
+		margin-top: @padL;
+		margin-bottom: @padL;
+	}
+}
+
 .pad() {
 	padding: @pad;
 
@@ -182,6 +197,6 @@
 	font-size: 1.2rem;
 }
 
-.fontSize(@size) when (@size = '2xl') {
+.text(@size) when (@size = '2xl') {
 	font-size: 1.6rem;
 }

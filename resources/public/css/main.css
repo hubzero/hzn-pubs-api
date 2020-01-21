@@ -11,6 +11,19 @@ fieldset {
   border: 0;
   margin: 0;
 }
+.padded {
+  padding: 1rem;
+}
+@media (min-width: 900px) {
+  .padded {
+    padding: 1.5rem;
+  }
+}
+@media (min-width: 1000px) {
+  .padded {
+    padding: 2rem;
+  }
+}
 .font-small {
   font-size: 0.85rem;
 }
@@ -23,6 +36,14 @@ body.with-overlay .page-overlay {
 body.with-overlay .wrap {
   transform: translate(-10%, 0);
   transition: all, 0.1s ease-in-out;
+}
+@media (max-width: 1000px) {
+  body.with-non-modal-overlay {
+    overflow: hidden;
+  }
+  body.with-non-modal-overlay .page-overlay {
+    transform: translate(0, 0);
+  }
 }
 .page-overlay {
   position: fixed;
@@ -43,12 +64,15 @@ body.with-overlay .wrap {
   background: #fff;
   z-index: 110;
   overflow: hidden;
-  transform: translate(100%, 0);
+  transform: translate(150%, 0);
   transition: all, 0.3s ease-in-out;
   width: 100%;
   display: flex;
   align-items: center;
   max-width: 30rem;
+}
+.page-panel.page-panel-nonmodal {
+  box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.1);
 }
 @media (min-width: 900px) {
   .page-panel {
@@ -92,6 +116,12 @@ body.with-overlay .wrap {
 }
 .page-panel > .inner > header > .icon:hover svg {
   fill: #07D3A4;
+}
+.page-panel > .inner > header > .content {
+  flex-grow: 1;
+}
+.page-panel > .inner > header > .content + .icon {
+  margin-right: 0;
 }
 .page-panel > .inner > header h1 {
   font-size: 1.1rem;
@@ -171,6 +201,57 @@ body.with-overlay .wrap {
   flex-grow: 1;
   z-index: 1;
   overflow: hidden;
+}
+.page-panel > .inner .overlay-panel-scroll-container {
+  position: relative;
+  flex-grow: 1;
+  z-index: 1;
+  overflow: scroll;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+@media (min-width: 900px) {
+  .page-panel > .inner .overlay-panel-scroll-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+@media (min-width: 1000px) {
+  .page-panel > .inner .overlay-panel-scroll-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+@media (min-width: 900px) {
+  .page-panel > .inner .overlay-panel-scroll-container {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+@media (min-width: 1000px) {
+  .page-panel > .inner .overlay-panel-scroll-container {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+}
+.page-panel > .inner .overlay-panel-scroll-container .inner {
+  line-height: 1.6em;
+}
+.page-panel > .inner .overlay-panel-scroll-container .inner dl {
+  margin: 0;
+  padding: 0;
+}
+.page-panel > .inner .overlay-panel-scroll-container .inner dl dt {
+  margin: 0 0 2rem 0;
+  padding: 0;
+  font-size: 1.6rem;
+}
+.page-panel > .inner .overlay-panel-scroll-container .inner dl dd {
+  margin: 0;
+  padding: 0;
+  font-size: 0.85rem;
 }
 .page-panel > .inner hr {
   margin-left: 1rem;
@@ -856,20 +937,20 @@ body.with-overlay .wrap {
 .page > aside:first-child {
   padding-right: 4rem;
   font-size: 0.85rem;
-  min-width: 125px;
+  width: 200px;
 }
-.page > aside:first-child nav {
+.page > aside:first-child nav .sidebar__inner {
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
 @media (min-width: 900px) {
-  .page > aside:first-child nav {
+  .page > aside:first-child nav .sidebar__inner {
     padding-top: 1.5rem;
     padding-bottom: 1.5rem;
   }
 }
 @media (min-width: 1000px) {
-  .page > aside:first-child nav {
+  .page > aside:first-child nav .sidebar__inner {
     padding-top: 2rem;
     padding-bottom: 2rem;
   }
@@ -892,6 +973,15 @@ body.with-overlay .wrap {
   line-height: 1.2em;
   padding-top: 0.3rem;
   padding-bottom: 0.3rem;
+}
+.page > aside:first-child ul li.header {
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+  font-weight: 600;
+}
+.page > aside:first-child ul li.header:first-child {
+  margin-top: 0;
 }
 @media (min-width: 1000px) {
   .page > aside:first-child {
@@ -962,6 +1052,26 @@ fieldset > header {
   font-weight: 600;
   padding-bottom: 0.3rem;
   font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+}
+.field > label > .icon {
+  line-height: 0;
+  margin-left: 0.6rem;
+  opacity: 0.5;
+}
+.field > label > .icon svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+.field > label > .icon:hover {
+  opacity: 1;
+}
+.field > label > .icon:hover svg {
+  fill: #07D3A4;
+}
+.field > label .field-details {
+  display: none;
 }
 .field input[type="text"],
 .field textarea,

@@ -48,9 +48,9 @@ body {
 		&:first-child {
 			padding-right: 4rem;
 			.text('sm');
-			min-width: 125px;
+			width: 200px;
 
-			nav {
+			nav .sidebar__inner {
 				.padVertically();
 			}
 
@@ -74,6 +74,18 @@ body {
 					line-height: 1.2em;
 					padding-top: 0.3rem;
 					padding-bottom: 0.3rem;
+
+					&.header
+					{
+						text-transform: uppercase;
+						margin-bottom: 1rem;
+						margin-top: 2rem;
+						font-weight: @fontWeightB;
+
+						&:first-child {
+							margin-top: 0;
+						}
+					}
 				}
 			}
 
@@ -136,6 +148,31 @@ fieldset > header {
 		font-weight: 600;
 		padding-bottom: 0.3rem;
 		font-size: 0.9rem;
+		display: flex;
+		align-items: center;
+
+		& > .icon {
+			line-height: 0;
+			margin-left: 0.6rem;
+			opacity: 0.5;
+
+			svg {
+				width: 0.9rem;
+				height: 0.9rem;
+			}
+
+			&:hover {
+				opacity: 1;
+
+				svg {
+					fill: @colorAction;
+				}
+			}
+		}
+
+		.field-details {
+			display: none;
+		}
 	}
 
 	input[type="text"],

@@ -11,6 +11,17 @@ body.with-overlay {
 	}
 }
 
+body.with-non-modal-overlay  {
+
+	@media (max-width: @sizeL) {
+		overflow: hidden;
+
+		.page-overlay {
+			transform: translate(0, 0);
+		}
+	}
+}
+
 .page-overlay {
 	position: fixed;
 	top: 0;
@@ -32,12 +43,16 @@ body.with-overlay {
 	background: #fff;
 	z-index: 110;
 	overflow: hidden;
-	transform: translate(100%, 0);
+	transform: translate(150%, 0);
 	transition: all, 0.3s ease-in-out;
 	width: 100%;
 	display: flex;
 	align-items: center;
 	max-width: 30rem;
+
+	&.page-panel-nonmodal {
+		box-shadow: 0 0 5px 5px rgba(0,0,0,0.1);
+	}
 
 	@media (min-width: @sizeM) {
 		left: auto;
@@ -75,6 +90,14 @@ body.with-overlay {
 						fill: @colorAction;
 					}
 				}
+			}
+
+			& > .content {
+				flex-grow: 1;
+			}
+
+			& > .content + .icon {
+				margin-right: 0;
 			}
 
 			h1 {
@@ -125,6 +148,36 @@ body.with-overlay {
 			flex-grow: 1;
 			z-index: 1;
 			overflow: hidden;
+		}
+
+		.overlay-panel-scroll-container {
+			position: relative;
+			flex-grow: 1;
+			z-index: 1;
+			overflow: scroll;
+			.padSides();
+			.marginVertically();
+
+			.inner {
+				line-height: 1.6em;
+
+				dl {
+					margin: 0;
+					padding: 0;
+
+					dt {
+						margin: 0 0 2rem 0;
+						padding: 0;
+						.text('2xl');
+					}
+
+					dd {
+						margin: 0;
+						padding: 0;
+						.text('sm');
+					}
+				}
+			}
 		}
 
 		hr {
