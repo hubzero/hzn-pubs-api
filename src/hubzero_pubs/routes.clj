@@ -9,7 +9,6 @@
                                         resource-response]]
             [ring.util.response :as response]
             [hubzero-pubs.classic :as classic]
-            [hubzero-pubs.pubs :as pubs]
             ))
 
 (defn four-oh-4 []
@@ -49,10 +48,6 @@
     )
   )
 
-(defn get-pubs [req]
-  (response (pubs/get-pubs (:id (:params req)) (:id (:user req))))
-  )
-
 (defn get-usage [req]
   (response (classic/usage (:id (:params req)) (:body-params req)))
   )
@@ -62,7 +57,6 @@
   (GET "/prjs/:id" [id] {:body (get-prj id)})
   (GET "/prjs/:id/files" [id] (classic/get-files id))
   (GET "/prjs/:id/users" [id] (classic/get-users id))
-  (GET "/prjs/:id/pubs" req (get-pubs req))
   (POST "/prjs/:id/usage" req (get-usage req))
 
   (GET "/pubs/licenses" [] (classic/get-licenses))
