@@ -264,7 +264,7 @@
   [:fieldset.section
    [:header
     [:legend "Essentials"]
-    [:div.note "all field required"]
+    [:div.note "all fields required"]
     ]
    (textfield s "a-title" "Title:" "title")
    (textarea s "a-abstract" "Abstract:" "abstract")
