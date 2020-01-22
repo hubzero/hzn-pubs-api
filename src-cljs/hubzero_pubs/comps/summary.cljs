@@ -148,16 +148,21 @@
    ]
   )
 
+(defn- _submit [s e]
+  
+  )
+
 (defn aside [s]
   [:aside
-   [:div {:class :inner}
-    [:div {:class :notification}
+   [:div.inner
+    [:div.notification
      [:header "Your publication is ready for submission!"]
      [:p "Please review your publication and make sure everything looks good."]
-     [:fieldset {:class :buttons-aside}
-      [:a {:href "/pubs/#/submit" :class :btn} "Submit publication"]
-      [:a {:href (str "/pubs/#/pubs/" (:pub-id @s) "/edit")
-           :class [:btn :secondary]} "Edit draft"]
+     [:fieldset.buttons-aside
+      [:a.btn {:href "/pubs/#/submit"
+               :on-click #(_submit s %)
+               } "Submit publication"]
+      [:a.btn.secondary {:href (str "/pubs/#/pubs/" (:pub-id @s) "/edit")} "Edit draft"]
       ]
      ]
     ]
@@ -165,11 +170,9 @@
   )
 
 (defn page-summary [s]
-  [:div {:class (concat [:page :page-summary :--add :--show]
-                        (if (get-in @s [:ui :summary])
-                          [:add :show]
-                          )
-                        ) }
+  [:div.page.page-summary.--add.--show {:class (if (get-in @s [:ui :summary])
+                                                 [:add :show]
+                                                 )}
    (main s)
    (aside s)
    ]

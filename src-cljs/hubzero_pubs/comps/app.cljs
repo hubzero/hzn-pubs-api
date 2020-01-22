@@ -10,6 +10,7 @@
     [hubzero-pubs.comps.options :as options] 
     [hubzero-pubs.comps.licenses :as licenses] 
     [hubzero-pubs.comps.citations :as citations] 
+    [hubzero-pubs.comps.help :as help] 
     [hubzero-pubs.comps.ui :as ui] 
     [hubzero-pubs.comps.summary :as summary] 
     )
@@ -21,9 +22,21 @@
   (swap! s assoc-in [:data (keyword name)] (-> e .-target .-value))
   )
 
+(defn- _help [s]
+  [:a.icon {:href "#" :on-click (fn [e]
+                                  (.preventDefault e)
+                                  (.stopPropagation e)
+                                  (panels/show s e true :help-center)
+                                  )}
+   (ui/icon s "#icon-question")
+   ]
+  )
+
 (defn textfield [s id title name]
   [:div.field {:id id}
-   [:label {:for :title} title]
+   [:label {:for :title} title
+    (_help s)
+    ]
    [:input {:type :text
             :name name
             :value (get-in @s [:data (keyword name)])
@@ -438,6 +451,7 @@
     (licenses/license-list s :licenses)
     (citations/doi s :citations-doi)
     (citations/manual s :citations-manual)
+    (help/help s :help-center)
     )
   )
 

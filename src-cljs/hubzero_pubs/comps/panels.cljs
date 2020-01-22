@@ -14,7 +14,6 @@
       (.remove $ "with-overlay")
       )
     )
-
   )
 
 (defn close [s e]
