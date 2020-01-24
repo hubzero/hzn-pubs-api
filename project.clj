@@ -9,7 +9,7 @@
                  [org.clojure/tools.nrepl "0.2.13"]
                  [org.clojure/tools.cli "0.3.7"]
                  [org.clojure/java.jdbc "0.7.9"]
-                 [cprop "0.1.14"]                        
+                 [cprop "0.1.15"]
                  [mount "0.1.12"]
                  [org.immutant/immutant "2.1.10"]
                  [cheshire "5.9.0"]
