@@ -8,6 +8,7 @@
             [cheshire.core :as json]
             [hubzero-pubs.config :refer [config]]
             [hubzero-pubs.utils :as utils]
+            [hubzero-pubs.errors :as errors]
             [mount.core :as mount :refer [defstate]]
             )
   )
@@ -38,13 +39,15 @@
   )
 
 (defn- _parse-params [s]
-  (->> (clojure.string/split s #"\n")
-       (reduce (fn [m p] (as-> (clojure.string/split p #"=") $
-                              (assoc m (keyword (first $)) (last $))
-                      )) {})
-       )
+  (if s
+    (->> (clojure.string/split s #"\n")
+         (reduce (fn [m p] (as-> (clojure.string/split p #"=") $
+                             (assoc m (keyword (first $)) (last $))
+                             )) {})
+         )   
+    )
   )
- 
+
 (defn get-prj [id]
   ;; Get the project process the params - JBG
   (as-> (_get-prj id) $
@@ -77,24 +80,34 @@
             ) 0 files)
   )
 
+(defn- _usage-percent [prj size]
+  (if-let [pq (get-in prj [:params :pubQuota]) ]
+    (->> pq 
+         (Integer/parseInt)
+         (/ size)
+         (* 100)
+         (float)
+         (clojure.core/format "%.2f")
+         ) 0)
+  )
+
+(defn- _usage-max [prj]
+  (if-let [pq (get-in prj [:params :pubQuota])]
+    (->> (/ (Integer/parseInt pq) gb)
+         (float)
+         (clojure.core/format "%.2f" )
+         ) 0)
+  )
+
 (defn usage [id files]
   (let [size (_usage-size files)]
     (as-> (get-prj id) $
       {:size (clojure.core/format "%.2f" (float (/ size gb))) 
        :units "GB"
-       :percent (->> (get-in $ [:params :pubQuota])
-                     (Integer/parseInt)
-                     (/ size)
-                     (* 100)
-                     (float)
-                     (clojure.core/format "%.2f")
-                     )
-       :max (->> (/ (Integer/parseInt (get-in $ [:params :pubQuota])) gb)
-                 (float)
-                 (clojure.core/format "%.2f" )
-                 )
+       :percent (_usage-percent $ size) 
+       :max (_usage-max $)
        }
-      )   
+      )
     )
   )
 
@@ -421,34 +434,36 @@
   )
 
 (defn get-pub [ver-id]
-  (let [pub-ver (first (sel-pub-version {:id ver-id} (_connection)))
-        pub (first (sel-pub {:id (:publication_id pub-ver)} (_connection)))
-        files (sel-attachment {:publication_version_id ver-id} (_connection))
-        params (_parse-params (:params pub-ver))
-        citations (sel-citation-assocs-oid {:oid ver-id} (_connection))
-        history (sel-curation-hist {:publication_version_id ver-id} (_connection))
-        ]
-    (->
-      {:prj-id (:project_id pub)
-       :user-id (:created_by pub) 
-       :pub-id (:publication_id pub-ver)  
-       :ver-id ver-id 
-       :title (:title pub-ver)
-       :abstract (:abstract pub-ver)
-       :publication-date (if-let [d (:published_up pub-ver)]
-                           (f/unparse (f/formatter "MM/dd/yyyy") (c/from-long (.getTime d)))) 
-       :ack (= (:licenseagreement params) "1")
-       :authors-list (get-authors ver-id)
-       :licenses (get-license (:license_type pub-ver))
-       :release-notes (:release_notes pub-ver)
-       :tags (get-tags ver-id)
-       :doi (:doi pub-ver)
-       :citations (map #(first (sel-citation-by-id % (_connection))) citations)
-       :url (:popupurl pub-ver)
-       :comments (:comment (last history))
-       }
-      (merge (_files files))
-      )
+  (if-let [pub-ver (first (sel-pub-version {:id ver-id} (_connection)))]
+    (let [pub (first (sel-pub {:id (:publication_id pub-ver)} (_connection))) 
+          files (sel-attachment {:publication_version_id ver-id} (_connection))
+          params (_parse-params (:params pub-ver))
+          citations (sel-citation-assocs-oid {:oid ver-id} (_connection))
+          history (sel-curation-hist {:publication_version_id ver-id} (_connection))
+          ]
+      (->
+        {:prj-id (:project_id pub)
+         :user-id (:created_by pub) 
+         :pub-id (:publication_id pub-ver)  
+         :ver-id ver-id 
+         :title (:title pub-ver)
+         :abstract (:abstract pub-ver)
+         :publication-date (if-let [d (:published_up pub-ver)]
+                             (f/unparse (f/formatter "MM/dd/yyyy") (c/from-long (.getTime d)))) 
+         :ack (= (:licenseagreement params) "1")
+         :authors-list (get-authors ver-id)
+         :licenses (get-license (:license_type pub-ver))
+         :release-notes (:release_notes pub-ver)
+         :tags (get-tags ver-id)
+         :doi (:doi pub-ver)
+         :citations (map #(first (sel-citation-by-id % (_connection))) citations)
+         :url (:popupurl pub-ver)
+         :comments (:comment (last history))
+         :state (:state pub-ver)
+         }
+        (merge (_files files))
+        )
+      )  
     )
   )
 
@@ -463,6 +478,12 @@
                              :newstatus (:state p 3)
                              :comment (:comments p)
                              } (_connection))))
+
+(defn valid? [pub]
+  (reduce (fn [b f]
+            (and b (f pub)) 
+            ) true [ :abstract :title ])
+  )
 
 (defn- _save-pub [pub]
   (let [pub-id (-> (create-pub pub) (:generated_key)) 
@@ -495,7 +516,7 @@
   (if (:ver-id p)
     (_update-pub p)
     (_save-pub p)
-    )
+    ) 
   )
 
 (comment
@@ -584,9 +605,10 @@
 
 ver-id
 
-(def ver-id 86)
+(def ver-id 107)
 
 (def p (get-pub ver-id))
+
 (prn (:notes p))
 
 (prn (:comments p)) 
@@ -626,9 +648,6 @@ p
 
   (def authors (get-authors ver-id))
   (prn authors)
- 
-
-
 
   (prn pub)
 

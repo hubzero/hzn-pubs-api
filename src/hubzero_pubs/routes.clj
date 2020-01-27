@@ -9,13 +9,9 @@
                                         resource-response]]
             [ring.util.response :as response]
             [hubzero-pubs.classic :as classic]
+            [hubzero-pubs.errors :as errors]
             ))
 
-(defn four-oh-4 []
-  {:status 404
-   :title "Not found"
-   :body "Resource not found."} 
-  )
 
 ;(defn handle-file [req]
 ;  (prn (get-in req [:multipart-params "f" :filename]))  
@@ -29,22 +25,21 @@
     (as-> (response {:body prj}) $
       (update $ :session merge {:prj-id id})
       )
-    (four-oh-4)
+    (errors/four-oh-4)
     )
   )
 
 (defn get-pub [id]
   (if-let [pub (classic/get-pub id)]
     (response pub)
-    (four-oh-4)
+    (errors/four-oh-4)
     )
   )
 
 (defn save-pub [data]
-  (prn "SAVE PUB" data)
-  (->
-    (classic/save-pub data)
-    (response)
+  (if (classic/valid? data)
+    (response (classic/save-pub data)) 
+    (errors/four-ohoh)
     )
   )
 

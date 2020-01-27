@@ -153,6 +153,7 @@
   )
 
 (defn aside [s]
+  (prn "ASIDE" (:pub-id @s))
   [:aside
    [:div.inner
     [:div.notification
