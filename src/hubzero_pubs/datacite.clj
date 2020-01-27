@@ -51,27 +51,27 @@
   )
 
 (defn- _resource [pub]
-  {:tag :resource
-   :attrs {"xmlns" "http://datacite.org/schema/kernel-4"
-           "xmlns:xsi" "http://www.w3.org/2001/XMLSchema-instance"
-           "xsi:schemaLocation" "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd"
-      }
-     :content [{:tag :identifier :attrs {:identifierType "DOI"} :content [(:doi_shoulder config)]}
-               (_creators pub)
-               (_titles pub)
-               ; Not sure publisher is a thing? - JBG
-               {:tag :publisher :content [(:doi_publisher config)]}
-               {:tag :publicationYear :content [(_year pub)]}
-               ; Not sure contributor is a thing? - JBG
-               ;(_contributors pub)
-               (_dates pub)
-               ; Language? - JBG
-               {:tag :resourceType :attrs {:resourceTypeGeneral "Text"} :content ["Document"]} ; Is this correct? - JBG
-               ;(_related pub) Versioning? - JBG
-               {:tag :version :content [(:ver-id pub)]}
-               (_license pub)
-               (_descriptions pub)
-	]   
+  {:tag     :resource
+   :attrs   {"xmlns"              "http://datacite.org/schema/kernel-4"
+             "xmlns:xsi"          "http://www.w3.org/2001/XMLSchema-instance"
+             "xsi:schemaLocation" "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd"
+             }
+   :content [{:tag :identifier :attrs {:identifierType "DOI"} :content [(get-in config [:doi :shoulder])]}
+             (_creators pub)
+             (_titles pub)
+             ; Not sure publisher is a thing? - JBG
+             {:tag :publisher :content [(get-in config [:doi :publisher])]}
+             {:tag :publicationYear :content [(_year pub)]}
+             ; Not sure contributor is a thing? - JBG
+             ;(_contributors pub)
+             (_dates pub)
+             ; Language? - JBG
+             {:tag :resourceType :attrs {:resourceTypeGeneral "Text"} :content ["Document"]} ; Is this correct? - JBG
+             ;(_related pub) Versioning? - JBG
+             {:tag :version :content [(:ver-id pub)]}
+             (_license pub)
+             (_descriptions pub)
+             ]
    }
 ;  :content [{:tag :identifier
 ;             :attrs {:identifierType :DOI}
@@ -91,11 +91,11 @@
 
 (defn get-datacite [xml-str]
   (->>
-    (http/post (str (:datacite_doi_service config) "/metadata/" (:doi_shoulder config))
-               {:headers {"Authorization" (str "Basic " (_encode (:datacite_doi_userpw config)))
-                          "Content-Type" "application/xml;charset=UTF-8"
+    (http/post (str (get-in config [:datacite-doi :service]) "/metadata/" (get-in config [:doi :shoulder]))
+               {:headers {"Authorization" (str "Basic " (_encode (get-in config [:datacite-doi :userpw])))
+                          "Content-Type"  "application/xml;charset=UTF-8"
                           }
-                :body xml-str 
+                :body    xml-str
                 })
     (:body)
     (re-find #"\(([^\)(]+)\)")
@@ -119,7 +119,7 @@
   (_license pub)
   (_descriptions pub)
 
-  (_encode (:datacite_doi_userpw config))
+  (_encode (get-in config [:datacite-doi :userpw]))
 
   (prn pub)
 
