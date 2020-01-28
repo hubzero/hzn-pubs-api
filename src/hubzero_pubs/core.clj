@@ -10,8 +10,10 @@
   (:gen-class))
 
 (def cli-options
-  [["-p" "--port PORT"    "Port number" :parse-fn #(Integer/parseInt %)]
-   ["-b" "--bind address" "Bind address"]])
+  [["-p" "--port PORT"       "Port number" :parse-fn #(Integer/parseInt %)]
+   ["-c" "--config EDNFILE"  "EDN Config Overrides"]
+   ["-b" "--bind address"    "Bind address"]])
+
 
 
 (defstate ^{:on-reload :noop} http-server

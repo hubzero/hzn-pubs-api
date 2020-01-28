@@ -1,6 +1,7 @@
 (ns hubzero-pubs.comps.summary
   (:require 
     [hubzero-pubs.utils :as utils] 
+    [hubzero-pubs.data :as data] 
     [hubzero-pubs.comps.ui :as ui] 
     )  
   )
@@ -149,7 +150,8 @@
   )
 
 (defn- _submit [s e]
-  
+  (swap! s assoc-in [:data :state] 1)
+  (data/save-pub s)
   )
 
 (defn aside [s]

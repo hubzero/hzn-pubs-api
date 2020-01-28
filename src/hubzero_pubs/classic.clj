@@ -10,6 +10,7 @@
             [hubzero-pubs.utils :as utils]
             [hubzero-pubs.errors :as errors]
             [mount.core :as mount :refer [defstate]]
+            [hubzero-pubs.datacite :as doi]
             )
   )
 
@@ -129,9 +130,9 @@
 
 (defn create-citation [m]
   (->
-   (reduce (fn [c k] (if (k c) c (assoc c k nil))) m
-           [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition])
-   (insert-citation<! (_connection)))
+    (reduce (fn [c k] (if (k c) c (assoc c k nil))) m
+            [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition])
+    (insert-citation<! (_connection)))
 
   )
 
@@ -163,6 +164,10 @@
     )
   )
 
+(defn- _doi [p]
+  (doi/get-datacite p)
+  )
+
 (defn- _mutate
   "Fields come from client with different names, map them - JBG"
   [p]
@@ -173,8 +178,9 @@
             :published_up (if-let [dstr (:publication-date p)] (_fmt-pub-date dstr))
             :description (:description p "")
             :abstract (:abstract p "")
-            :doi (:doi p)
+            :doi (or (:doi p) (if (= 1 (:state p)) (_doi p)))
             :popupURL (:url p)
+            :state (or (:state p) 3)  
             })
   )
 
@@ -182,7 +188,6 @@
   (-> (_mutate p)
       (merge {:publication_id pub-id
               :main 1
-              :state 3
               :created (f/unparse (:mysql f/formatters) (t/now))
               :version_number 1
               :access 0
@@ -433,38 +438,42 @@
     )
   )
 
-(defn get-pub [ver-id]
-  (if-let [pub-ver (first (sel-pub-version {:id ver-id} (_connection)))]
-    (let [pub (first (sel-pub {:id (:publication_id pub-ver)} (_connection))) 
-          files (sel-attachment {:publication_version_id ver-id} (_connection))
-          params (_parse-params (:params pub-ver))
-          citations (sel-citation-assocs-oid {:oid ver-id} (_connection))
-          history (sel-curation-hist {:publication_version_id ver-id} (_connection))
-          ]
-      (->
-        {:prj-id (:project_id pub)
-         :user-id (:created_by pub) 
-         :pub-id (:publication_id pub-ver)  
-         :ver-id ver-id 
-         :title (:title pub-ver)
-         :abstract (:abstract pub-ver)
-         :publication-date (if-let [d (:published_up pub-ver)]
-                             (f/unparse (f/formatter "MM/dd/yyyy") (c/from-long (.getTime d)))) 
-         :ack (= (:licenseagreement params) "1")
-         :authors-list (get-authors ver-id)
-         :licenses (get-license (:license_type pub-ver))
-         :release-notes (:release_notes pub-ver)
-         :tags (get-tags ver-id)
-         :doi (:doi pub-ver)
-         :citations (map #(first (sel-citation-by-id % (_connection))) citations)
-         :url (:popupurl pub-ver)
-         :comments (:comment (last history))
-         :state (:state pub-ver)
-         }
-        (merge (_files files))
-        )
-      )  
+(defn- _get-pub [pub-ver]
+  (let [ver-id (:id pub-ver)
+        pub (first (sel-pub {:id (:publication_id pub-ver)} (_connection)))
+        files (sel-attachment {:publication_version_id ver-id} (_connection))
+        params (_parse-params (:params pub-ver))
+        citations (sel-citation-assocs-oid {:oid ver-id} (_connection))
+        history (sel-curation-hist {:publication_version_id ver-id} (_connection))
+        ]
+    (->
+      {:prj-id (:project_id pub)
+       :user-id (:created_by pub)
+       :pub-id (:publication_id pub-ver)
+       :ver-id ver-id
+       :title (:title pub-ver)
+       :abstract (:abstract pub-ver)
+       :publication-date (if-let [d (:published_up pub-ver)]
+                           (f/unparse (f/formatter "MM/dd/yyyy") (c/from-long (.getTime d))))
+       :ack (= (:licenseagreement params) "1")
+       :authors-list (get-authors ver-id)
+       :licenses (get-license (:license_type pub-ver))
+       :release-notes (:release_notes pub-ver)
+       :tags (get-tags ver-id)
+       :doi (:doi pub-ver)
+       :citations (map #(first (sel-citation-by-id % (_connection))) citations)
+       :url (:popupurl pub-ver)
+       :comments (:comment (last history))
+       }
+      (merge (_files files))
+      )
     )
+  )
+
+(defn get-pub [ver-id]
+  (if-let [ pub-ver (first (sel-pub-version {:id ver-id} (_connection))) ]
+    (_get-pub pub-ver)
+    ) 
   )
 
 (defn- _add-curation-hist [ver-id p]
@@ -482,7 +491,7 @@
 (defn valid? [pub]
   (reduce (fn [b f]
             (and b (f pub)) 
-            ) true [ :abstract :title ])
+            ) true [ :abstract :title :publication-date :authors-list ])
   )
 
 (defn- _save-pub [pub]
@@ -513,6 +522,7 @@
   )
 
 (defn save-pub [p]
+  (prn "SAVING...." p)
   (if (:ver-id p)
     (_update-pub p)
     (_save-pub p)
@@ -585,41 +595,44 @@
                     })
 
 
-(def pub-id (-> (create-pub pub) (:generated_key))) 
-(prn pub-id)
+  (def pub-id (-> (create-pub pub) (:generated_key))) 
+  (prn pub-id)
 
-(def ver-id (-> (create-pub-version pub-id pub) (:generated_key)))
-(prn ver-id)
+  (def ver-id (-> (create-pub-version pub-id pub) (:generated_key)))
+  (prn ver-id)
 
-(prn (:tags pub))
+  (prn (:tags pub))
 
-(get-tags ver-id)
+  (get-tags ver-id)
 
-(def tag (get-tag "admin"))
-(prn tag)
-(tag-obj-exists? tag ver-id pub)
+  (def tag (get-tag "admin"))
+  (prn tag)
+  (tag-obj-exists? tag ver-id pub)
 
-(def ids (save-pub pub))
-(prn ids)
-(def ver-id (:ver-id ids))
+  (def ids (save-pub pub))
+  (prn ids)
+  (def ver-id (:ver-id ids))
 
-ver-id
+  ver-id
 
-(def ver-id 107)
+  (def ver-id 113)
+  (def p (get-pub ver-id))
+  p
 
-(def p (get-pub ver-id))
-
-(prn (:notes p))
-
-(prn (:comments p)) 
-
-(prn (:publication-date p))
+  (save-pub (assoc p :state 1))
 
 
-(prn (count (:citations p)))
-(prn (:authors-list p))
-(prn (:release-notes p))
-(prn (:title p))
+  (prn (:notes p))
+
+  (prn (:comments p)) 
+
+  (prn (:publication-date p))
+
+
+  (prn (count (:citations p)))
+  (prn (:authors-list p))
+  (prn (:release-notes p))
+  (prn (:title p))
 (prn (:content p))
 (prn (:pub-id p))
 
@@ -646,33 +659,35 @@ p
 
 (prn (:authors-list p))
 
-  (def authors (get-authors ver-id))
-  (prn authors)
+(def authors (get-authors ver-id))
+(prn authors)
 
-  (prn pub)
+(prn pub)
 
-  (def pub {:_id "5e13137085b4b9002ed5dc58",
-            :doi "10.1000/xyz123"
-            :prj-id "1",
-            :authors-list {1001 {:id 1001, :name "J B G", :organization ""}},
-            :content [{:path "prjfoobar/files/foo", :name "foo"} {:path "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png", :name "Screenshot from 2019-09-09 20-35-28.png"}]
-            :images {},
-            :support-docs {},
-            :title "Foorepl",
-            :user-id 1001
-            :licenses {:restriction nil, :opensource false, :name "cc", :agreement 1, :icon "/components/com_publications/assets/img/logos/cc.gif", :title "CC0 - Creative Commons", :customizable 0, :ordering 2, :active 1, :id 2, :info "CC0 enables scientists, educators, artists and other creators and owners of copyright- or database-protected content to waive those interests in their works and thereby place them as completely as possible in the public domain, so that others may freely build upon, enhance and reuse the works for any purposes without restriction under copyright or database law.", :url "http://creativecommons.org/about/cc0", :main 1, :derivatives 1, :text ""}
-            :citations
-            [{:id 1} {:id 2}],
-            :ack true
-            :publication-date "01/16/2020"
-            :tags ["admin" "bar" "foo"]
-            :url "http://example.com"
-            }
-    )
+(def pub {:_id "5e13137085b4b9002ed5dc58",
+          :doi "10.1000/xyz123"
+          :prj-id "1",
+          :authors-list {1001 {:id 1001, :name "J B G", :organization ""}},
+          :content [{:path "prjfoobar/files/foo", :name "foo"} {:path "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png", :name "Screenshot from 2019-09-09 20-35-28.png"}]
+          :images {},
+          :support-docs {},
+          :title "Foorepl",
+          :user-id 1001
+          :licenses {:restriction nil, :opensource false, :name "cc", :agreement 1, :icon "/components/com_publications/assets/img/logos/cc.gif", :title "CC0 - Creative Commons", :customizable 0, :ordering 2, :active 1, :id 2, :info "CC0 enables scientists, educators, artists and other creators and owners of copyright- or database-protected content to waive those interests in their works and thereby place them as completely as possible in the public domain, so that others may freely build upon, enhance and reuse the works for any purposes without restriction under copyright or database law.", :url "http://creativecommons.org/about/cc0", :main 1, :derivatives 1, :text ""}
+          :citations
+          [{:id 1} {:id 2}],
+          :ack true
+          :publication-date "01/16/2020"
+          :tags ["admin" "bar" "foo"]
+          :url "http://example.com"
+          }
+  )
 
 
 (utils/rand-str 10)
 
 (sel-attachment {:publication_version_id ver-id})
+
+
 
 )

@@ -1,24 +1,23 @@
 {
- :secret "hd3SqnDQ0gNuGVxbfFH9AmsU1KeTv6site"
- :nrepl {:port 7884 :bind "localhost"}
- :mysql {:dbtype "mysql"
-         :dbname "example"
-         :user "root"
-         :password "PUk8zFrxsqsS83"
-         ;:host "hub-mysql"
-         :host "localhost"
-         }
- :files {:root "/srv/example/projects/"
-         :dir "/files"}
- :service-host-args {:host "0.0.0.0"
-                     :port 3000}
- ; Test - JBG
- :doi_publisher "Purdue University Research Repository"
- :doi_shoulder "10.21978"
- :datacite_doi_service "https://mds.test.datacite.org"
- :datacite_doi_userpw "PURDUE.DDCC:Purduedatacite2018"
-; Prod - JBG
-; :doi_shoulder "10.4231"
-; :datacite_doi_service "https://mds.datacite.org"
-; :datacite_doi_userpw "PURDUE.PURDUELIB:#BoilerLib1869!#"
+ :secret               "hd3SqnDQ0gNuGVxbfFH9AmsU1KeTv6site"
+ :nrepl                {:port 7884 :bind "localhost"}
+ :mysql                {:dbtype   "mysql"
+                        :dbname   "example"
+                        :user     "root"
+                        :password "PUk8zFrxsqsS83"
+                        :host     "localhost"}
+ :mongodb              {:host "localhost"}
+ :files                {:root "/srv/example/projects/"
+                        :dir  "/files"}
+ :service-host-args    {:host "0.0.0.0"
+                        :port 3000}
+ :doi                  {:publisher "Purdue University Research Repository"
+                        :shoulder  "10.21978"
+                        ; prod:
+                        ;:shoulder "10.4231"
+                        }
+ :datacite-doi         {:service "https://mds.test.datacite.org"
+                        ; prod:
+                        ;:service "https://mds.datacite.org"
+                        :userpw  ""}
  }
