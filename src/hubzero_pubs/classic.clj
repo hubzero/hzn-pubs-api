@@ -523,7 +523,6 @@
   )
 
 (defn save-pub [p]
-  (prn "SAVING...." p)
   (if (:ver-id p)
     (_update-pub p)
     (_save-pub p)
@@ -616,7 +615,7 @@
 
   ver-id
 
-  (def ver-id 113)
+  (def ver-id 107)
   (def p (get-pub ver-id))
   p
 

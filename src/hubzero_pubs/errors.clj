@@ -14,8 +14,14 @@
 
 (defn four-oh-4 []
   {:status 404
-   :title "Not found"
+   :title "Not Found"
    :body "Resource not found."} 
+  )
+
+(defn five-hundred []
+  {:status 500 
+   :title "Server Error"
+   :body "Something terrible happened."}
   )
  
 

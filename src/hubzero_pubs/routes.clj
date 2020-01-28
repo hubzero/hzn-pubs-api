@@ -38,7 +38,10 @@
 
 (defn save-pub [data]
   (if (classic/valid? data)
-    (response (classic/save-pub data)) 
+    (if-let [res (classic/save-pub data)]
+      (response res) 
+      (errors/five-hundred)
+      )
     (errors/four-ohoh)
     )
   )
