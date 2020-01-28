@@ -464,6 +464,7 @@
        :citations (map #(first (sel-citation-by-id % (_connection))) citations)
        :url (:popupurl pub-ver)
        :comments (:comment (last history))
+       :state (:state pub-ver)
        }
       (merge (_files files))
       )
