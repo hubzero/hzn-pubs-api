@@ -11,7 +11,7 @@
   (swap! s update-in [:ui key (:id u)] not)
   (if (get-in @s [:data key (:id u)])
     (swap! s update-in [:data key] dissoc (:id u))
-    (swap! s assoc-in [:data key (:id u)] u)
+    (swap! s assoc-in [:data key (utils/author-key u)] u)
     )
   )
 
@@ -53,19 +53,20 @@
    ]
   )
 
-(defn add-click [s key e u]
+(defn add-click [s k e u]
   (.preventDefault e)
   (.stopPropagation e)
-  (swap! s update-in [:data :authors-list] assoc (:id u) u)
+  (swap! s update-in [:data :authors-list] assoc (utils/author-key u) u)
+  (panels/close s e)
   )
 
-(defn buttons-new [s key]
+(defn buttons-new [s k]
   [:div.field.buttons
    [:a.btn {:href "#"
-            :on-click #(add-click s key  % {:id (get-in @s [:data key :id]) 
-                                            :name (get-in @s [:data key :name]) 
-                                            :organization (get-in @s [:data key :organization]) 
-                                            })
+            :on-click #(add-click s k % {:id (get-in @s [:data k :id] 0) 
+                                         :name (or (get-in @s [:data k :name]) (str (get-in @s [:data k :firstname]) " " (get-in @s [:data k :lastname])))
+                                         :organization (get-in @s [:data k :organization]) 
+                                         })
             } "Add author"]
    [:a.btn.secondary {:href "#"
                       :on-click #(panels/close s %)

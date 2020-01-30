@@ -113,7 +113,7 @@
   )
 
 (defn get-licenses []
-  (sel-licenses (_connection))
+  (sel-licenses {} (_connection))
   )
 
 (defn get-users [id]
@@ -241,6 +241,21 @@
   )
 
 (defn add-author [pub ver-id i a]
+  (prn ver-id i a)
+  (prn {:publication_version_id ver-id
+                    :user_id (:id a)
+                    :ordering i
+                    :name (:name a)
+                    :firstname (:firstname a "")
+                    :lastname (:lastname a "")
+                    :org (:organization a "")
+                    :credit ""
+                    :created (f/unparse (:mysql f/formatters) (t/now))
+                    :created_by (:user-id pub)
+                    :status 1
+                    :project_owner_id (:prj-id pub)
+                    })
+
   (insert-author<! {:publication_version_id ver-id
                     :user_id (:id a)
                     :ordering i
@@ -254,6 +269,7 @@
                     :status 1
                     :project_owner_id (:prj-id pub)
                     } (_connection))
+
   )
 
 (defn- _update-author [i a]
@@ -406,10 +422,11 @@
   (->>
     (sel-pub-authors {:publication_version_id ver-id} (_connection))
     (reduce (fn [m a]
-              (assoc m (:user_id a) {:id (:user_id a)
-                                     :name (:name a)
-                                     :organization (:organization a)
-                                     })) {})
+              (assoc m (:id a) {:id (:id a)
+                                :user_id (:user_id a)
+                                :name (:name a)
+                                :organization (:organization a)})
+              ) {})
     )
   )
 
@@ -531,163 +548,34 @@
 
 (comment
 
-  (def pub-ver (first (sel-pub-version {:id ver-id}) (_connection)))
-  (prn pub-ver)
-
-  (:params pub-ver)
-
-  (def params (_parse-params (:params pub-ver)))
-  (prn params)
-
-  (def files (sel-attachment {:publication_version_id ver-id}))
-  (prn files)
-  (_files files)
-
-
-  (get-license 2)
-
-
-  (first (get-tag "foooo"))
-
-  (f/show-formatters)
-  (t/now)
-
-  (f/unparse (:mysql f/formatters) (t/now))
-
-  config
-
-  (search-users "%j%")
-
-  (get-prj 1)
-
-  (get-files 1)
-
-  (prj-size 1)
-
-  (usage 1 ["prjfoobar/files/foo"
-            "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png"])
-
-  (get-user 1001)
-
-  (get-licenses)
-
-  (get-prj-users 1)
-
-  (search-citations "10")
-
-  (get-citation-types)
-
-  (create-citation {})
-
-  (create-citation {:type 1
-                    :title "Foobar"
-                    :year "1996"
-                    :month "January"
-                    :author "JBG"
-                    :journal "Journal for Advanced Foobaring"
-                    :volume "666"
-                    :pages "123-124"
-                    :isbn "978-3-16-148410-0"
-                    :doi "10.1000/xyz123"
-                    :abstract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-                    :publisher "Grapes & Apples"
-                    :url "http://example.com"
-                    })
+  (def pub {:_id "5e13137085b4b9002ed5dc58"
+            :doi "10.1000/xyz123"
+            :prj-id "1"
+            :authors-list {1001 {:id 1001, :name "J B G", :organization ""}}
+            :content [{:path "prjfoobar/files/foo" :name "foo"} {:path "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png" :name "Screenshot from 2019-09-09 20-35-28.png"}]
+            :images {}
+            :support-docs {}
+            :title "Foorepl"
+            :user-id 1001
+            :licenses {:restriction nil :opensource false :name "cc" :agreement 1 :icon "/components/com_publications/assets/img/logos/cc.gif" :title "CC0 - Creative Commons" :customizable 0 :ordering 2 :active 1 :id 2 :info "CC0 enables scientists educators artists and other creators and owners of copyright- or database-protected content to waive those interests in their works and thereby place them as completely as possible in the public domain so that others may freely build upon enhance and reuse the works for any purposes without restriction under copyright or database law." :url "http://creativecommons.org/about/cc0" :main 1 :derivatives 1 :text ""}
+            :citations
+            [{:id 1} {:id 2}]
+            :ack true
+            :publication-date "01/16/2020"
+            :tags ["admin" "bar" "foo"]
+            :url "http://example.com"
+            }
+    )
 
 
-  (def pub-id (-> (create-pub pub) (:generated_key))) 
-  (prn pub-id)
-
-  (def ver-id (-> (create-pub-version pub-id pub) (:generated_key)))
-  (prn ver-id)
-
-  (prn (:tags pub))
-
-  (get-tags ver-id)
-
-  (def tag (get-tag "admin"))
-  (prn tag)
-  (tag-obj-exists? tag ver-id pub)
-
-  (def ids (save-pub pub))
-  (prn ids)
-  (def ver-id (:ver-id ids))
-
-  ver-id
-
-  (def ver-id 107)
-  (def p (get-pub ver-id))
-  p
-
-  (save-pub (assoc p :state 1))
 
 
-  (prn (:notes p))
-
-  (prn (:comments p)) 
-
-  (prn (:publication-date p))
-
-
-  (prn (count (:citations p)))
-  (prn (:authors-list p))
-  (prn (:release-notes p))
-  (prn (:title p))
-(prn (:content p))
-(prn (:pub-id p))
-
-p
-
-(->
-  (assoc p
-         :notes "Updated!"
-         :title "I'm updated."
-         :content [{:path "prjfoobar/files/foo", :name "foo"}]
-         :authors-list {1001 {:id 1001 :name "J B G" :organization ""}
-                        ;1000 {:id 1000 :name "admin" :organization ""}
-                        },
-         :citations [{:id 2}]
-         :tags ["bar" "foo" "admin"]
-         :publication-date "01/31/2020"
-         :comments "Admin note..."
-         :url "http://example.com"
-         )
-  (save-pub)
-  )
-
-(prn p)
-
-(prn (:authors-list p))
-
-(def authors (get-authors ver-id))
-(prn authors)
-
+(save-pub pub)
+(def pub (get-pub 133)) 
 (prn pub)
 
-(def pub {:_id "5e13137085b4b9002ed5dc58",
-          :doi "10.1000/xyz123"
-          :prj-id "1",
-          :authors-list {1001 {:id 1001, :name "J B G", :organization ""}},
-          :content [{:path "prjfoobar/files/foo", :name "foo"} {:path "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png", :name "Screenshot from 2019-09-09 20-35-28.png"}]
-          :images {},
-          :support-docs {},
-          :title "Foorepl",
-          :user-id 1001
-          :licenses {:restriction nil, :opensource false, :name "cc", :agreement 1, :icon "/components/com_publications/assets/img/logos/cc.gif", :title "CC0 - Creative Commons", :customizable 0, :ordering 2, :active 1, :id 2, :info "CC0 enables scientists, educators, artists and other creators and owners of copyright- or database-protected content to waive those interests in their works and thereby place them as completely as possible in the public domain, so that others may freely build upon, enhance and reuse the works for any purposes without restriction under copyright or database law.", :url "http://creativecommons.org/about/cc0", :main 1, :derivatives 1, :text ""}
-          :citations
-          [{:id 1} {:id 2}],
-          :ack true
-          :publication-date "01/16/2020"
-          :tags ["admin" "bar" "foo"]
-          :url "http://example.com"
-          }
-  )
-
-
-(utils/rand-str 10)
-
-(sel-attachment {:publication_version_id ver-id})
-
-
+(get-licenses)
+(save-pub pub)
 
 )
+

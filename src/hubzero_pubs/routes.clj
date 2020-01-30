@@ -37,6 +37,7 @@
   )
 
 (defn save-pub [data]
+  (prn "SAVE" data)
   (if (classic/valid? data)
     (if-let [res (classic/save-pub data)]
       (response res) 

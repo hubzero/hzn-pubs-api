@@ -39,11 +39,11 @@
    ]
   )
 
-(defn licenses [s key]
+(defn licenses [s k]
   (merge
-    [:ul {:class [:ui :item-selector]}]
+    [:ul.ui.item-selector]
     (doall
-      (map #(license s key %) (:licenses @s))
+      (map #(license s k %) (:licenses @s))
       )
     )
   )

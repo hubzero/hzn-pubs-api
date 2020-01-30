@@ -28,7 +28,7 @@
   )
 
 (defn items [s k v id]
-  [:div.options-list.--as-panel {:class (if (get-in @s [:ui :options k v]) :open) }
+  [:div.options-list.--as-panel {:class (if (get-in @s [:ui :options k id]) :open) }
    [:div.inner
     (merge
       [:ul]

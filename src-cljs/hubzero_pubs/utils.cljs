@@ -7,20 +7,12 @@
     )
   )
 
-;(defn eat-cookies []
-;  (reduce (fn [m c]
-;            (as-> (clojure.string/split c #"=") $
-;              (assoc m 
-;                     (keyword (clojure.string/trim (first $))) 
-;                     (if (> (count $) 1)
-;                       (clojure.string/trim (last $))
-;                       nil
-;                       )
-;                     )
-;
-;              )
-;            ) {} (clojure.string/split (.-cookie js/document) #";"))
-;  )
+(defn author-key [a]
+  (str (:id a) "_"
+       (:user_id a) "_"
+       (or (:name a) (str (:firstname a) "_" (:lastname a)))  "_"
+       (:organization a))
+  )
 
 (defn format-citation [c]
   (str (:author c) ". "

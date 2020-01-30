@@ -79,26 +79,26 @@
     )
   )
 
-(defn author [s k v]
-  [:li.item {:key (:id v)}
+(defn author [s k v id]
+  [:li.item {:key id}
    (ui/icon s "#icon-user")
    [:div.main
     [:div.subject [:a {:href "#"} (:name v)] ]
-    [:div.meta [:a {:href "#"} (:org v)] ]
+    [:div.meta [:a {:href "#"} (:organization v)] ]
     [:div.ui.checkbox.inline.meta
-     [:input (merge {:type :checkbox :name :poc :on-change #(handle-poc-click s % (:id v))} {:checked (boolean (some #{(:id v)} (get-in @s [:data :poc]))) })]
+     [:input (merge {:type :checkbox :name :poc :on-change #(handle-poc-click s % id)} {:checked (boolean (some #{id} (get-in @s [:data :poc]))) })]
      [:label (:for :poc) "Point of contact"]
      ]
     ]
    [:div.options {:on-click (fn [e]
                               (.preventDefault e)
                               (.stopPropagation e)
-                              (swap! s assoc-in [:ui :options k v] true)
+                              (swap! s assoc-in [:ui :options k id] true)
                               )}
     (ui/icon s "#icon-dots")
-    (options/items s k v (:id v))
+    (options/items s k v id)
     ]
-   ] 
+   ]
   )
 
 (defn image [s k v id]
@@ -131,7 +131,7 @@
   (k {
       :content (file s k (second v) (first v))
       :support-docs (file s k (second v) (first v))
-      :authors-list (author s k (second v))
+      :authors-list (author s k (second v) (first v))
       :images (image s k (second v) (first v))
       :citations (citation s k v)
       })
@@ -439,6 +439,7 @@
    ])
 
 (defn app [s]
+  (prn "STATE" @s)
   (merge
     [:div]
     (wrap s)

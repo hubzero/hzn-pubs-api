@@ -38,7 +38,7 @@
   )
 
 (defn citation [s c]
-  [:li {:class :item :key c}
+  [:li {:class :item :key (:id c)}
    [:div {:class :icon} (ui/icon s "#icon-file-text2") ]
    [:div {:class :main} (utils/format-citation c)]
    ] 

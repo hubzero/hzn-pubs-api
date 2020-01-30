@@ -1,9 +1,12 @@
-(ns hubzero-pubs.mutate)
+(ns hubzero-pubs.mutate
+  (:require [hubzero-pubs.utils :as utils]) 
+  )
 
 (defn- _prepare-authors [data ak]
   (->> (ak data)
-       (map (fn [[k v]] [k v]))
+       (map (fn [[k v]] [(:id v) v]))
        (into {})
+       ;(vals)       
        (assoc data ak)
        )
   )
@@ -25,8 +28,8 @@
 
 (defn- _coerce-authors [data ak]
   (->> (ak data)
-       (map (fn [[k v]] [(js/parseInt k) v]))
-       (into {}) 
+       (map (fn [[k v]] [(utils/author-key v) v]))
+       (into {})
        (assoc data ak)
        )
   )

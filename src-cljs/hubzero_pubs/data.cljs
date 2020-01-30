@@ -14,6 +14,13 @@
   (secretary/dispatch! "/error")
   )
 
+(defn- _handle-res [s res f]
+  (if (= (:status res) 200)
+    (f s res)
+    (_error s)
+    )
+  )
+
 (defn options [s]
   {
    ;:with-credentials? true
@@ -27,10 +34,9 @@
 (defn get-user [s]
   (go (let [res (<! (http/get (str url "/user")
                               (options s)))]
-        (if (= (:status res) 200)
-          (swap! s assoc :user-id (:id (:body res)))
-          (_error s)
-          )
+        (_handle-res s res (fn [s res]
+                             (swap! s assoc :user-id (:id (:body res)))
+                             ))
         ))
   )
 
@@ -115,9 +121,10 @@
     (mutate/prepare $)
     (go (let [res (<! (http/post (str url "/pubs") {:edn-params $}))]
           (prn (:body res))
-          ;(swap! s assoc :data (merge (:data @s) (:body res)))
-          (swap! s merge (:body res))
-          (prn "PRJ ID" (:prj-id @s))
+          (_handle-res s res (fn [s res]
+                               (swap! s merge (:body res))
+                               (prn "PRJ ID" (:prj-id @s))
+                               ))
           ))
     )
   )
@@ -133,31 +140,25 @@
   (prn "GET PUB" (:pub-id @s))
   (go (let [res (<! (http/get (str url "/pubs/" (:pub-id @s)) (options s)))]
         (prn (:body res))
-        (if (= (:status res) 200)
-          (do
-            (->> (:body res)
-                 (mutate/coerce)
-                 (swap! s assoc :data)
-                 )
-            (prn "DATA" (:data @s))
-            (swap! s assoc :prj-id (get-in @s [:data :prj-id]))
-            (usage s)        
-            )
-          (_error s)
-          )
+        (_handle-res s res (fn [s res]
+                             (->> (:body res)
+                                  (mutate/coerce)
+                                  (swap! s assoc :data)
+                                  )
+                             (swap! s assoc :prj-id (get-in @s [:data :prj-id]))
+                             (swap! s assoc :ver-id (get-in @s [:data :ver-id]))
+                             (usage s)      
+                             ))
         ))
   )
 
 (defn get-prj [s]
   (prn "GET PRJ" (:prj-id @s))
   (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s)) (options s)))]
-        (if (= (:status res) 200)
-          (do
-            (if-let [id (:pub-id @s)] (get-pub s)) 
-            (usage s)     
-            )
-          (_error s)
-          )
+        (_handle-res s res (fn [s res]
+                             (if-let [id (:pub-id @s)] (get-pub s)) 
+                             (usage s)
+                             ))
         ))
   )
 
