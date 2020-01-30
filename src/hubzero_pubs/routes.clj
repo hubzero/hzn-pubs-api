@@ -64,7 +64,7 @@
   (GET "/pubs/:id" [id] (get-pub id))
 
   (GET "/users/:name" [name] (classic/search-users name))
-  (GET "/citations/:doi" [doi] (classic/search-citations doi))
+  (POST "/citations/search" {body :body-params} (response (classic/search-citations (:doi body))))
   (POST "/citations" {body :body-params} {:body (classic/create-citation body)})
   (GET "/citation-types" [] (classic/get-citation-types))
   )

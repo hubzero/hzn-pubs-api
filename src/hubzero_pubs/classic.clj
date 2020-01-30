@@ -137,7 +137,7 @@
   )
 
 (defn get-citation-types []
-  (sel-citation-types (_connection))
+  (sel-citation-types {} (_connection))
   )
 
 (defn create-pub [p]
@@ -443,7 +443,7 @@
   )
 
 (defn _update-citations [p]
-  (let [vc (group-by :id (sel-citation-assocs-oid {:oid (:ver-id p)} (_connection)))
+  (let [vc (group-by :cid (sel-citation-assocs-oid {:oid (:ver-id p)} (_connection)))
         pc (group-by :id (:citations p))
         ]
     (doall (map (fn [c] (if (not (vc c))
@@ -571,8 +571,11 @@
 
 
 (save-pub pub)
-(def pub (get-pub 133)) 
-(prn pub)
+(def pub (get-pub 140)) 
+(map #(:title %) (:citations pub))
+
+(sel-citation-assocs-oid {:oid 140} (_connection))
+
 
 (get-licenses)
 (save-pub pub)

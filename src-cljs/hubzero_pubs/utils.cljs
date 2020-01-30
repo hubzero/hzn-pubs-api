@@ -22,6 +22,6 @@
        (:volume c) ", "
        (:pages c) ". "
        "doi:" (:doi c)
-       )
+       ) 
   )
- 
+

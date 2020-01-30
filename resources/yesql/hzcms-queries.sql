@@ -137,7 +137,7 @@ SELECT * FROM jos_citations WHERE doi LIKE :doi
 
 -- name: sel-citation-assocs-oid
 --
-SELECT id FROM jos_citations_assoc WHERE `oid` = :oid
+SELECT cid FROM jos_citations_assoc WHERE `oid` = :oid
 
 -- name: del-citation-assoc!
 --
@@ -145,7 +145,7 @@ DELETE FROM jos_citations_assoc WHERE `id` = :id
 
 -- name: sel-citation-by-id
 --
-SELECT * FROM jos_citations WHERE `id` = :id
+SELECT * FROM jos_citations WHERE `id` = :cid
 
 -- name: insert-citation<!
 --

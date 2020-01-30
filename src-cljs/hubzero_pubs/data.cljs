@@ -81,14 +81,10 @@
   )
 
 (defn search-citations [s]
-  (go (let [res (<! (http/get (str url
-                                   "/citations/"
-                                   (js/encodeURIComponent (:doi-query @s)))
-                              (options s)))]
+  (go (let [res (<! (http/post (str url "/citations/search") {:edn-params {:doi (:doi-query @s)}}
+                              ))]
         (prn (:body res))
-        (->>
-          (cljs.reader/read-string (:body res))
-          (swap! s assoc :doi-results))
+        (swap! s assoc :doi-results (:body res)) 
         ))
   )
 

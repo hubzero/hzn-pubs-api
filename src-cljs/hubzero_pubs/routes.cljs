@@ -36,13 +36,13 @@
   (defroute "/pubs/:id" {:as params}
     (prn "PUB" (:id params))
     (swap! s assoc-in [:ui :summary] true)
-    (swap! s assoc :pub-id (:id params))
+    (swap! s assoc :ver-id (:id params))
     (data/get-pub s)
     )
 
   (defroute "/pubs/:id/edit" {:as params}
     (swap! s assoc-in [:ui :summary] false)
-    (swap! s assoc :pub-id (:id params))
+    (swap! s assoc :ver-id (:id params))
     (data/get-pub s)
     )
 
