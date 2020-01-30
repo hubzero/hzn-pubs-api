@@ -52,8 +52,9 @@
     )
 
   (defroute "/submit" {:as params}
-    (set-html! "<h1>Submitted. :)</h1>")
-    (swap! s assoc-in [:data :submitted] true)
+    ;;(set-html! "<h1>Submitted. :)</h1>")
+    ;(swap! s assoc-in [:data :submitted] true)
+    (swap! s assoc-in [:ui :summary] true)
     (data/save-pub s)
     )
 

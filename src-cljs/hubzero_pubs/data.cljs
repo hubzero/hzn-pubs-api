@@ -115,20 +115,6 @@
         ))
   )
 
-(defn save-pub [s]
-  (as-> (:data @s) $
-    (if (:prj-id $) $ (assoc $ :prj-id (:prj-id @s) :user-id (:user-id @s)))
-    (mutate/prepare $)
-    (go (let [res (<! (http/post (str url "/pubs") {:edn-params $}))]
-          (prn (:body res))
-          (_handle-res s res (fn [s res]
-                               (swap! s merge (:body res))
-                               (prn "PRJ ID" (:prj-id @s))
-                               ))
-          ))
-    )
-  )
-
 (defn usage [s]
   (go (let [res (<! (http/post (str url "/prjs/" (:prj-id @s) "/usage" ) {:edn-params (keys (get-in @s [:data :content] {}))}))]
         (prn (:body res))
@@ -138,7 +124,7 @@
 
 (defn get-pub [s]
   (prn "GET PUB" (:pub-id @s))
-  (go (let [res (<! (http/get (str url "/pubs/" (:pub-id @s)) (options s)))]
+  (go (let [res (<! (http/get (str url "/pubs/" (:ver-id @s)) (options s)))]
         (prn (:body res))
         (_handle-res s res (fn [s res]
                              (->> (:body res)
@@ -150,6 +136,22 @@
                              (usage s)      
                              ))
         ))
+  )
+
+(defn save-pub [s]
+  (as-> (:data @s) $
+    (if (:prj-id $) $ (assoc $ :prj-id (:prj-id @s) :user-id (:user-id @s)))
+    (mutate/prepare $)
+    (go (let [res (<! (http/post (str url "/pubs") {:edn-params $}))]
+          (prn (:body res))
+          (_handle-res s res (fn [s res]
+                               (swap! s merge (:body res))
+                               (prn "PRJ ID" (:prj-id @s))
+                               ;; Better get the pub if save updated stuff (ex. doi) - JBG
+                               (get-pub s)
+                               ))
+          ))
+    )
   )
 
 (defn get-prj [s]

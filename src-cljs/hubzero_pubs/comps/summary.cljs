@@ -152,7 +152,7 @@
 
 (defn- _submit [s e]
   (swap! s assoc-in [:data :state] 1)
-  (data/save-pub s)
+  (data/save-pub s) 
   )
 
 (defn aside [s]
