@@ -178,7 +178,9 @@
             :published_up (if-let [dstr (:publication-date p)] (_fmt-pub-date dstr))
             :description (:description p "")
             :abstract (:abstract p "")
-            :doi (or (:doi p) (if (= 1 (:state p)) (_doi p) ""))
+            :doi (if (and (= (count (:doi p)) 0) (= 1 (:state p))) 
+                   (_doi p)
+                   (:doi p ""))
             :popupURL (:url p)
             :state (or (:state p) 3)  
             })
@@ -241,20 +243,22 @@
   )
 
 (defn add-author [pub ver-id i a]
-  (insert-author<! {:publication_version_id ver-id
-                    :user_id (:id a)
-                    :ordering i
-                    :name (:name a)
-                    :firstname (:firstname a "")
-                    :lastname (:lastname a "")
-                    :org (:organization a "")
-                    :credit ""
-                    :created (f/unparse (:mysql f/formatters) (t/now))
-                    :created_by (:user-id pub)
-                    :status 1
-                    :project_owner_id (:prj-id pub)
-                    } (_connection))
-
+  (prn "AA" ver-id i a)
+  (let [oid (-> (sel-prj-owners {:publication_version_id 1456 :project_id 1091} (_connection)) (first) (:project_owner_id))]
+    (insert-author<! {:publication_version_id ver-id
+                      :user_id (:id a)
+                      :ordering i 
+                      :name (:name a)
+                      :firstname (:firstname a "")
+                      :lastname (:lastname a "")
+                      :org (:organization a "")
+                      :credit ""
+                      :created (f/unparse (:mysql f/formatters) (t/now))
+                      :created_by (:user-id pub)
+                      :status 1
+                      :project_owner_id oid 
+                      } (_connection))   
+    )
   )
 
 (defn- _update-author [i a]
@@ -554,18 +558,36 @@
 
   (def pub {:prj-id "1", :authors-list {1001 {:id 1001, :name "J B G", :organization ""}}, :content (), :images (), :support-docs (), :abstract "asdf asdf asdf ads", :user-id 1001, :title "sadf asdf asd fads", :publication-date "02/02/2020"})
 
-(->
-(assoc pub :ver-id ver-id :publication-date "02/02/2020")
-(save-pub)
-  )
+  (def pub {:prj-id "1091", :authors-list {9409 {:id 9409, :name "J B G", :organization ""}}, :content (), :images (), :support-docs (), :abstract "asdfa sdf asfadsf", :user-id 9409, :title "asdfasdf", :publication-date "02/02/2020"})
+
+  (->
+    (assoc pub :authors-list {9409 {:id 9409, :name "J B G", :organization ""}})
+    (save-pub)
+    )
 
 
 (def pub (get-pub ver-id)) 
 
 (def ver-id (:ver-id (save-pub pub)))
+
 (map #(:title %) (:citations pub))
 (prn ver-id)
 (prn pub)
+
+(get-authors ver-id)
+
+(_doi pub)
+(count (:doi pub))
+(count nil)
+
+(sel-pub-authors {:publication_version_id 1456} (_connection))
+
+(-> (assoc pub :state 1)
+    (save-pub)
+    )
+
+
+
 
 (sel-citation-assocs-oid {:oid 140} (_connection))
 
@@ -574,6 +596,9 @@
 
 (get-licenses)
 (save-pub pub)
+
+(-> (sel-prj {:id (:prj-id pub)} (_connection)) (first) (:owned_by_user))
+
 
 )
 
