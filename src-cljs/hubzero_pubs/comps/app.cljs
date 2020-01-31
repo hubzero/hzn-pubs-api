@@ -439,7 +439,6 @@
    ])
 
 (defn app [s]
-  (prn "STATE" @s)
   (merge
     [:div]
     (wrap s)

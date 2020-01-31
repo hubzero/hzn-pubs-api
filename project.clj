@@ -103,7 +103,7 @@
 
                {:id "min"
                 :source-paths ["src-cljs"]
-                :compiler {:output-to "resources/public/js/compiled/hubzero_pubs.js"
+                :compiler {:output-to  "/home/jbg/Development/hub/app/components/com_pubs/site/assets/js/compiled/hubzero_pubs.js"
                            :main hubzero-pubs.core
                            :optimizations :advanced
                            :pretty-print false}}]}

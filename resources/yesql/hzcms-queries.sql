@@ -37,7 +37,7 @@ SELECT * FROM `jos_publication_versions` WHERE `id` = :id
 
 -- name: insert-pub-version<!
 --
-INSERT INTO `jos_publication_versions` (`publication_id`, `main`, `state`, `title`, `description`, `abstract`, `created`, `created_by`, `secret`, `version_number`, `license_type`, `access`, `params`, `doi`, `popupURL`) VALUES (:publication_id, :main, :state, :title, :description, :abstract, :created, :created_by, :secret, :version_number, :license_type, :access, :params, :doi, :popupURL)
+INSERT INTO `jos_publication_versions` (`publication_id`, `main`, `state`, `title`, `description`, `abstract`, `created`, `created_by`, `secret`, `version_number`, `license_type`, `access`, `params`, `doi`, `popupURL`, `published_up`) VALUES (:publication_id, :main, :state, :title, :description, :abstract, :created, :created_by, :secret, :version_number, :license_type, :access, :params, :doi, :popupURL, :published_up)
 
 -- name: update-pub-version!
 --

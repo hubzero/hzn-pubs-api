@@ -178,7 +178,7 @@
             :published_up (if-let [dstr (:publication-date p)] (_fmt-pub-date dstr))
             :description (:description p "")
             :abstract (:abstract p "")
-            :doi (or (:doi p) (if (= 1 (:state p)) (_doi p)))
+            :doi (or (:doi p) (if (= 1 (:state p)) (_doi p) ""))
             :popupURL (:url p)
             :state (or (:state p) 3)  
             })
@@ -241,21 +241,6 @@
   )
 
 (defn add-author [pub ver-id i a]
-  (prn ver-id i a)
-  (prn {:publication_version_id ver-id
-                    :user_id (:id a)
-                    :ordering i
-                    :name (:name a)
-                    :firstname (:firstname a "")
-                    :lastname (:lastname a "")
-                    :org (:organization a "")
-                    :credit ""
-                    :created (f/unparse (:mysql f/formatters) (t/now))
-                    :created_by (:user-id pub)
-                    :status 1
-                    :project_owner_id (:prj-id pub)
-                    })
-
   (insert-author<! {:publication_version_id ver-id
                     :user_id (:id a)
                     :ordering i
@@ -567,14 +552,24 @@
             }
     )
 
+  (def pub {:prj-id "1", :authors-list {1001 {:id 1001, :name "J B G", :organization ""}}, :content (), :images (), :support-docs (), :abstract "asdf asdf asdf ads", :user-id 1001, :title "sadf asdf asd fads", :publication-date "02/02/2020"})
+
+(->
+(assoc pub :ver-id ver-id :publication-date "02/02/2020")
+(save-pub)
+  )
 
 
+(def pub (get-pub ver-id)) 
 
-(save-pub pub)
-(def pub (get-pub 140)) 
+(def ver-id (:ver-id (save-pub pub)))
 (map #(:title %) (:citations pub))
+(prn ver-id)
+(prn pub)
 
 (sel-citation-assocs-oid {:oid 140} (_connection))
+
+(if-let [dstr (:publication-date pub)] (_fmt-pub-date dstr))
 
 
 (get-licenses)

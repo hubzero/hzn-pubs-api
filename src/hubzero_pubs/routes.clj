@@ -20,7 +20,6 @@
 ;  )
 
 (defn get-prj [id]
-  (prn "R PRJ" id)
   (if-let [prj (classic/get-prj id)]
     (as-> (response {:body prj}) $
       (update $ :session merge {:prj-id id})
@@ -37,7 +36,7 @@
   )
 
 (defn save-pub [data]
-  (prn "SAVE" data)
+  (prn "VALIDATING, SAVING:" data)
   (if (classic/valid? data)
     (if-let [res (classic/save-pub data)]
       (response res) 
