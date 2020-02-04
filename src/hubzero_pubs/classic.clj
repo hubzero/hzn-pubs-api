@@ -242,31 +242,39 @@
     )
   )
 
-(defn add-author [pub ver-id i a]
-  (prn "AA" ver-id i a)
-  (let [oid (-> (sel-prj-owners {:publication_version_id 1456 :project_id 1091} (_connection)) (first) (:project_owner_id))]
-    (insert-author<! {:publication_version_id ver-id
-                      :user_id (:id a)
-                      :ordering i 
-                      :name (:name a)
-                      :firstname (:firstname a "")
-                      :lastname (:lastname a "")
-                      :org (:organization a "")
-                      :credit ""
-                      :created (f/unparse (:mysql f/formatters) (t/now))
-                      :created_by (:user-id pub)
-                      :status 1
-                      :project_owner_id oid 
-                      } (_connection))   
+(defn- _get-owner-id [ver-id prj-id]
+  (->
+    (sel-prj-owners {:project_id prj-id :publication_version_id ver-id} (_connection))
+    (first)
+    (:id)
     )
   )
 
-(defn- _update-author [i a]
+(defn add-author [pub ver-id i a]
+  (insert-author<! {:publication_version_id ver-id
+                    :user_id (:id a)
+                    :ordering i 
+                    :name (:name a)
+                    :firstname (:firstname a "")
+                    :lastname (:lastname a "")
+                    :org (:organization a "")
+                    :credit ""
+                    :created (f/unparse (:mysql f/formatters) (t/now))
+                    :created_by (:user-id pub)
+                    :status 1
+                    :project_owner_id (_get-owner-id ver-id (:prj-id pub))
+                    } (_connection))
+  )
+
+(defn- _update-author [ver-id prj-id i a]
   (update-author! {:ordering i
                    :name (:name a)
                    :firstname (:firstname a "")
                    :lastname (:lastname a "")
                    :org (:organization a "")
+                   :publication_version_id ver-id
+                   :user_id (:id a)
+                   :project_owner_id (_get-owner-id ver-id prj-id)
                    } (_connection))
   )
 
@@ -276,7 +284,7 @@
         ]
     (doall (map-indexed (fn [i a] (if (not (va a))
                                     (add-author p (:ver-id p) i (pa a))
-                                    (_update-author i (pa a))
+                                    (_update-author (:ver-id p) (:prj-id p) i (pa a))
                                     )) (keys pa)))
     (doall (map (fn [a] (if (not (pa a))
                           (del-author! {:publication_version_id (:ver-id p)
@@ -560,6 +568,10 @@
 
   (def pub {:prj-id "1091", :authors-list {9409 {:id 9409, :name "J B G", :organization ""}}, :content (), :images (), :support-docs (), :abstract "asdfa sdf asfadsf", :user-id 9409, :title "asdfasdf", :publication-date "02/02/2020"})
 
+  (def pub {:tags (), :pub-id 106, :ver-id 96, :prj-id 1, :authors-list {1001 {:id 1001, :name "J B G", :organization ""}, 0 {:id 0, :name "Femke Blokje", :organization nil}}, :content (), :images (), :support-docs (), :comments nil, :abstract "a sdfasdfasd fdsaf", :licenses nil, :user-id 1001, :state 3, :doi nil, :title "adfads asdf asdf", :citations (), :publication-date "02/29/2020", :authors-new {:firstname "Femke", :lastname "Blokje"}, :ack false, :url nil, :release-notes nil})
+
+  (save-pub pub)
+
   (->
     (assoc pub :authors-list {9409 {:id 9409, :name "J B G", :organization ""}})
     (save-pub)
@@ -580,7 +592,17 @@
 (count (:doi pub))
 (count nil)
 
-(sel-pub-authors {:publication_version_id 1456} (_connection))
+(_get-owner-id 96 1)
+
+(sel-prj-owners {:publication_version_id 96 :project_id 1} (_connection))
+
+  (prn "AA" ver-id i a)
+  (:prj-id pub)
+  (def ver-id 96) 
+  ver-id
+
+  (clojure.stacktrace/print-stack-trace *e) 
+ 
 
 (-> (assoc pub :state 1)
     (save-pub)
