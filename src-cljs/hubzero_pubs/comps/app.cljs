@@ -116,13 +116,21 @@
    ]
   )
 
-(defn citation [s key c]
+(defn citation [s k c]
   [:li.item {:key (:id c)}
    [:div.icon (ui/icon s "#icon-file-text2")]
    [:div.main
     [:div.subject
      [:a {:href "#"} (utils/format-citation c)]
      ]
+    ]
+   [:div.options {:on-click (fn [e]
+                              (.preventDefault e)
+                              (.stopPropagation e)
+                              (swap! s assoc-in [:ui :options (:id c)] true)
+                              )}
+    (ui/icon s "#icon-dots")
+    (options/citation s k c)
     ]
    ]
   )
