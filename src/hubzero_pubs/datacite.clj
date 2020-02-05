@@ -6,11 +6,8 @@
             )
   (:import java.util.Base64))
 
-(defn- _year [pub]
-  (-> (:publication-date pub)
-      (clojure.string/split  #" ")
-      (last) 
-      )
+(defn- _year [d]
+  (-> d (clojure.string/split  #"/") (last))
   )
 
 (defn- _encode [s]
@@ -30,20 +27,20 @@
    }
   )
 
-(defn- _dates [pub]
+(defn- _dates [d]
   {:tag :dates
-   :content [{:tag :date :attrs {:dateType "Valid"} :content [(:publication-date pub)]}
+   :content [{:tag :date :attrs {:dateType "Valid"} :content [d]}
              ;; "Accepted" date type - JBG
              ]
    }
   )
 
-(defn- _license [pub]
-  {:tag :rightsList :content [{:tag :rights :content [(get-in pub [:licenses :name])]}]}
+(defn- _license [s]
+  {:tag :rightsList :content [{:tag :rights :content [s]}]}
   )
 
 (defn- _related [pub]
-  {:tag :relatedIdentifiers :content [{:tag :relatedIdentifier :attrs {:relatedIdentifierType "DOI" :relationType "IsNewVersionOf" :content [(:ver-id pub)]}}]}
+  {:tag :relatedIdentifiers :content [{:tag :relatedIdentifier :attrs {:relatedIdentifierType "DOI" :relationType "IsNewVersionOf" } :content [(str (:ver-id pub))]}]}
   )
 
 (defn- _descriptions [pub]
@@ -51,51 +48,43 @@
   )
 
 (defn- _resource [pub]
-  {:tag :resource
-   :attrs {"xmlns" "http://datacite.org/schema/kernel-4"
-           "xmlns:xsi" "http://www.w3.org/2001/XMLSchema-instance"
-           "xsi:schemaLocation" "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd"
-      }
-     :content [{:tag :identifier :attrs {:identifierType "DOI"} :content [(:doi_shoulder config)]}
+  {:tag     :resource
+   :attrs   {"xmlns"              "http://datacite.org/schema/kernel-4"
+             "xmlns:xsi"          "http://www.w3.org/2001/XMLSchema-instance"
+             "xsi:schemaLocation" "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4/metadata.xsd"
+             }
+   :content (concat 
+              [{:tag :identifier :attrs {:identifierType "DOI"} :content [(get-in config [:doi :shoulder])]}
                (_creators pub)
                (_titles pub)
-               ; Not sure publisher is a thing? - JBG
-               {:tag :publisher :content [(:doi_publisher config)]}
-               {:tag :publicationYear :content [(_year pub)]}
+               {:tag :publisher :content [(get-in config [:doi :publisher])]}
+
                ; Not sure contributor is a thing? - JBG
                ;(_contributors pub)
-               (_dates pub)
+
                ; Language? - JBG
                {:tag :resourceType :attrs {:resourceTypeGeneral "Text"} :content ["Document"]} ; Is this correct? - JBG
-               ;(_related pub) Versioning? - JBG
-               {:tag :version :content [(:ver-id pub)]}
-               (_license pub)
+               ;(_related pub)
+               {:tag :version :content [(str (:ver-id pub))]}
                (_descriptions pub)
-	]   
+               ]            
+              (if-let [d (:publication-date pub)] [{:tag :publicationYear :content [(_year d)]} (_dates d)])
+              (if-let [s (get-in pub [:licenses :name])] (_license s))
+              )
    }
-;  :content [{:tag :identifier
-;             :attrs {:identifierType :DOI}
-;             :content [(:doi_shoulder config)
-;                       (_creators pub)
-;                       (_titles pub)
-;                       ]
-;             }
-;            ]
-
-
   )
 
 (defn pub2xml [pub]
   (xml/emit-element (_resource pub))
   )
 
-(defn get-datacite [xml-str]
+(defn- _get-datacite [xml-str]
   (->>
-    (http/post (str (:datacite_doi_service config) "/metadata/" (:doi_shoulder config))
-               {:headers {"Authorization" (str "Basic " (_encode (:datacite_doi_userpw config)))
-                          "Content-Type" "application/xml;charset=UTF-8"
+    (http/post (str (get-in config [:datacite-doi :service]) "/metadata/" (get-in config [:doi :shoulder]))
+               {:headers {"Authorization" (str "Basic " (_encode (get-in config [:datacite-doi :userpw])))
+                          "Content-Type"  "application/xml;charset=UTF-8"
                           }
-                :body xml-str 
+                :body    xml-str
                 })
     (:body)
     (re-find #"\(([^\)(]+)\)")
@@ -103,27 +92,21 @@
     )
   )
 
+(defn get-datacite [pub]
+  (_get-datacite (with-out-str (pub2xml pub))) 
+  )
+
 (comment
 
   (:doi_shoulder config)
   (:ver-id pub)
 
+  (def pub {:tags '() :pub-id 109 :ver-id 99 :prj-id 1 :content '({:path "prjfoobar/files/foo" :name "foo" :id 122}) :comments nil :abstract "lkajsf asdlkjadsflkjasdflk j" :licenses nil :user-id 1001 :doi nil :title "asldkjasdflkjasdflkj" :citations '() :publication-date "01/16/2020" :ack false :url nil :release-notes nil
+            
+            :authors-list {1001 {:id 1001, :name "J B G", :organization ""}},
+            }) 
 
-  (spit "doi.xml" (with-out-str (pub2xml pub)))
-
-  ;; This creates the DOI - JBG
-  (get-datacite (with-out-str (pub2xml pub)))
-
-  (_creators pub)
-  (_titles pub)
-  (_license pub)
-  (_descriptions pub)
-
-  (_encode (:datacite_doi_userpw config))
-
-  (prn pub)
-
-  (def pub {:_id "5e13137085b4b9002ed5dc58",
+    (def pub {:_id "5e13137085b4b9002ed5dc58",
             :prj-id "1",
             :ver-id "1",
             :authors-list {1001 {:id 1001, :name "J B G", :organization ""}},
@@ -200,10 +183,32 @@
               :booktitle "",
               :exp_data nil}],
             :ack true
-            :publication-date "11th January 2020"
+            :publication-date "01/11/2020"
             :tags ["admin" "bar" "foo"]
             }
     )
+
+
+  (pub2xml pub)
+
+  (spit "doi.xml" (with-out-str (pub2xml pub)))
+
+  ;; This creates the DOI - JBG
+  (get-datacite pub)
+
+  (_creators pub)
+  (_titles pub)
+  (_license pub)
+  (_descriptions pub)
+
+  (_resource pub)
+
+  (_encode
+    (get-in config [:datacite-doi :userpw])
+    
+    )
+
+  (prn pub)
 
   )
 

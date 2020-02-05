@@ -1,6 +1,7 @@
 (ns hubzero-pubs.comps.summary
   (:require 
     [hubzero-pubs.utils :as utils] 
+    [hubzero-pubs.data :as data] 
     [hubzero-pubs.comps.ui :as ui] 
     )  
   )
@@ -37,7 +38,7 @@
   )
 
 (defn citation [s c]
-  [:li {:class :item :key c}
+  [:li {:class :item :key (:id c)}
    [:div {:class :icon} (ui/icon s "#icon-file-text2") ]
    [:div {:class :main} (utils/format-citation c)]
    ] 
@@ -115,7 +116,8 @@
   )
 
 (defn essentials [s]
-  (_section s [[[:data :title] "Title" :text true]
+  (_section s [[[:data :doi] "DOI" :text true]
+               [[:data :title] "Title" :text true]
                [[:data :abstract] "Abstract" :text false]
                [[:data :content] "Content" :files false]
                [[:data :authors-list] "Authors" :authors-list false]
@@ -149,10 +151,12 @@
   )
 
 (defn- _submit [s e]
-  
+  (swap! s assoc-in [:data :state] 1)
+  (data/save-pub s) 
   )
 
 (defn aside [s]
+  (prn "ASIDE" (:pub-id @s))
   [:aside
    [:div.inner
     [:div.notification
@@ -162,7 +166,7 @@
       [:a.btn {:href "/pubs/#/submit"
                :on-click #(_submit s %)
                } "Submit publication"]
-      [:a.btn.secondary {:href (str "/pubs/#/pubs/" (:pub-id @s) "/edit")} "Edit draft"]
+      [:a.btn.secondary {:href (str "/pubs/#/pubs/" (:ver-id @s) "/edit")} "Edit draft"]
       ]
      ]
     ]
@@ -174,7 +178,7 @@
                                                  [:add :show]
                                                  )}
    (main s)
-   (aside s)
+   (if (not (= 1 (get-in @s [:data :state]))) (aside s))
    ]
   )
 

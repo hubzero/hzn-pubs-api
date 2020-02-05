@@ -9,13 +9,9 @@
                                         resource-response]]
             [ring.util.response :as response]
             [hubzero-pubs.classic :as classic]
+            [hubzero-pubs.errors :as errors]
             ))
 
-(defn four-oh-4 []
-  {:status 404
-   :title "Not found"
-   :body "Resource not found."} 
-  )
 
 ;(defn handle-file [req]
 ;  (prn (get-in req [:multipart-params "f" :filename]))  
@@ -24,27 +20,29 @@
 ;  )
 
 (defn get-prj [id]
-  (prn "R PRJ" id)
   (if-let [prj (classic/get-prj id)]
     (as-> (response {:body prj}) $
       (update $ :session merge {:prj-id id})
       )
-    (four-oh-4)
+    (errors/four-oh-4)
     )
   )
 
 (defn get-pub [id]
   (if-let [pub (classic/get-pub id)]
     (response pub)
-    (four-oh-4)
+    (errors/four-oh-4)
     )
   )
 
 (defn save-pub [data]
-  (prn "SAVE PUB" data)
-  (->
-    (classic/save-pub data)
-    (response)
+  (prn "VALIDATING, SAVING:" data)
+  (if (classic/valid? data)
+    (if-let [res (classic/save-pub data)]
+      (response res) 
+      (errors/five-hundred)
+      )
+    (errors/four-ohoh)
     )
   )
 
@@ -65,7 +63,7 @@
   (GET "/pubs/:id" [id] (get-pub id))
 
   (GET "/users/:name" [name] (classic/search-users name))
-  (GET "/citations/:doi" [doi] (classic/search-citations doi))
+  (POST "/citations/search" {body :body-params} (response (classic/search-citations (:doi body))))
   (POST "/citations" {body :body-params} {:body (classic/create-citation body)})
   (GET "/citation-types" [] (classic/get-citation-types))
   )

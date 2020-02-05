@@ -32,7 +32,14 @@
   )
 
 (defn citation [s key c]
-  [:p.formatted-meta.key {:class (:id c)} (utils/format-citation c)]
+  [:p.formatted-meta.key {:class (:id c)
+                          :key (:id c)
+                          :on-click (fn [e]
+                                      (.preventDefault e)
+                                      (.stopPropagation e)
+                                      (swap! s update-in [:data :citations] conj c)
+                                      )
+                          } (utils/format-citation c)]
   )
 
 (defn list-citations [s key]
@@ -52,8 +59,8 @@
     ]
    [:hr]
    [:div.field.buttons
-    [:a.btn {:href "#" :on-click #(add-doi s %)} "Add citation"]  
-    [:a.btn.secondary {:href "#"} "Close"]
+    ;[:a.btn {:href "#" :on-click #(add-doi s %)} "Add citation"]  
+    [:a.btn.secondary {:href "#" :on-click #(panels/close s %)} "Close"]
     ]
    ]
   )

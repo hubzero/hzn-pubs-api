@@ -8,7 +8,9 @@
             [cheshire.core :as json]
             [hubzero-pubs.config :refer [config]]
             [hubzero-pubs.utils :as utils]
+            [hubzero-pubs.errors :as errors]
             [mount.core :as mount :refer [defstate]]
+            [hubzero-pubs.datacite :as doi]
             )
   )
 
@@ -38,13 +40,15 @@
   )
 
 (defn- _parse-params [s]
-  (->> (clojure.string/split s #"\n")
-       (reduce (fn [m p] (as-> (clojure.string/split p #"=") $
-                              (assoc m (keyword (first $)) (last $))
-                      )) {})
-       )
+  (if s
+    (->> (clojure.string/split s #"\n")
+         (reduce (fn [m p] (as-> (clojure.string/split p #"=") $
+                             (assoc m (keyword (first $)) (last $))
+                             )) {})
+         )   
+    )
   )
- 
+
 (defn get-prj [id]
   ;; Get the project process the params - JBG
   (as-> (_get-prj id) $
@@ -77,29 +81,39 @@
             ) 0 files)
   )
 
+(defn- _usage-percent [prj size]
+  (if-let [pq (get-in prj [:params :pubQuota]) ]
+    (->> pq 
+         (Integer/parseInt)
+         (/ size)
+         (* 100)
+         (float)
+         (clojure.core/format "%.2f")
+         ) 0)
+  )
+
+(defn- _usage-max [prj]
+  (if-let [pq (get-in prj [:params :pubQuota])]
+    (->> (/ (Integer/parseInt pq) gb)
+         (float)
+         (clojure.core/format "%.2f" )
+         ) 0)
+  )
+
 (defn usage [id files]
   (let [size (_usage-size files)]
     (as-> (get-prj id) $
       {:size (clojure.core/format "%.2f" (float (/ size gb))) 
        :units "GB"
-       :percent (->> (get-in $ [:params :pubQuota])
-                     (Integer/parseInt)
-                     (/ size)
-                     (* 100)
-                     (float)
-                     (clojure.core/format "%.2f")
-                     )
-       :max (->> (/ (Integer/parseInt (get-in $ [:params :pubQuota])) gb)
-                 (float)
-                 (clojure.core/format "%.2f" )
-                 )
+       :percent (_usage-percent $ size) 
+       :max (_usage-max $)
        }
-      )   
+      )
     )
   )
 
 (defn get-licenses []
-  (sel-licenses (_connection))
+  (sel-licenses {} (_connection))
   )
 
 (defn get-users [id]
@@ -116,14 +130,14 @@
 
 (defn create-citation [m]
   (->
-   (reduce (fn [c k] (if (k c) c (assoc c k nil))) m
-           [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition])
-   (insert-citation<! (_connection)))
+    (reduce (fn [c k] (if (k c) c (assoc c k nil))) m
+            [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition])
+    (insert-citation<! (_connection)))
 
   )
 
 (defn get-citation-types []
-  (sel-citation-types (_connection))
+  (sel-citation-types {} (_connection))
   )
 
 (defn create-pub [p]
@@ -150,6 +164,10 @@
     )
   )
 
+(defn- _doi [p]
+  (doi/get-datacite p)
+  )
+
 (defn- _mutate
   "Fields come from client with different names, map them - JBG"
   [p]
@@ -160,8 +178,11 @@
             :published_up (if-let [dstr (:publication-date p)] (_fmt-pub-date dstr))
             :description (:description p "")
             :abstract (:abstract p "")
-            :doi (:doi p)
+            :doi (if (and (= (count (:doi p)) 0) (= 1 (:state p))) 
+                   (_doi p)
+                   (:doi p ""))
             :popupURL (:url p)
+            :state (or (:state p) 3)  
             })
   )
 
@@ -169,7 +190,6 @@
   (-> (_mutate p)
       (merge {:publication_id pub-id
               :main 1
-              :state 3
               :created (f/unparse (:mysql f/formatters) (t/now))
               :version_number 1
               :access 0
@@ -222,10 +242,18 @@
     )
   )
 
+(defn- _get-owner-id [ver-id prj-id]
+  (->
+    (sel-prj-owners {:project_id prj-id :publication_version_id ver-id} (_connection))
+    (first)
+    (:id)
+    )
+  )
+
 (defn add-author [pub ver-id i a]
   (insert-author<! {:publication_version_id ver-id
                     :user_id (:id a)
-                    :ordering i
+                    :ordering i 
                     :name (:name a)
                     :firstname (:firstname a "")
                     :lastname (:lastname a "")
@@ -234,16 +262,19 @@
                     :created (f/unparse (:mysql f/formatters) (t/now))
                     :created_by (:user-id pub)
                     :status 1
-                    :project_owner_id (:prj-id pub)
+                    :project_owner_id (_get-owner-id ver-id (:prj-id pub))
                     } (_connection))
   )
 
-(defn- _update-author [i a]
+(defn- _update-author [ver-id prj-id i a]
   (update-author! {:ordering i
                    :name (:name a)
                    :firstname (:firstname a "")
                    :lastname (:lastname a "")
                    :org (:organization a "")
+                   :publication_version_id ver-id
+                   :user_id (:id a)
+                   :project_owner_id (_get-owner-id ver-id prj-id)
                    } (_connection))
   )
 
@@ -253,7 +284,7 @@
         ]
     (doall (map-indexed (fn [i a] (if (not (va a))
                                     (add-author p (:ver-id p) i (pa a))
-                                    (_update-author i (pa a))
+                                    (_update-author (:ver-id p) (:prj-id p) i (pa a))
                                     )) (keys pa)))
     (doall (map (fn [a] (if (not (pa a))
                           (del-author! {:publication_version_id (:ver-id p)
@@ -388,10 +419,11 @@
   (->>
     (sel-pub-authors {:publication_version_id ver-id} (_connection))
     (reduce (fn [m a]
-              (assoc m (:user_id a) {:id (:user_id a)
-                                     :name (:name a)
-                                     :organization (:organization a)
-                                     })) {})
+              (assoc m (:id a) {:id (:id a)
+                                :user_id (:user_id a)
+                                :name (:name a)
+                                :organization (:organization a)})
+              ) {})
     )
   )
 
@@ -408,7 +440,7 @@
   )
 
 (defn _update-citations [p]
-  (let [vc (group-by :id (sel-citation-assocs-oid {:oid (:ver-id p)} (_connection)))
+  (let [vc (group-by :cid (sel-citation-assocs-oid {:oid (:ver-id p)} (_connection)))
         pc (group-by :id (:citations p))
         ]
     (doall (map (fn [c] (if (not (vc c))
@@ -420,8 +452,8 @@
     )
   )
 
-(defn get-pub [ver-id]
-  (let [pub-ver (first (sel-pub-version {:id ver-id} (_connection)))
+(defn- _get-pub [pub-ver]
+  (let [ver-id (:id pub-ver)
         pub (first (sel-pub {:id (:publication_id pub-ver)} (_connection)))
         files (sel-attachment {:publication_version_id ver-id} (_connection))
         params (_parse-params (:params pub-ver))
@@ -430,13 +462,13 @@
         ]
     (->
       {:prj-id (:project_id pub)
-       :user-id (:created_by pub) 
-       :pub-id (:publication_id pub-ver)  
-       :ver-id ver-id 
+       :user-id (:created_by pub)
+       :pub-id (:publication_id pub-ver)
+       :ver-id ver-id
        :title (:title pub-ver)
        :abstract (:abstract pub-ver)
        :publication-date (if-let [d (:published_up pub-ver)]
-                           (f/unparse (f/formatter "MM/dd/yyyy") (c/from-long (.getTime d)))) 
+                           (f/unparse (f/formatter "MM/dd/yyyy") (c/from-long (.getTime d))))
        :ack (= (:licenseagreement params) "1")
        :authors-list (get-authors ver-id)
        :licenses (get-license (:license_type pub-ver))
@@ -446,10 +478,17 @@
        :citations (map #(first (sel-citation-by-id % (_connection))) citations)
        :url (:popupurl pub-ver)
        :comments (:comment (last history))
+       :state (:state pub-ver)
        }
       (merge (_files files))
       )
     )
+  )
+
+(defn get-pub [ver-id]
+  (if-let [ pub-ver (first (sel-pub-version {:id ver-id} (_connection))) ]
+    (_get-pub pub-ver)
+    ) 
   )
 
 (defn- _add-curation-hist [ver-id p]
@@ -463,6 +502,12 @@
                              :newstatus (:state p 3)
                              :comment (:comments p)
                              } (_connection))))
+
+(defn valid? [pub]
+  (reduce (fn [b f]
+            (and b (f pub)) 
+            ) true [ :abstract :title :publication-date :authors-list ])
+  )
 
 (defn- _save-pub [pub]
   (let [pub-id (-> (create-pub pub) (:generated_key)) 
@@ -495,155 +540,23 @@
   (if (:ver-id p)
     (_update-pub p)
     (_save-pub p)
-    )
+    ) 
   )
 
 (comment
 
-  (def pub-ver (first (sel-pub-version {:id ver-id}) (_connection)))
-  (prn pub-ver)
-
-  (:params pub-ver)
-
-  (def params (_parse-params (:params pub-ver)))
-  (prn params)
-
-  (def files (sel-attachment {:publication_version_id ver-id}))
-  (prn files)
-  (_files files)
-
-
-  (get-license 2)
-
-
-  (first (get-tag "foooo"))
-
-  (f/show-formatters)
-  (t/now)
-
-  (f/unparse (:mysql f/formatters) (t/now))
-
-  config
-
-  (search-users "%j%")
-
-  (get-prj 1)
-
-  (get-files 1)
-
-  (prj-size 1)
-
-  (usage 1 ["prjfoobar/files/foo"
-            "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png"])
-
-  (get-user 1001)
-
-  (get-licenses)
-
-  (get-prj-users 1)
-
-  (search-citations "10")
-
-  (get-citation-types)
-
-  (create-citation {})
-
-  (create-citation {:type 1
-                    :title "Foobar"
-                    :year "1996"
-                    :month "January"
-                    :author "JBG"
-                    :journal "Journal for Advanced Foobaring"
-                    :volume "666"
-                    :pages "123-124"
-                    :isbn "978-3-16-148410-0"
-                    :doi "10.1000/xyz123"
-                    :abstract "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-                    :publisher "Grapes & Apples"
-                    :url "http://example.com"
-                    })
-
-
-(def pub-id (-> (create-pub pub) (:generated_key))) 
-(prn pub-id)
-
-(def ver-id (-> (create-pub-version pub-id pub) (:generated_key)))
-(prn ver-id)
-
-(prn (:tags pub))
-
-(get-tags ver-id)
-
-(def tag (get-tag "admin"))
-(prn tag)
-(tag-obj-exists? tag ver-id pub)
-
-(def ids (save-pub pub))
-(prn ids)
-(def ver-id (:ver-id ids))
-
-ver-id
-
-(def ver-id 86)
-
-(def p (get-pub ver-id))
-(prn (:notes p))
-
-(prn (:comments p)) 
-
-(prn (:publication-date p))
-
-
-(prn (count (:citations p)))
-(prn (:authors-list p))
-(prn (:release-notes p))
-(prn (:title p))
-(prn (:content p))
-(prn (:pub-id p))
-
-p
-
-(->
-  (assoc p
-         :notes "Updated!"
-         :title "I'm updated."
-         :content [{:path "prjfoobar/files/foo", :name "foo"}]
-         :authors-list {1001 {:id 1001 :name "J B G" :organization ""}
-                        ;1000 {:id 1000 :name "admin" :organization ""}
-                        },
-         :citations [{:id 2}]
-         :tags ["bar" "foo" "admin"]
-         :publication-date "01/31/2020"
-         :comments "Admin note..."
-         :url "http://example.com"
-         )
-  (save-pub)
-  )
-
-(prn p)
-
-(prn (:authors-list p))
-
-  (def authors (get-authors ver-id))
-  (prn authors)
- 
-
-
-
-  (prn pub)
-
-  (def pub {:_id "5e13137085b4b9002ed5dc58",
+  (def pub {:_id "5e13137085b4b9002ed5dc58"
             :doi "10.1000/xyz123"
-            :prj-id "1",
-            :authors-list {1001 {:id 1001, :name "J B G", :organization ""}},
-            :content [{:path "prjfoobar/files/foo", :name "foo"} {:path "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png", :name "Screenshot from 2019-09-09 20-35-28.png"}]
-            :images {},
-            :support-docs {},
-            :title "Foorepl",
+            :prj-id "1"
+            :authors-list {1001 {:id 1001, :name "J B G", :organization ""}}
+            :content [{:path "prjfoobar/files/foo" :name "foo"} {:path "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png" :name "Screenshot from 2019-09-09 20-35-28.png"}]
+            :images {}
+            :support-docs {}
+            :title "Foorepl"
             :user-id 1001
-            :licenses {:restriction nil, :opensource false, :name "cc", :agreement 1, :icon "/components/com_publications/assets/img/logos/cc.gif", :title "CC0 - Creative Commons", :customizable 0, :ordering 2, :active 1, :id 2, :info "CC0 enables scientists, educators, artists and other creators and owners of copyright- or database-protected content to waive those interests in their works and thereby place them as completely as possible in the public domain, so that others may freely build upon, enhance and reuse the works for any purposes without restriction under copyright or database law.", :url "http://creativecommons.org/about/cc0", :main 1, :derivatives 1, :text ""}
+            :licenses {:restriction nil :opensource false :name "cc" :agreement 1 :icon "/components/com_publications/assets/img/logos/cc.gif" :title "CC0 - Creative Commons" :customizable 0 :ordering 2 :active 1 :id 2 :info "CC0 enables scientists educators artists and other creators and owners of copyright- or database-protected content to waive those interests in their works and thereby place them as completely as possible in the public domain so that others may freely build upon enhance and reuse the works for any purposes without restriction under copyright or database law." :url "http://creativecommons.org/about/cc0" :main 1 :derivatives 1 :text ""}
             :citations
-            [{:id 1} {:id 2}],
+            [{:id 1} {:id 2}]
             :ack true
             :publication-date "01/16/2020"
             :tags ["admin" "bar" "foo"]
@@ -651,9 +564,63 @@ p
             }
     )
 
+  (def pub {:prj-id "1", :authors-list {1001 {:id 1001, :name "J B G", :organization ""}}, :content (), :images (), :support-docs (), :abstract "asdf asdf asdf ads", :user-id 1001, :title "sadf asdf asd fads", :publication-date "02/02/2020"})
 
-(utils/rand-str 10)
+  (def pub {:prj-id "1091", :authors-list {9409 {:id 9409, :name "J B G", :organization ""}}, :content (), :images (), :support-docs (), :abstract "asdfa sdf asfadsf", :user-id 9409, :title "asdfasdf", :publication-date "02/02/2020"})
 
-(sel-attachment {:publication_version_id ver-id})
+  (def pub {:tags (), :pub-id 106, :ver-id 96, :prj-id 1, :authors-list {1001 {:id 1001, :name "J B G", :organization ""}, 0 {:id 0, :name "Femke Blokje", :organization nil}}, :content (), :images (), :support-docs (), :comments nil, :abstract "a sdfasdfasd fdsaf", :licenses nil, :user-id 1001, :state 3, :doi nil, :title "adfads asdf asdf", :citations (), :publication-date "02/29/2020", :authors-new {:firstname "Femke", :lastname "Blokje"}, :ack false, :url nil, :release-notes nil})
+
+  (save-pub pub)
+
+  (->
+    (assoc pub :authors-list {9409 {:id 9409, :name "J B G", :organization ""}})
+    (save-pub)
+    )
+
+
+(def pub (get-pub ver-id)) 
+
+(def ver-id (:ver-id (save-pub pub)))
+
+(map #(:title %) (:citations pub))
+(prn ver-id)
+(prn pub)
+
+(get-authors ver-id)
+
+(_doi pub)
+(count (:doi pub))
+(count nil)
+
+(_get-owner-id 96 1)
+
+(sel-prj-owners {:publication_version_id 96 :project_id 1} (_connection))
+
+  (prn "AA" ver-id i a)
+  (:prj-id pub)
+  (def ver-id 96) 
+  ver-id
+
+  (clojure.stacktrace/print-stack-trace *e) 
+ 
+
+(-> (assoc pub :state 1)
+    (save-pub)
+    )
+
+
+
+
+(sel-citation-assocs-oid {:oid 140} (_connection))
+
+(if-let [dstr (:publication-date pub)] (_fmt-pub-date dstr))
+
+
+(get-licenses)
+(save-pub pub)
+
+(-> (sel-prj {:id (:prj-id pub)} (_connection)) (first) (:owned_by_user))
+
 
 )
+

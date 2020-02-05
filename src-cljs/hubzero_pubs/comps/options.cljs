@@ -28,7 +28,7 @@
   )
 
 (defn items [s k v id]
-  [:div.options-list.--as-panel {:class (if (get-in @s [:ui :options k v]) :open) }
+  [:div.options-list.--as-panel {:class (if (get-in @s [:ui :options k id]) :open) }
    [:div.inner
     (merge
       [:ul]
@@ -40,6 +40,25 @@
     ]
    ]
   )
+
+(defn citation [s k c]
+  [:div.options-list.--as-panel {:class (if (get-in @s [:ui :options (:id c)]) :open) }
+   [:div.inner
+    (merge
+      [:ul]
+      (item s "#icon-delete" "Remove" (fn [s e]
+                                        (.preventDefault e)
+                                        (.stopPropagation e)
+                                        (swap! s assoc-in [:data k]
+                                               (filter #(not (= (:id c) (:id %))) (get-in @s [:data k]))
+                                               )
+                                        )))
+    ]
+   ]
+  )
+
+
+
 
 (defn handle-add-author [s e]
   (.preventDefault e)

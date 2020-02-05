@@ -10,24 +10,20 @@
             [ring.middleware.defaults :refer :all]
             [mount.core :refer [defstate]]        
             [hubzero-pubs.auth :as auth]
+            [hubzero-pubs.errors :as errors]
             ))
 
-(defn four-oh-1 []
-  {:status 401
-   :title "Unauthorized"
-   :body "Cookie based auth failure."} 
-  )
 
 (defn wrap-auth [handler]
   (fn [req]
     (try
       (if-let [user (auth/cookie req)]
         (handler (merge req {:user user}))
-        (four-oh-1) 
+        (errors/four-oh-1) 
         )   
       (catch Exception e
         (.printStackTrace e)
-        (four-oh-1))
+        (errors/four-oh-1))
       )
     )
   )
@@ -45,8 +41,7 @@
           )
       (-> #'ui-routes 
           )
-      (route/not-found
-        (:body {:status 404 :title "page not found"})))  
+      (route/not-found (errors/four-oh-4)))
     wrap-auth
     wrap-cookies
     wrap-session

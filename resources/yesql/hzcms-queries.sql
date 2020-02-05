@@ -37,7 +37,7 @@ SELECT * FROM `jos_publication_versions` WHERE `id` = :id
 
 -- name: insert-pub-version<!
 --
-INSERT INTO `jos_publication_versions` (`publication_id`, `main`, `state`, `title`, `description`, `abstract`, `created`, `created_by`, `secret`, `version_number`, `license_type`, `access`, `params`, `doi`, `popupURL`) VALUES (:publication_id, :main, :state, :title, :description, :abstract, :created, :created_by, :secret, :version_number, :license_type, :access, :params, :doi, :popupURL)
+INSERT INTO `jos_publication_versions` (`publication_id`, `main`, `state`, `title`, `description`, `abstract`, `created`, `created_by`, `secret`, `version_number`, `license_type`, `access`, `params`, `doi`, `popupURL`, `published_up`) VALUES (:publication_id, :main, :state, :title, :description, :abstract, :created, :created_by, :secret, :version_number, :license_type, :access, :params, :doi, :popupURL, :published_up)
 
 -- name: update-pub-version!
 --
@@ -69,7 +69,7 @@ INSERT INTO jos_publication_authors (publication_version_id, user_id, ordering, 
 
 -- name: update-author!
 --
-UPDATE `jos_publication_authors` SET `ordering` = :ordering, `name` = :name, `firstName` = :firstname, `lastName` = lastname, `organization` = :org 
+UPDATE `jos_publication_authors` SET `ordering` = :ordering, `name` = :name, `firstName` = :firstname, `lastName` = lastname, `organization` = :org WHERE `user_id` = :user_id AND `publication_version_id` = :publication_version_id AND `project_owner_id` = :project_owner_id
 
 -- name: del-author!
 --
@@ -137,7 +137,7 @@ SELECT * FROM jos_citations WHERE doi LIKE :doi
 
 -- name: sel-citation-assocs-oid
 --
-SELECT id FROM jos_citations_assoc WHERE `oid` = :oid
+SELECT cid FROM jos_citations_assoc WHERE `oid` = :oid
 
 -- name: del-citation-assoc!
 --
@@ -145,7 +145,7 @@ DELETE FROM jos_citations_assoc WHERE `id` = :id
 
 -- name: sel-citation-by-id
 --
-SELECT * FROM jos_citations WHERE `id` = :id
+SELECT * FROM jos_citations WHERE `id` = :cid
 
 -- name: insert-citation<!
 --
