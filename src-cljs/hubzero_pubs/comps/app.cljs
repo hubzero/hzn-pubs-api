@@ -269,7 +269,7 @@
   )
 
 (defn essentials [s]
-  [:fieldset.section
+  [:fieldset.fieldset-section
    [:header
     [:legend "Essentials"]
     [:div.note "all fields required"]
@@ -291,7 +291,7 @@
   )
 
 (defn additional-details [s]
-  [:fieldset.section
+  [:fieldset.fieldset-section
    [:header [:legend "Additional Details"]]
    (collection s "a-image-gallery" "Image gallery:" :images nil handle-files-options)
    (textfield s "a-url" "External website URL:" "url")
@@ -325,7 +325,7 @@
   )
 
 (defn publish-settings [s]
-  [:fieldset.section
+  [:fieldset.fieldset-section
    [:header#a-pub-settings.anchor.a-header [:legend "Publish Settings"]]
    (pub-date s)
    (textarea s "a-comments" "Comments to the administrator:" "comments")
@@ -343,7 +343,7 @@
   )
 
 (defn section-buttons [s]
-  [:fieldset.section.buttons
+  [:fieldset.fieldset-section.buttons
    [:div.field.buttons
     [:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
     ]
