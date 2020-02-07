@@ -25,3 +25,17 @@
        ) 
   )
 
+(defn valid? [s]
+  (swap! s assoc-in [:ui :errors]
+         (reduce (fn [errors [k v]]
+                   (if (= 0 (count (get-in @s [:data k])))
+                     (assoc errors k v)
+                     )
+                   ) {} {:title "Title"
+                         :abstract "Abstract"
+                         :publication-date "Publication date"
+                         :authors-list "Authors" 
+                         })
+         )
+  (= (count (get-in @s [:ui :errors])) 0)
+  )

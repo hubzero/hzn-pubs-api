@@ -1,5 +1,6 @@
 (ns hubzero-pubs.comps.app
   (:require
+    [secretary.core :as secretary]
     [hubzero-pubs.utils :as utils]
     [hubzero-pubs.data :as data]
     [hubzero-pubs.routes :as routes]
@@ -10,6 +11,7 @@
     [hubzero-pubs.comps.options :as options] 
     [hubzero-pubs.comps.licenses :as licenses] 
     [hubzero-pubs.comps.citations :as citations] 
+    [hubzero-pubs.comps.errors :as errors] 
     [hubzero-pubs.comps.help :as help] 
     [hubzero-pubs.comps.ui :as ui] 
     [hubzero-pubs.comps.summary :as summary] 
@@ -33,7 +35,7 @@
   )
 
 (defn textfield [s id title name]
-  [:div.field {:id id}
+  [:div.field.anchor.err {:id id :class (if (get-in @s [:ui :errors (keyword name)]) :with-error)}
    [:label {:for :title} title
     (_help s)
     ]
@@ -42,16 +44,18 @@
             :value (get-in @s [:data (keyword name)])
             :on-change #(_handle-value % s name)
             }]
+   [:div.validation-error  (str "Please check the " name ". Need something here.") ]
    ]
   )
 
 (defn textarea [s id title name]
-  [:div.field {:id id}
+  [:div.field {:id id :class (if (get-in @s [:ui :errors (keyword name)]) :with-error)}
    [:label {:for :title} title]
    [:textarea {:name name
                :value (get-in @s [:data (keyword name)])
                :on-change #(_handle-value % s name)
                }]
+   [:div.validation-error (str "Please check the " name ". Need something here.")]
    ]
   )
 
@@ -176,12 +180,13 @@
   )
 
 (defn collection [s id title key options-comp f]
-  [:div.field {:id id}
+  [:div.field.anchor.err {:id id :class (if (get-in @s [:ui :errors key]) :with-error)}
    [:label {:for :title} title]
    [:div.collection
     (items s key)
     (selector-button s key options-comp f)
     ]
+   [:div.validation-error  (str "Please check the " title ". Need something here.") ]
    ]
   )
 
@@ -314,11 +319,12 @@
        )
      }
    (fn []
-     [:div#a-pub-date.field.anchor
+     [:div#a-pub-date.field.anchor.err {:class (if (get-in @s [:ui :errors :publication-date]) :with-error)}
       [:label {:for :title} "Publication date:"]
       [:input {:type :text
                :name "publication-date" 
                }]
+      [:div.validation-error  "Please check the date. Need something here."]
       ]
      )
    ]
@@ -332,11 +338,21 @@
    ]
   )
 
+(defn- _submit-draft [s e]
+  (.preventDefault e) 
+  (.stopPropagation e) 
+  (if (utils/valid? s)
+    (secretary/dispatch! "/summary")
+    (panels/show s e true :errors)
+    )
+  )
+
 (defn aside-buttons [s]
   [:aside
    [:div.inner
     [:fieldset.buttons-aside
-     [:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
+     ;;[:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
+     [:a.btn {:href "#" :on-click #(_submit-draft s %)} "Proceed with the draft"]
      ]
     ]
    ]
@@ -451,6 +467,7 @@
     [:div]
     (wrap s)
     (panels/overlay s)
+    (errors/errors s :errors)
     (files/files s :content)
     (files/files s :images)
     (files/files s :support-docs)
