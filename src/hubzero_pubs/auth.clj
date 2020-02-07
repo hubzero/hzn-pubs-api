@@ -27,6 +27,8 @@
 
 (comment
 
+  (:secret config)
+
   (let [req { :cookies {"947a8f2666dbaa4a2c706fac2581a4c6" { :value "9fe8ba187b310778c4575ab87ab886d7" }}} ]
     (cookie req)
     )
