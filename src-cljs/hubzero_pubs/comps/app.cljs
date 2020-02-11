@@ -271,7 +271,7 @@
 (defn essentials [s]
   [:fieldset.fieldset-section
    [:header
-    [:legend "Essentials"]
+    [:div.legend "Essentials"]
     [:div.note "all fields required"]
     ]
    (textfield s "a-title" "Title:" "title")
@@ -292,7 +292,7 @@
 
 (defn additional-details [s]
   [:fieldset.fieldset-section
-   [:header [:legend "Additional Details"]]
+   [:header [:div.legend "Additional Details"]]
    (collection s "a-image-gallery" "Image gallery:" :images nil handle-files-options)
    (textfield s "a-url" "External website URL:" "url")
    (collection s "a-docs" "Supporting docs:" :support-docs nil handle-files-options)
@@ -326,7 +326,7 @@
 
 (defn publish-settings [s]
   [:fieldset.fieldset-section
-   [:header#a-pub-settings.anchor.a-header [:legend "Publish Settings"]]
+   [:header#a-pub-settings.anchor.a-header [:div.legend "Publish Settings"]]
    (pub-date s)
    (textarea s "a-comments" "Comments to the administrator:" "comments")
    ]
