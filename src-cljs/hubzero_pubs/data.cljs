@@ -9,14 +9,15 @@
 
 (def url (str (-> js/window .-location .-protocol) "//" (-> js/window .-location .-host) "/p"))
 
-(defn- _error [s]
-  (secretary/dispatch! "/error")
+(defn- _error [s code]
+  ;(secretary/dispatch! "/error")
+  (set! (-> js/window .-location) (str "/pubs?err=" code "?msg=Error"))
   )
 
 (defn- _handle-res [s res f]
   (if (= (:status res) 200)
     (f s res)
-    (_error s)
+    (_error s (:status res))
     )
   )
 
