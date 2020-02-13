@@ -30,6 +30,7 @@
          (reduce (fn [errors [k v]]
                    (if (= 0 (count (get-in @s [:data k])))
                      (assoc errors k v)
+                     errors
                      )
                    ) {} {:title "Title"
                          :abstract "Abstract"

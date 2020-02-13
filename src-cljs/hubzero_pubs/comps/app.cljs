@@ -361,7 +361,8 @@
 (defn section-buttons [s]
   [:fieldset.fieldset-section.buttons
    [:div.field.buttons
-    [:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
+    ;;[:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
+    [:a.btn {:href "#" :on-click #(_submit-draft s %)} "Proceed with the draft"]
     ]
    ]
   )
