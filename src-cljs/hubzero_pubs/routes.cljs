@@ -29,8 +29,8 @@
   (defroute "/prjs/:id" {:as params}
     (prn "PRJ" (:id params) "NEW")
     (swap! s assoc-in [:ui :summary] false)
-    (swap! s assoc :prj-id (:id params))
-    (data/get-prj s)
+    ;(swap! s assoc :prj-id (:id params))
+    (data/get-prj s (:id params))
     )
 
   (defroute "/pubs/:id" {:as params}

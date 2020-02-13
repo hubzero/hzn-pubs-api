@@ -152,10 +152,11 @@
     )
   )
 
-(defn get-prj [s]
-  ;(prn "GET PRJ" (:prj-id @s))
-  (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s)) (options s)))]
+(defn get-prj [s prj-id]
+  (prn "GET PRJ" prj-id)
+  (go (let [res (<! (http/get (str url "/prjs/" prj-id) (options s)))]
         (_handle-res s res (fn [s res]
+                             (swap! s assoc :prj-id prj-id)
                              (if-let [id (:pub-id @s)] (get-pub s)) 
                              (usage s)
                              ))

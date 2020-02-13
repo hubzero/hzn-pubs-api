@@ -40,3 +40,10 @@
          )
   (= (count (get-in @s [:ui :errors])) 0)
   )
+
+(defn file-count [files]
+  (reduce (fn [c d]
+            (+ c (count (nth d 3 [])))
+            ) 0 files)
+  )
+

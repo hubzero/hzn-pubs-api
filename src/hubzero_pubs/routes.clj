@@ -21,9 +21,7 @@
 
 (defn get-prj [id]
   (if-let [prj (classic/get-prj id)]
-    (as-> (response {:body prj}) $
-      (update $ :session merge {:prj-id id})
-      )
+    (response {:id (:id prj)})
     (errors/four-oh-4)
     )
   )
@@ -52,7 +50,7 @@
 
 (defroutes api-routes
   (GET "/user" req (response (:user req)))
-  (GET "/prjs/:id" [id] {:body (get-prj id)})
+  (GET "/prjs/:id" [id] (get-prj id))
   (GET "/prjs/:id/files" [id] (classic/get-files id))
   (GET "/prjs/:id/users" [id] (classic/get-users id))
   (POST "/prjs/:id/usage" req (get-usage req))
