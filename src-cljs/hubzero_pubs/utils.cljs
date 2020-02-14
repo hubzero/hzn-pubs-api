@@ -43,7 +43,7 @@
 
 (defn file-count [files]
   (reduce (fn [c d]
-            (+ c (count (nth d 3 [])))
-            ) 0 files)
+            (+ c (count (nth d 2 [])))
+            ) 0 files) 
   )
 

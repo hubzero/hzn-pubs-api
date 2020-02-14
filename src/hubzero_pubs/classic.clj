@@ -51,8 +51,8 @@
 
 (defn get-prj [id]
   ;; Get the project process the params - JBG
-  (as-> (_get-prj id) $
-    (assoc $ :params (_parse-params (:params $)))
+  (if-let [p (_get-prj id)]
+    (assoc p :params (_parse-params (:params p)))
     )
   )
 
