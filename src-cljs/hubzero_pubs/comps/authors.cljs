@@ -58,6 +58,10 @@
   (.stopPropagation e)
   (swap! s update-in [:data :authors-list] assoc (utils/author-key u) u)
   (panels/close s e)
+  ;; Clear form - JBG
+  (swap! s update :data dissoc k)
+  ;; Scroll form, am I a dirty hack? ... yes. - JBG
+  (-> js/document (.querySelector (str "." (name k) " .inner")) (.scrollTo 0 0))
   )
 
 (defn buttons-new [s k]
