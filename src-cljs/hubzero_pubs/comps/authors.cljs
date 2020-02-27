@@ -8,9 +8,9 @@
   )
 
 (defn user-click [s u key e]
-  (swap! s update-in [:ui key (:id u)] not)
-  (if (get-in @s [:data key (:id u)])
-    (swap! s update-in [:data key] dissoc (:id u))
+  (swap! s update-in [:ui key (utils/author-key u)] not)
+  (if (get-in @s [:data key (utils/author-key u)])
+    (swap! s update-in [:data key] dissoc (utils/author-key u))
     (swap! s assoc-in [:data key (utils/author-key u)] u)
     )
   )
