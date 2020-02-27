@@ -119,12 +119,12 @@
 
 (defn fieldset [s key fields] 
   [:fieldset {:class key}
+   (search s key)
+   [:hr]
    (merge
      [:div.selected-item]
      (doall (map #(panels/field s key %) fields))
      )
-   [:hr]
-   (search s key)
    (buttons-new s key) 
    ]
   )
