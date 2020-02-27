@@ -12,7 +12,7 @@
 
 (defn- _error [s code]
   ;(secretary/dispatch! "/error")
-  (set! (-> js/window .-location) (str "/pubs?err=" code "?msg=Error"))
+  (set! (-> js/window .-location) (str "/pubs?err=" code "&msg=Error"))
   )
 
 (defn- _handle-res [s res f]
