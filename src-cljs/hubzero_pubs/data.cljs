@@ -4,6 +4,7 @@
             [cljs-http.client :as http]   
             [secretary.core :as secretary]
             [hubzero-pubs.mutate :as mutate]
+            [hubzero-pubs.utils :as utils]
             )
   )
 
@@ -98,7 +99,6 @@
   )
 
 (defn add-citation [s]
-  ;(prn "ADD-CITATION" (str url "/citations") (get-in @s [:data :citations-manual]) )
   (go (let [c (get-in @s [:data :citations-manual])
             res (<! (http/post (str url "/citations") {:edn-params c}))]
         ;(prn c)
@@ -107,6 +107,10 @@
           (:generated_key)
           (assoc c :id)
           (swap! s update-in [:data :citations] conj)
+
+          ;; Manual citation form needs a reset - JBG
+          (swap! s update :data dissoc :citations-manual)
+          (-> js/document (.querySelector ".citations-manual .inner") (.scrollTo 0 0))
           )
         ))
   )

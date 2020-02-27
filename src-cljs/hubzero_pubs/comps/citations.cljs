@@ -68,11 +68,13 @@
 (defn text [s key f]
   [:div.field {:key (:name f)}
    [:label {:for :title} (str (:label f) ":")]
-   [:input {:type :text :onChange (fn [e]
-                                    (.preventDefault e)
-                                    (.stopPropagation e)
-                                    (swap! s assoc-in [:data key (:name f)] (-> e .-target .-value))
-                                    )}]
+   [:input {:type :text
+            :value (get-in @s [:data key (:name f)])
+            :onChange (fn [e]
+                        (.preventDefault e)
+                        (.stopPropagation e)
+                        (swap! s assoc-in [:data key (:name f)] (-> e .-target .-value))
+                        )}]
 
    ]
   )
@@ -81,11 +83,13 @@
   (merge
     [:div.field {:key (:name f)}]
     [:label {:for :citation} (str (:label f) ":")]
-    [:textarea {:name :citation :onChange (fn [e]
-                                            (.preventDefault e)
-                                            (.stopPropagation e)
-                                            (swap! s assoc-in [:data key (:name f)] (-> e .-target .-value))
-                                            )}]
+    [:textarea {:name :citation
+                :value (get-in @s [:data key (:name f)])
+                :onChange (fn [e]
+                            (.preventDefault e)
+                            (.stopPropagation e)
+                            (swap! s assoc-in [:data key (:name f)] (-> e .-target .-value))
+                            )}]
     (if (:hint f) [:p.hint (:hint f)])
     ) 
   )
@@ -166,7 +170,6 @@
                                   {:name :eprint :label "E-print" :type :text}
                                   {:name :isbn :label "ISBN/ISSN" :type :text}
                                   {:name :doi :label "DOI" :type :text}
-                                  {:name :abstract :label "Abstract" :type :textfield}
                                   {:name :series :label "Series" :type :text}
                                   {:name :edition :label "Edition" :type :text}
                                   {:name :publisher :label "Publisher" :type :text}
@@ -177,7 +180,6 @@
    [:hr]
    [:div.field.buttons
     [:a.btn {:href "#" :on-click #(add-citation s %)} "Add citation"]
-    [:a.btn.secondary {:href "#"} "Add citation"]
     ]
    ]
   )
