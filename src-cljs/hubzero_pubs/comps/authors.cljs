@@ -21,7 +21,13 @@
                                                    :organization (:organization u)
                                                    } key %)}
    [:div.inner
-    [:div.selected-indicator {:class (if (get-in @s [:ui key (:userid u)]) :selected)}
+    [:div.selected-indicator {:class (if (get-in @s [:ui key (utils/author-key {:id (:userid u)
+                                                                                :name (:name u)
+                                                                                :organization (:organization u)
+                                                                                }) 
+
+
+                                                     ]) :selected)}
      [:div.icon
       (ui/icon s "#icon-checkmark")
       [:span.name "Selected"]
