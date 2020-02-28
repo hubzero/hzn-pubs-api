@@ -137,7 +137,7 @@
   )
 
 (defn publish-settings [s]
-  (_section s [[[:data :publication-date] "Publication date" :text false]
+  (_section s [[[:data :publication-date] "Embargo date" :text false]
                [[:data :comments] "Comments to the administrator" :text false]
                ])
   )

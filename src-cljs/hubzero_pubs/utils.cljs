@@ -34,7 +34,7 @@
                      )
                    ) {} {:title ["Title" "Can not be empty"]
                          :abstract ["Abstract" "Can not be empty"]
-                         :publication-date ["Publication date" "Can not be empty"]
+                         :publication-date ["Embargo date" "Can not be empty"]
                          :authors-list ["Authors"  "Can not be empty"]
                          })
          )

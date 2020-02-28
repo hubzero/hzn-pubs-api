@@ -327,7 +327,7 @@
      }
    (fn []
      [:div#a-pub-date.field.anchor.err {:class (if (get-in @s [:ui :errors :publication-date]) :with-error)}
-      [:label {:for :title} "Publication date:"]
+      [:label {:for :title} "Embargo date:"]
       [:input {:type :text
                :name "publication-date" 
                }]
