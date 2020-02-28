@@ -24,7 +24,7 @@
   )
 
 (defn show [s e show key]
-  (.preventDefault e)
+  (if e (.preventDefault e))
   (swap! s assoc-in [:ui :panels key] show)
   (show-overlay s true)
   )

@@ -6,6 +6,8 @@
             [goog.events :as events]
             [reagent.core :as reagent]            
             [hubzero-pubs.data :as data]
+            [hubzero-pubs.comps.panels :as panels]
+            [hubzero-pubs.utils :as utils]
             )
   )
 
@@ -47,8 +49,13 @@
     )
 
   (defroute "/summary" {:as params}
-    (swap! s assoc-in [:ui :summary] true)
-    (data/save-pub s)
+    (if (utils/valid? s)
+      (do
+        (swap! s assoc-in [:ui :summary] true)
+        (data/save-pub s)     
+        )
+      (panels/show s nil true :errors)
+      ) 
     )
 
   (defroute "/submit" {:as params}
