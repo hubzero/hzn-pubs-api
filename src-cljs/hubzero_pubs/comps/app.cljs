@@ -37,7 +37,7 @@
 (defn- _val-error [s k]
   (if-let [err (get-in @s [:ui :errors k])]
     [:div.validation-error
-     (str "Please check the " (first err) ". " (second err) ". ")]
+     (str "Please check! " (first err) " " (second err) ". ")]
     ) 
   )
 
@@ -358,8 +358,8 @@
   [:aside
    [:div.inner
     [:fieldset.buttons-aside
-     [:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
-     ;;[:a.btn {:href "#" :on-click #(_submit-draft s %)} "Proceed with the draft"]
+     ;;[:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
+     [:a.btn {:href "#" :on-click #(_submit-draft s %)} "Proceed with the draft"]
      ]
     ]
    ]
@@ -368,8 +368,8 @@
 (defn section-buttons [s]
   [:fieldset.fieldset-section.buttons
    [:div.field.buttons
-    [:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
-    ;;[:a.btn {:href "#" :on-click #(_submit-draft s %)} "Proceed with the draft"]
+    ;;[:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
+    [:a.btn {:href "#" :on-click #(_submit-draft s %)} "Proceed with the draft"]
     ]
    ]
   )

@@ -12,7 +12,7 @@
       [:ul]
       (doall (map (fn [[k v]]
                     [:li {:key k}
-                     [:span {:class :error-field} (first v)] (str " " (second v))
+                     [:span {:class :error-field} (first v)] (str " " (second v) ".")
                      ]
                     ) (get-in @s [:ui :errors])))
       )
