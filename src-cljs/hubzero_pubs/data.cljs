@@ -4,6 +4,7 @@
             [cljs-http.client :as http]   
             [secretary.core :as secretary]
             [hubzero-pubs.mutate :as mutate]
+            [hubzero-pubs.utils :as utils]
             )
   )
 
@@ -11,7 +12,7 @@
 
 (defn- _error [s code]
   ;(secretary/dispatch! "/error")
-  (set! (-> js/window .-location) (str "/pubs?err=" code "?msg=Error"))
+  (set! (-> js/window .-location) (str "/pubs?err=" code "&msg=Error"))
   )
 
 (defn- _handle-res [s res f]
@@ -98,7 +99,6 @@
   )
 
 (defn add-citation [s]
-  ;(prn "ADD-CITATION" (str url "/citations") (get-in @s [:data :citations-manual]) )
   (go (let [c (get-in @s [:data :citations-manual])
             res (<! (http/post (str url "/citations") {:edn-params c}))]
         ;(prn c)
@@ -107,6 +107,10 @@
           (:generated_key)
           (assoc c :id)
           (swap! s update-in [:data :citations] conj)
+
+          ;; Manual citation form needs a reset - JBG
+          (swap! s update :data dissoc :citations-manual)
+          (-> js/document (.querySelector ".citations-manual .inner") (.scrollTo 0 0))
           )
         ))
   )
@@ -152,10 +156,11 @@
     )
   )
 
-(defn get-prj [s]
-  ;(prn "GET PRJ" (:prj-id @s))
-  (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s)) (options s)))]
+(defn get-prj [s prj-id]
+  (prn "GET PRJ" prj-id)
+  (go (let [res (<! (http/get (str url "/prjs/" prj-id) (options s)))]
         (_handle-res s res (fn [s res]
+                             (swap! s assoc :prj-id prj-id)
                              (if-let [id (:pub-id @s)] (get-pub s)) 
                              (usage s)
                              ))

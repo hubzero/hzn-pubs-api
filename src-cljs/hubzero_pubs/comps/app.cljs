@@ -34,6 +34,13 @@
    ]
   )
 
+(defn- _val-error [s k]
+  (if-let [err (get-in @s [:ui :errors k])]
+    [:div.validation-error
+     (str "Please check! " (first err) " " (second err) ". ")]
+    ) 
+  )
+
 (defn textfield [s id title name]
   [:div.field.anchor.err {:id id :class (if (get-in @s [:ui :errors (keyword name)]) :with-error)}
    [:label {:for :title} title
@@ -44,7 +51,7 @@
             :value (get-in @s [:data (keyword name)])
             :on-change #(_handle-value % s name)
             }]
-   [:div.validation-error  (str "Please check the " name ". Need something here.") ]
+   (_val-error s (keyword name))
    ]
   )
 
@@ -55,7 +62,7 @@
                :value (get-in @s [:data (keyword name)])
                :on-change #(_handle-value % s name)
                }]
-   [:div.validation-error (str "Please check the " name ". Need something here.")]
+   (_val-error s (keyword name))
    ]
   )
 
@@ -179,14 +186,14 @@
     ] options-comp]
   )
 
-(defn collection [s id title key options-comp f]
-  [:div.field.anchor.err {:id id :class (if (get-in @s [:ui :errors key]) :with-error)}
+(defn collection [s id title k options-comp f]
+  [:div.field.anchor.err {:id id :class (if (get-in @s [:ui :errors k]) :with-error)}
    [:label {:for :title} title]
    [:div.collection
-    (items s key)
-    (selector-button s key options-comp f)
+    (items s k)
+    (selector-button s k options-comp f)
     ]
-   [:div.validation-error  (str "Please check the " title ". Need something here.") ]
+   (_val-error s k)
    ]
   )
 
@@ -320,11 +327,11 @@
      }
    (fn []
      [:div#a-pub-date.field.anchor.err {:class (if (get-in @s [:ui :errors :publication-date]) :with-error)}
-      [:label {:for :title} "Publication date:"]
+      [:label {:for :title} "Embargo date:"]
       [:input {:type :text
                :name "publication-date" 
                }]
-      [:div.validation-error  "Please check the date. Need something here."]
+      (_val-error s :publication-date)
       ]
      )
    ]
@@ -361,7 +368,8 @@
 (defn section-buttons [s]
   [:fieldset.fieldset-section.buttons
    [:div.field.buttons
-    [:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
+    ;;[:a.btn {:href "/pubs/#/summary"} "Proceed with the draft"]
+    [:a.btn {:href "#" :on-click #(_submit-draft s %)} "Proceed with the draft"]
     ]
    ]
   )

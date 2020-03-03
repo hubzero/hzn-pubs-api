@@ -106,10 +106,20 @@
    ] 
   )
 
+(defn- _errors [s]
+  [:div.overlay-panel-scroll-container
+   [:div.inner
+    [:p "No files in your project. :("]
+    [:p "Please add files via your project to find them here."]
+    ]
+   ]
+  )
+
 (defn container [s files key index]
   [:div.overlay-panel-container
-   (if (> (count files) 0)
+   (if (> (utils/file-count files) 0)
      (file-selector s files key index)
+     (_errors s) 
      )
    ]
   )

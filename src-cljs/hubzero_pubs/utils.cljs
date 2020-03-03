@@ -25,17 +25,33 @@
        ) 
   )
 
+(defn- _date-valid? [s]
+  (if (and (not (get-in @s [:ui :errors :publication-date]))
+    (< (js/Date. (get-in @s [:data :publication-date])) (js/Date.)))
+    (swap! s assoc-in [:ui :errors :publication-date] ["Embargo date" "can not be in the past"])
+    ) 
+  )
+
 (defn valid? [s]
   (swap! s assoc-in [:ui :errors]
          (reduce (fn [errors [k v]]
                    (if (= 0 (count (get-in @s [:data k])))
                      (assoc errors k v)
+                     errors
                      )
-                   ) {} {:title "Title"
-                         :abstract "Abstract"
-                         :publication-date "Publication date"
-                         :authors-list "Authors" 
+                   ) {} {:title ["Title" "can not be empty"]
+                         :abstract ["Abstract" "can not be empty"]
+                         :publication-date ["Embargo date" "can not be empty"]
+                         :authors-list ["Authors"  "can not be empty"]
                          })
          )
+  (_date-valid? s)
   (= (count (get-in @s [:ui :errors])) 0)
   )
+
+(defn file-count [files]
+  (reduce (fn [c d]
+            (+ c (count (nth d 2 [])))
+            ) 0 files) 
+  )
+

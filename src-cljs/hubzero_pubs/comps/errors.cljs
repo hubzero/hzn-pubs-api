@@ -1,7 +1,7 @@
 (ns hubzero-pubs.comps.errors
- (:require
+  (:require
     [hubzero-pubs.comps.panels :as panels] 
-   ) 
+    ) 
   )
 
 (defn- _container [s]
@@ -12,7 +12,7 @@
       [:ul]
       (doall (map (fn [[k v]]
                     [:li {:key k}
-                     [:span {:class :error-field} v] " cannot be empty"
+                     [:span {:class :error-field} (first v)] (str " " (second v) ".")
                      ]
                     ) (get-in @s [:ui :errors])))
       )

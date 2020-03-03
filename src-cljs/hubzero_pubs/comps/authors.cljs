@@ -8,9 +8,9 @@
   )
 
 (defn user-click [s u key e]
-  (swap! s update-in [:ui key (:id u)] not)
-  (if (get-in @s [:data key (:id u)])
-    (swap! s update-in [:data key] dissoc (:id u))
+  (swap! s update-in [:ui key (utils/author-key u)] not)
+  (if (get-in @s [:data key (utils/author-key u)])
+    (swap! s update-in [:data key] dissoc (utils/author-key u))
     (swap! s assoc-in [:data key (utils/author-key u)] u)
     )
   )
@@ -21,7 +21,13 @@
                                                    :organization (:organization u)
                                                    } key %)}
    [:div.inner
-    [:div.selected-indicator {:class (if (get-in @s [:ui key (:userid u)]) :selected)}
+    [:div.selected-indicator {:class (if (get-in @s [:ui key (utils/author-key {:id (:userid u)
+                                                                                :name (:name u)
+                                                                                :organization (:organization u)
+                                                                                }) 
+
+
+                                                     ]) :selected)}
      [:div.icon
       (ui/icon s "#icon-checkmark")
       [:span.name "Selected"]
@@ -58,6 +64,10 @@
   (.stopPropagation e)
   (swap! s update-in [:data :authors-list] assoc (utils/author-key u) u)
   (panels/close s e)
+  ;; Clear form - JBG
+  (swap! s update :data dissoc k)
+  ;; Scroll form, am I a dirty hack? ... yes. - JBG
+  (-> js/document (.querySelector (str "." (name k) " .inner")) (.scrollTo 0 0))
   )
 
 (defn buttons-new [s k]
@@ -119,12 +129,12 @@
 
 (defn fieldset [s key fields] 
   [:fieldset {:class key}
+   (search s key)
+   [:hr]
    (merge
      [:div.selected-item]
      (doall (map #(panels/field s key %) fields))
      )
-   [:hr]
-   (search s key)
    (buttons-new s key) 
    ]
   )

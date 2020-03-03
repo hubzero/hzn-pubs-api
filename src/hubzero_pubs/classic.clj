@@ -51,8 +51,8 @@
 
 (defn get-prj [id]
   ;; Get the project process the params - JBG
-  (as-> (_get-prj id) $
-    (assoc $ :params (_parse-params (:params $)))
+  (if-let [p (_get-prj id)]
+    (assoc p :params (_parse-params (:params p)))
     )
   )
 
@@ -431,8 +431,8 @@
   (first (sel-license-by-id {:id lic-id} (_connection)))
   )
 
-(defn add-citation [pub ver-id c]
-  (insert-citation-assoc<! {:cid (:id c)
+(defn add-citation [pub ver-id cid]
+  (insert-citation-assoc<! {:cid cid 
                             :oid ver-id
                             :type nil
                             :tbl "publications"
@@ -444,7 +444,7 @@
         pc (group-by :id (:citations p))
         ]
     (doall (map (fn [c] (if (not (vc c))
-                          (add-citation p (:ver-id p) (first (vc c)))
+                          (add-citation p (:ver-id p) c)
                           )) (keys pc)))
     (doall (map (fn [c] (if (not (pc c))
                           (del-citation-assoc! {:id c} (_connection))
@@ -514,7 +514,7 @@
         ver-id (-> (create-pub-version pub-id pub) (:generated_key))
         ]
     (doall (map #(add-tag pub ver-id %) (:tags pub)))
-    (doall (map #(add-citation pub ver-id %) (:citations pub)))                   
+    (doall (map #(add-citation pub ver-id (:id %)) (:citations pub)))
     (doall (map-indexed (fn [i a] (add-author pub ver-id i a)) (vals (:authors-list pub))))
     (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :content)) (:content pub)))
     (doall (map-indexed (fn [i f] (add-file pub ver-id pub-id i f :images)) (:images pub)))
@@ -580,7 +580,10 @@
 
 (def pub (get-pub ver-id)) 
 
+
 (def ver-id (:ver-id (save-pub pub)))
+
+(def ver-id 164)
 
 (map #(:title %) (:citations pub))
 (prn ver-id)
