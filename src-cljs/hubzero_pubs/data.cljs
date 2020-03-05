@@ -151,7 +151,7 @@
                                (swap! s merge (:body res))
                                ;(prn "PRJ ID" (:prj-id @s))
                                ;; Better get the pub if save updated stuff (ex. doi) - JBG
-                               (get-pub s)
+                               ;(get-pub s)
                                ))
           ))
     )

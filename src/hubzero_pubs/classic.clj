@@ -279,7 +279,7 @@
                    } (_connection))
   ;; Not sure this is correct update email if need be - JBG
   (if-let [poid (:project_owner_id a)]
-    (update-prj-owner! {:invited_email (:email a)} (_connection))
+    (update-prj-owner! {:invited_email (:email a) :id (:project_owner_id a)} (_connection))
     )
   )
 
