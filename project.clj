@@ -33,6 +33,7 @@
                  [clj-commons/secretary "1.2.4"]
                  ;[glue "0.1.3-SNAPSHOT"]
                  [me.raynes/fs "1.4.6"]
+                 [com.novemberain/monger "3.1.0"]
                  ]
   :plugins [[lein-figwheel "0.5.14"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]

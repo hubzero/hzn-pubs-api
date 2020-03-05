@@ -25,6 +25,14 @@
        ) 
   )
 
+(defn savable? [s]
+  (-> 
+    (:prj-id @s false)
+    (and (:user-id @s false))
+    (and (get-in @s [:data :title] false)) 
+    )
+  )
+
 (defn- _date-valid? [s]
   (if (and (not (get-in @s [:ui :errors :publication-date]))
     (< (js/Date. (get-in @s [:data :publication-date])) (js/Date.)))
