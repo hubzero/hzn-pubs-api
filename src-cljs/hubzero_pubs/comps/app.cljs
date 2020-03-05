@@ -90,12 +90,19 @@
     )
   )
 
+(defn edit-author [s v e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (swap! s assoc-in [:data :authors-new :organization] "zuki@shunko.com")
+  (options/handle-author false s e)
+  )
+
 (defn author [s k v id]
   [:li.item {:key id}
    (ui/icon s "#icon-user")
    [:div.main
-    [:div.subject [:a {:href "#"} (:name v)] ]
-    [:div.meta [:a {:href "#"} (:organization v)] ]
+    [:div.subject [:a {:href "#" :on-click #(edit-author s v %)} (:name v)] ]
+    [:div.meta [:a {:href "#" :on-click #(edit-author s v %)} (:organization v)] ]
     [:div.ui.checkbox.inline.meta
      [:input (merge {:type :checkbox :name :poc :on-change #(handle-poc-click s % id)} {:checked (boolean (some #{id} (get-in @s [:data :poc]))) })]
      [:label (:for :poc) "Point of contact"]

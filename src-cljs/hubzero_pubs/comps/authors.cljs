@@ -70,18 +70,18 @@
   (-> js/document (.querySelector (str "." (name k) " .inner")) (.scrollTo 0 0))
   )
 
-(defn buttons-new [s k]
+(defn authors-buttons [s k]
   [:div.field.buttons
    [:a.btn {:href "#"
-            :on-click #(add-click s k % {:id (get-in @s [:data k :id] 0) 
+            :on-click #(add-click s k % {:id (get-in @s [:data k :id] 0)
                                          :name (or (get-in @s [:data k :name]) (str (get-in @s [:data k :firstname]) " " (get-in @s [:data k :lastname])))
-                                         :organization (get-in @s [:data k :organization]) 
+                                         :organization (get-in @s [:data k :organization])
                                          })
-            } "Add author"]
+            }  (if (get-in @s [:ui :author-options :is-new]) "Add author" "Save author")]
    [:a.btn.secondary {:href "#"
                       :on-click #(panels/close s %)
                       } "Close"]
-   ] 
+   ]
   )
 
 (defn result-click [s key e res]
@@ -127,22 +127,28 @@
    ]
   )
 
-(defn fieldset [s key fields] 
+(defn fieldset [s key fields]
   [:fieldset {:class key}
-   (search s key)
-   [:hr]
+   (when (get-in @s [:ui :author-options :is-new])
+         [:div (search s key)
+          [:hr]
+          ]
+         )
    (merge
      [:div.selected-item]
      (doall (map #(panels/field s key %) fields))
      )
-   (buttons-new s key) 
+   (authors-buttons s key)
    ]
   )
 
 (defn authors-new [s key]
   [:div.page-panel.as-panel {:class [key (if (get-in @s [:ui :panels key]) :open)]}
    [:div.inner
-    (panels/header s "Add new authors")
+    (if (get-in @s [:ui :author-options :is-new])
+      (panels/header s "Add new authors")
+      (panels/header s "Edit author information")
+      )
     (fieldset s key [{:name "firstname" :label "First name" :type :text}
                      {:name "lastname" :label "Last name" :type :text}
                      {:name "organization" :label "Organization" :type :text}
