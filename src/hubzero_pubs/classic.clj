@@ -258,7 +258,7 @@
                     :firstname (:firstname a "")
                     :lastname (:lastname a "")
                     :org (:organization a "")
-                    :credit ""
+                    :credit (:credit a "") 
                     :created (f/unparse (:mysql f/formatters) (t/now))
                     :created_by (:user-id pub)
                     :status 1
@@ -272,10 +272,15 @@
                    :firstname (:firstname a "")
                    :lastname (:lastname a "")
                    :org (:organization a "")
+                   :credit (:credit a "")
                    :publication_version_id ver-id
                    :user_id (:id a)
                    :project_owner_id (_get-owner-id ver-id prj-id)
                    } (_connection))
+  ;; Not sure this is correct update email if need be - JBG
+  (if-let [poid (:project_owner_id a)]
+    (update-prj-owner! {:invited_email (:email a) :id (:project_owner_id a)} (_connection))
+    )
   )
 
 (defn _update-authors [p]
@@ -419,10 +424,17 @@
   (->>
     (sel-pub-authors {:publication_version_id ver-id} (_connection))
     (reduce (fn [m a]
+              (prn a)
               (assoc m (:id a) {:id (:id a)
                                 :user_id (:user_id a)
                                 :name (:name a)
-                                :organization (:organization a)})
+                                :firstname (:firstname a)
+                                :lastname (:lastname a)
+                                :organization (:organization a)
+                                :credit (:credit a)
+                                :email (:invited_email a)
+                                :project_owner_id (:project_owner_id a)
+                                })
               ) {})
     )
   )

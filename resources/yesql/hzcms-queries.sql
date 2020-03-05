@@ -16,7 +16,7 @@ SELECT * FROM jos_projects WHERE id = :id
 
 -- name: sel-prj-users 
 --
-SELECT DISTINCT o.*, x.name, x.username, x.organization, x.picture, g.cn as groupname, g.description as groupdesc, p.created_by_user , if (o.userid = 0, o.invited_name, x.name) as fullname  FROM jos_project_owners AS o  JOIN jos_projects as p ON o.projectid=p.id LEFT JOIN jos_xprofiles as x ON o.userid=x.uidNumber  LEFT JOIN jos_xgroups as g ON o.groupid=g.gidNumber  WHERE o.projectid=:id AND (o.userid > 0 OR o.invited_email IS NOT null OR o.invited_name IS NOT null)  AND o.status='1' ORDER BY fullname ASC
+SELECT DISTINCT o.*, x.givenName as firstname, x.surname as lastname, x.name, x.username, x.organization, x.picture, g.cn as groupname, g.description as groupdesc, p.created_by_user , if (o.userid = 0, o.invited_name, x.name) as fullname  FROM jos_project_owners AS o JOIN jos_projects as p ON o.projectid=p.id LEFT JOIN jos_xprofiles as x ON o.userid=x.uidNumber  LEFT JOIN jos_xgroups as g ON o.groupid=g.gidNumber  WHERE o.projectid=:id AND (o.userid > 0 OR o.invited_email IS NOT null OR o.invited_name IS NOT null)  AND o.status='1' ORDER BY fullname ASC
 
 -- name: sel-prj-pubs
 --
@@ -69,15 +69,15 @@ INSERT INTO jos_publication_authors (publication_version_id, user_id, ordering, 
 
 -- name: update-author!
 --
-UPDATE `jos_publication_authors` SET `ordering` = :ordering, `name` = :name, `firstName` = :firstname, `lastName` = lastname, `organization` = :org WHERE `user_id` = :user_id AND `publication_version_id` = :publication_version_id AND `project_owner_id` = :project_owner_id
+UPDATE `jos_publication_authors` SET `ordering` = :ordering, `name` = :name, `firstName` = :firstname, `lastName` = :lastname, `organization` = :org WHERE `user_id` = :user_id AND `publication_version_id` = :publication_version_id AND `project_owner_id` = :project_owner_id
+
+-- name: update-prj-owner!
+--
+UPDATE `jos_project_owners` SET `invited_email` = :invited_email WHERE `id` = :id
 
 -- name: del-author!
 --
 DELETE FROM jos_publication_authors WHERE `publication_version_id` = :publication_version_id AND `user_id` = :user_id
-
--- name: sel-pub-authors
---
-SELECT * FROM jos_publication_authors WHERE `publication_version_id` = :publication_version_id
 
 -- name: sel-tag
 --
@@ -121,7 +121,7 @@ SELECT DISTINCT * FROM jos_project_owners AS o JOIN jos_projects as p ON o.proje
 
 -- name: sel-pub-authors
 --
-SELECT A.*, PO.invited_name, PO.invited_email  FROM jos_publication_authors as A  JOIN jos_project_owners as PO ON PO.id=A.project_owner_id  WHERE A.publication_version_id=:publication_version_id AND A.status=1 AND (A.role != 'submitter' || A.role IS NULL) ORDER BY A.ordering ASC
+SELECT A.*, PO.id AS project_owner_id, PO.invited_name, PO.invited_email FROM jos_publication_authors as A JOIN jos_project_owners as PO ON PO.id=A.project_owner_id  WHERE A.publication_version_id=:publication_version_id AND A.status=1 AND (A.role != 'submitter' || A.role IS NULL) ORDER BY A.ordering ASC
 
 -- name: sel-licenses
 --

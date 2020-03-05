@@ -9,6 +9,7 @@
                                         resource-response]]
             [ring.util.response :as response]
             [hubzero-pubs.classic :as classic]
+            [hubzero-pubs.ui-state :as ui-state]
             [hubzero-pubs.errors :as errors]
             ))
 
@@ -60,12 +61,12 @@
   (POST "/pubs" {body :body-params} (save-pub body))
   (GET "/pubs/:id" [id] (get-pub id))
 
-
-
   (GET "/users/:name" [name] (classic/search-users name))
   (POST "/citations/search" {body :body-params} (response (classic/search-citations (:doi body))))
   (POST "/citations" {body :body-params} {:body (classic/create-citation body)})
   (GET "/citation-types" [] (classic/get-citation-types))
+
+  (POST "/ui-state" {body :body-params} (ui-state/create body))
   )
 
 (defroutes ui-routes

@@ -11,8 +11,9 @@
 (def url (str (-> js/window .-location .-protocol) "//" (-> js/window .-location .-host) "/p"))
 
 (defn- _error [s code]
+  (prn "ERROR" code)
   ;(secretary/dispatch! "/error")
-  (set! (-> js/window .-location) (str "/pubs?err=" code "&msg=Error"))
+  ;(set! (-> js/window .-location) (str "/pubs?err=" code "&msg=Error"))
   )
 
 (defn- _handle-res [s res f]
@@ -53,7 +54,7 @@
 (defn get-users [s]
   (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s) "/users")
                               (options s)))]
-        ;(prn (:body res))
+        (prn "USERS" (:body res))
         (->>
           (cljs.reader/read-string (:body res))
           (map (fn [u] [(:userid u) u]))
@@ -150,10 +151,18 @@
                                (swap! s merge (:body res))
                                ;(prn "PRJ ID" (:prj-id @s))
                                ;; Better get the pub if save updated stuff (ex. doi) - JBG
-                               (get-pub s)
+                               ;(get-pub s)
                                ))
           ))
     )
+  )
+
+(defn save-state [s]
+  (go (let [res (<! (http/post (str url "/ui-state") {:edn-params @s}))]
+        (_handle-res s res (fn [s res]
+                             (prn "Saved state.")
+                             ))
+        ))
   )
 
 (defn get-prj [s prj-id]

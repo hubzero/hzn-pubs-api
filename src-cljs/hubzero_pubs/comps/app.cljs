@@ -477,7 +477,14 @@
      ) 
    ])
 
+(defn- _save [s]
+  (if (utils/savable? s) (data/save-pub s)) 
+  (data/save-state s)
+  )
+
 (defn app [s]
+  ;; Is this a hack, probably, save state and draft pub - JBG
+  (_save s)
   (merge
     [:div]
     (wrap s)
