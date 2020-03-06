@@ -1,6 +1,6 @@
 (ns hubzero-pubs.auth
   (:require [digest :as digest]
-            [hubzero-pubs.classic :as classic]
+            [hubzero-pubs.classic.users :as users]
             [hubzero-pubs.config :refer [config]]
             )
   )
@@ -8,7 +8,7 @@
 (defn- _get-user [session_id]
   (as-> session_id $
     ($ :userid)
-    (classic/get-user $)
+    (users/get-user $)
     (first $)  
     )
   )
@@ -19,7 +19,7 @@
     (digest/md5 $)
     ((:cookies req) $) 
     ($ :value)
-    (classic/get-session $)
+    (users/get-session $)
     (first $)
     (if $ (_get-user $))
     )

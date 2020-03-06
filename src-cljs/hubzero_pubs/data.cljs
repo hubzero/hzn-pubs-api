@@ -57,7 +57,7 @@
         (prn "USERS" (:body res))
         (->>
           (cljs.reader/read-string (:body res))
-          (map (fn [u] [(:userid u) u]))
+          (map (fn [u] [(:id u) u]))
           (into {})
           (swap! s assoc :users))
         ))

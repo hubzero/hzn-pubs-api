@@ -16,18 +16,9 @@
   )
 
 (defn user [s key u]
-  [:li {:key (:userid u) :on-click #(user-click s {:id (:userid u)
-                                                   :name (:name u)
-                                                   :organization (:organization u)
-                                                   } key %)}
+  [:li {:key (utils/author-key u) :on-click #(user-click s u key %)}
    [:div.inner
-    [:div.selected-indicator {:class (if (get-in @s [:ui key (utils/author-key {:id (:userid u)
-                                                                                :name (:name u)
-                                                                                :organization (:organization u)
-                                                                                }) 
-
-
-                                                     ]) :selected)}
+    [:div.selected-indicator {:class (if (get-in @s [:ui key (utils/author-key u)]) :selected)}
      [:div.icon
       (ui/icon s "#icon-checkmark")
       [:span.name "Selected"]
@@ -74,7 +65,7 @@
   [:div.field.buttons
    [:a.btn {:href "#"
             :on-click #(add-click s k % {:id (get-in @s [:data k :id] 0) 
-                                         :name (or (get-in @s [:data k :name]) (str (get-in @s [:data k :firstname]) " " (get-in @s [:data k :lastname])))
+                                         :fullname (or (get-in @s [:data k :fullname]) (str (get-in @s [:data k :firstname]) " " (get-in @s [:data k :lastname])))
                                          :organization (get-in @s [:data k :organization]) 
                                          })
             } "Add author"]
@@ -111,15 +102,19 @@
          )
   )
 
+(defn- _search [s v]
+  (swap! s assoc :user-query v)
+  (if (not (empty? v))
+    (data/search-users s) 
+    )
+  )
+
 (defn search [s key]
   [:div.field
    [:label {:for :title} "Look up author:"]
    [:input.form-textinput.loading-circle.hide-loading-circle {:type :text
                                                               :value (:user-query @s)
-                                                              :onChange (fn [e]
-                                                                          (swap! s assoc :user-query (-> e .-target .-value))
-                                                                          (data/search-users s)
-                                                                          )
+                                                              :onChange #(_search s (-> % .-target .-value))
                                                               }]
    [:div.ui.autocomplete
     (results s key)

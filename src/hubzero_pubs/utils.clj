@@ -14,3 +14,13 @@
                    s
                    (rand-str len radix)))))
 
+(defn parse-params [s]
+  (if s
+    (->> (clojure.string/split s #"\n")
+         (reduce (fn [m p] (as-> (clojure.string/split p #"=") $
+                             (assoc m (keyword (first $)) (last $))
+                             )) {})
+         )   
+    )
+  )
+ 

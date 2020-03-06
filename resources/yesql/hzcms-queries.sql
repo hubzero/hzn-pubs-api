@@ -16,7 +16,9 @@ SELECT * FROM jos_projects WHERE id = :id
 
 -- name: sel-prj-users 
 --
-SELECT DISTINCT o.*, x.givenName as firstname, x.surname as lastname, x.name, x.username, x.organization, x.picture, g.cn as groupname, g.description as groupdesc, p.created_by_user , if (o.userid = 0, o.invited_name, x.name) as fullname  FROM jos_project_owners AS o JOIN jos_projects as p ON o.projectid=p.id LEFT JOIN jos_xprofiles as x ON o.userid=x.uidNumber  LEFT JOIN jos_xgroups as g ON o.groupid=g.gidNumber  WHERE o.projectid=:id AND (o.userid > 0 OR o.invited_email IS NOT null OR o.invited_name IS NOT null)  AND o.status='1' ORDER BY fullname ASC
+-- SELECT DISTINCT o.*, x.givenName as firstname, x.surname as lastname, x.name, x.username, x.organization, x.picture, g.cn as groupname, g.description as groupdesc, p.created_by_user , if (o.userid = 0, o.invited_name, x.name) as fullname FROM jos_project_owners AS o JOIN jos_projects as p ON o.projectid=p.id LEFT JOIN jos_xprofiles as x ON o.userid=x.uidNumber LEFT JOIN jos_xgroups as g ON o.groupid=g.gidNumber WHERE o.projectid=:id AND (o.userid > 0 OR o.invited_email IS NOT null OR o.invited_name IS NOT null) AND o.status='1' ORDER BY fullname ASC
+
+SELECT DISTINCT o.*, x.givenName as firstname, x.surname as lastname, x.name, x.username, x.organization, x.picture, g.cn as groupname, g.description as groupdesc, p.created_by_user , if (o.userid = 0, o.invited_name, x.name) as fullname FROM jos_project_owners AS o JOIN jos_projects as p ON o.projectid=p.id LEFT JOIN jos_xprofiles as x ON o.userid=x.uidNumber LEFT JOIN jos_xgroups as g ON o.groupid=g.gidNumber WHERE o.projectid=:id AND (o.userid > 0 OR o.invited_name IS NOT null) ORDER BY fullname ASC
 
 -- name: sel-prj-pubs
 --
@@ -63,6 +65,14 @@ SELECT * FROM `jos_publication_attachments` WHERE `publication_version_id`=:publ
 --
 DELETE FROM `jos_publication_attachments` WHERE `id` = :id 
 
+-- name: insert-owner<!
+--
+INSERT INTO jos_project_owners (projectid, userid, groupid, invited_name, invited_email, role, native) VALUES (:project_id, :user_id, :group_id, :invited_name, :invited_email, :role, :native)
+
+-- name: update-prj-owner!
+--
+UPDATE `jos_project_owners` SET `invited_email` = :invited_email WHERE `id` = :id
+
 -- name: insert-author<!
 --
 INSERT INTO jos_publication_authors (publication_version_id, user_id, ordering, name, firstName, lastName, organization, credit, created, created_by, status, project_owner_id) VALUES (:publication_version_id, :user_id, :ordering, :name, :firstname, :lastname, :org, :credit, :created, :created_by, :status, :project_owner_id)
@@ -71,13 +81,9 @@ INSERT INTO jos_publication_authors (publication_version_id, user_id, ordering, 
 --
 UPDATE `jos_publication_authors` SET `ordering` = :ordering, `name` = :name, `firstName` = :firstname, `lastName` = :lastname, `organization` = :org WHERE `user_id` = :user_id AND `publication_version_id` = :publication_version_id AND `project_owner_id` = :project_owner_id
 
--- name: update-prj-owner!
---
-UPDATE `jos_project_owners` SET `invited_email` = :invited_email WHERE `id` = :id
-
 -- name: del-author!
 --
-DELETE FROM jos_publication_authors WHERE `publication_version_id` = :publication_version_id AND `user_id` = :user_id
+DELETE FROM jos_publication_authors WHERE `id` = :id
 
 -- name: sel-tag
 --

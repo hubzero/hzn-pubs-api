@@ -6,7 +6,7 @@
   (->> (ak data)
        (map (fn [[k v]] [(:id v) v]))
        (into {})
-       ;(vals)       
+       ;(vals)
        (assoc data ak)
        )
   )

@@ -94,7 +94,7 @@
   [:li.item {:key id}
    (ui/icon s "#icon-user")
    [:div.main
-    [:div.subject [:a {:href "#"} (:name v)] ]
+    [:div.subject [:a {:href "#"} (:fullname v)] ]
     [:div.meta [:a {:href "#"} (:organization v)] ]
     [:div.ui.checkbox.inline.meta
      [:input (merge {:type :checkbox :name :poc :on-change #(handle-poc-click s % id)} {:checked (boolean (some #{id} (get-in @s [:data :poc]))) })]

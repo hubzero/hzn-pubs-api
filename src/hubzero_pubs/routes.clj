@@ -1,5 +1,5 @@
 (ns hubzero-pubs.routes
-  (:require [compojure.core :refer [defroutes context GET POST]]
+  (:require [compojure.core :refer [defroutes context GET POST DELETE PUT]]
             [compojure.route :as route]
             [clojure.tools.logging :as log]
             [clojure.java.io :as io]
@@ -8,11 +8,16 @@
                                         content-type
                                         resource-response]]
             [ring.util.response :as response]
-            [hubzero-pubs.classic :as classic]
+            [hubzero-pubs.classic.authors :as authors]
+            [hubzero-pubs.classic.citations :as citations]
+            [hubzero-pubs.classic.licenses :as licenses]
+            [hubzero-pubs.classic.prjs :as prjs]
+            [hubzero-pubs.classic.pubs :as pubs]
+            [hubzero-pubs.classic.tags :as tags]
+            [hubzero-pubs.classic.users :as users]
             [hubzero-pubs.ui-state :as ui-state]
             [hubzero-pubs.errors :as errors]
             ))
-
 
 ;(defn handle-file [req]
 ;  (prn (get-in req [:multipart-params "f" :filename]))  
@@ -21,52 +26,121 @@
 ;  )
 
 (defn get-prj [id]
-  (if-let [prj (classic/get-prj id)]
+  (if-let [prj (prjs/get-prj id)]
     (response {:id (:id prj)})
     (errors/four-oh-4)
     )
   )
 
 (defn get-pub [id]
-  (if-let [pub (classic/get-pub id)]
+  (if-let [pub (pubs/get-pub id)]
     (response pub)
     (errors/four-oh-4)
     )
   )
 
-(defn save-pub [data]
-  (prn "VALIDATING, SAVING:" data)
-  (if (classic/valid? data)
-    (if-let [res (classic/save-pub data)]
-      (response res) 
-      (errors/five-hundred)
-      )
-    (errors/four-ohoh)
+(defn save-pub [req]
+  (if-let [res (pubs/save-pub (:body-params req))]
+    (response res)
+    (errors/five-hundred)
     )
   )
 
 (defn get-usage [req]
-  (response (classic/usage (:id (:params req)) (:body-params req)))
+  (response (prjs/usage (:id (:params req)) (:body-params req)))
   )
 
+(defn add-owner [req]
+  (prjs/add-owner (get-in req [:params :id])
+                  (:body-params req)
+                  )
+  )
+
+(defn search-users [req]
+  (users/search-users (:body-params req))
+  )
+
+(defn search-citations [req]
+  (response (citations/search (:doi (:body-params req))))
+  )
+
+(defn create-citation [req]
+ (response (citations/create (:body-params req))) 
+ )
+
+(defn rm-citation [req]
+ (response (citations/rm (:citation-id (:params req)))) 
+ )
+
+
+(defn save-ui-state [req]
+  (ui-state/create (:body-params req))
+  )
+
+(defn add-tag [req]
+  (response (tags/add-tag (:body-params req)
+                          (:id (:params req))
+                          (:vid (:params req))
+                          (:id (:user req))))
+  )
+
+(defn remove-tag [req]
+  (response (tags/remove-tag (:id (:params req))
+                             (:version-id (:params req))
+                             (:id (:user req))))
+  )
+
+(defn add-author [req]
+  (authors/add (:version-id req)
+               (:id (:user req))
+               (:body-params req))
+  )
+
+(defn rm-author [req]
+  (authors/add (:version-id req) (:author-id req))
+  )
+
+(defn edit-author [req]
+  (authors/edit (:version-id req) (:author-id req) (:body-params req))
+  )
+
+(defn add-citation [req]
+  (citations/add (:version-id req) (:body-params req)) 
+  )
+
+(defn rm-citation [req]
+  (citations/rm (:citation-id req)) 
+  )
+
+(def pubroot "/pubs/:id/v/:version-id")
+
 (defroutes api-routes
-  (GET "/user" req (response (:user req)))
-  (GET "/prjs/:id" [id] (get-prj id))
-  (GET "/prjs/:id/files" [id] (classic/get-files id))
-  (GET "/prjs/:id/users" [id] (classic/get-users id))
-  (POST "/prjs/:id/usage" req (get-usage req))
+  (GET    "/prjs/:id"                              [id]  (get-prj id))
+  (GET    "/prjs/:id/files"                        [id]  (prjs/get-files id))
+  (GET    "/prjs/:id/users"                        [id]  (prjs/get-users id))
+  (POST   "/prjs/:id/usage"                        req   (get-usage req))
+  (POST   "/prjs/:id/owners"                       req   (add-owner req))
 
-  (GET "/pubs/licenses" [] (classic/get-licenses))
+  (POST   "/pubs"                                  req   (save-pub req))
+  (GET    pubroot                                  [id]  (get-pub id))
+  (POST   (str pubroot "/authors")                 req   (add-author req))
+  (DELETE (str pubroot "/authors/:author-id")      req   (rm-author req))
+  (PUT    (str pubroot "/authors/:author-id")      req   (edit-author req))
+  (POST   (str pubroot "/tags")                    req   (add-tag req))
+  (DELETE (str pubroot "/tags/:tag-id")            req   (remove-tag req))
+  (POST   (str pubroot "/citations")               req   (add-citation req))
+  (DELETE (str pubroot "/citations/:citation-id")  req   (rm-citation req))
 
-  (POST "/pubs" {body :body-params} (save-pub body))
-  (GET "/pubs/:id" [id] (get-pub id))
+  (GET    "/users/me"                              req   (response (:user req)))
+  (POST   "/users/search"                          req   (search-users req))
 
-  (GET "/users/:name" [name] (classic/search-users name))
-  (POST "/citations/search" {body :body-params} (response (classic/search-citations (:doi body))))
-  (POST "/citations" {body :body-params} {:body (classic/create-citation body)})
-  (GET "/citation-types" [] (classic/get-citation-types))
+  (GET    "/licenses"                              []    (licenses/get-all))
 
-  (POST "/ui-state" {body :body-params} (ui-state/create body))
+  (POST   "/citations/search"                      req   (search-citations req))
+  (POST   "/citations"                             req   (create-citation req))
+  (GET    "/citations/types"                       []    (citations/get-types))
+
+  (POST   "/ui-state"                              req   (save-ui-state req))
   )
 
 (defroutes ui-routes
