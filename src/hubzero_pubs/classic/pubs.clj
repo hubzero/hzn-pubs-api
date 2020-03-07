@@ -16,12 +16,12 @@
 (defqueries "yesql/hzcms-queries.sql" )
 (defn _connection [] {:connection db})
 
-(defn create-pub [p]
+(defn create-pub [user-id p]
   (insert-pub<! {:category 1
                  :master_type "1"
                  :project_id (:prj-id p)
                  :access 0
-                 :created_by (:user-id p)
+                 :created_by user-id 
                  :created (f/unparse (:mysql f/formatters) (t/now))
                  } (_connection))
   )
@@ -46,8 +46,9 @@
 
 (defn- _mutate
   "Fields come from client with different names, map them - JBG"
-  [p]
-  (merge p {:created_by (:user-id p)
+  [user-id p]
+  (merge p {:title (:title p "")
+            :created_by user-id 
             :license_type (:id (:licenses p))
             :params (_params-str p)
             :release_notes (:release-notes p "")
@@ -62,8 +63,8 @@
             })
   )
 
-(defn create-pub-version [pub-id p]
-  (-> (_mutate p)
+(defn create-pub-version [pub-id user-id p]
+  (-> (_mutate user-id p)
       (merge {:publication_id pub-id
               :main 1
               :created (f/unparse (:mysql f/formatters) (t/now))
@@ -75,11 +76,11 @@
       )
   )
 
-(defn- _update-pub-version [p]
+(defn- _update-pub-version [user-id p]
   (-> (first (sel-pub-version {:id (:ver-id p)} (_connection)))
-      (merge (_mutate p))
+      (merge (_mutate user-id p))
       (merge {:modified (f/unparse (:mysql f/formatters) (t/now)) 
-              :modified_by (:user-id p)
+              :modified_by user-id
               })
       (update-pub-version! (_connection))
       )
@@ -124,11 +125,11 @@
     ) 
   )
 
-(defn- _add-curation-hist [ver-id p]
+(defn- _add-curation-hist [ver-id user-id p]
   (as-> (get-pub ver-id) $
     (insert-curation-hist<! {:publication_version_id ver-id 
                              :created (f/unparse (:mysql f/formatters) (t/now))
-                             :created_by (:user-id p)
+                             :created_by user-id 
                              :changelog ""
                              :curator 0 
                              :oldstatus (:state $ 3)
@@ -142,25 +143,31 @@
             ) true [ :abstract :title :publication-date :authors-list ])
   )
 
-(defn- _save-pub [pub]
-  (let [pub-id (-> (create-pub pub) (:generated_key)) 
-        ver-id (-> (create-pub-version pub-id pub) (:generated_key))
+(defn- _save-pub [user-id pub]
+  (let [pub-id (-> (create-pub user-id pub) (:generated_key)) 
+        ver-id (-> (create-pub-version pub-id user-id pub) (:generated_key))
         ]
-    (_add-curation-hist ver-id pub)
+    (_add-curation-hist ver-id user-id pub)
     {:pub-id pub-id :ver-id ver-id}
     )
   )
 
-(defn- _update-pub [p]
-  (_update-pub-version p)
-  (_add-curation-hist (:ver-id p) p)
+(defn- _update-pub [user-id p]
+  (_update-pub-version user-id p)
+  (_add-curation-hist (:ver-id p) user-id p)
   {:pub-id (:pub-id p) :ver-id (:ver-id p)}
   )
 
-(defn save-pub [p]
+(defn save-pub [user-id p]
   (if (:ver-id p)
-    (_update-pub p)
-    (_save-pub p)
+    (_update-pub user-id p)
+    (_save-pub user-id p)
     ) 
+  )
+
+(comment
+
+  (save-pub 1001 {:prj-id "1", :authors-list {}, :content (), :images (), :support-docs ()})
+
   )
 

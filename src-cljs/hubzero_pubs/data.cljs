@@ -34,16 +34,29 @@
   )
 
 (defn get-user [s]
-  (go (let [res (<! (http/get (str url "/user")
+  (go (let [res (<! (http/get (str url "/users/me")
                               (options s)))]
         (_handle-res s res (fn [s res]
-                             (swap! s assoc :user-id (:id (:body res)))
+                             (swap! s assoc-in [:data :user-id] (:id (:body res)))
                              ))
         ))
   )
 
+(defn add-file [s file]
+  (go (let [res (<! (http/post (str url
+                                    "/pubs/" (get-in @s [:data :pub-id])
+                                    "/v/" (get-in @s [:data :ver-id])
+                                    "/files")  {:edn-params file}))]
+        (prn "FILE ADDED <<<<<< " res)
+        (as-> (:body res) $
+          (:generated_key $)
+          (swap! s assoc-in [:data (:type file) $] (assoc file :id $))
+          )
+        ))
+  )
+
 (defn get-files [s]
-  (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s) "/files")
+  (go (let [res (<! (http/get (str url "/prjs/" (get-in @s [:data :prj-id]) "/files")
                               (options s)))]
         ;(prn (:body res))
         (swap! s assoc :files (cljs.reader/read-string (:body res)))
@@ -117,41 +130,35 @@
   )
 
 (defn usage [s]
-  (go (let [res (<! (http/post (str url "/prjs/" (:prj-id @s) "/usage" ) {:edn-params (keys (get-in @s [:data :content] {}))}))]
+  (go (let [res (<! (http/post (str url "/prjs/" (get-in @s [:data :prj-id]) "/usage" ) {:edn-params (keys (get-in @s [:data :content] {}))}))]
         ;(prn (:body res))
         (swap! s assoc :usage (:body res))
         ))
   )
 
 (defn get-pub [s]
-  ;(prn "GET PUB" (:pub-id @s))
-  (go (let [res (<! (http/get (str url "/pubs/" (:ver-id @s)) (options s)))]
-        ;(prn (:body res))
+  (go (let [res (<! (http/get (str url
+                                   "/pubs/" (get-in @s [:data :pub-id])
+                                   "/v/" (get-in @s [:data :ver-id])
+                                   ) (options s)))]
         (_handle-res s res (fn [s res]
                              (->> (:body res)
                                   (mutate/coerce)
                                   (swap! s assoc :data)
                                   )
-                             (swap! s assoc :prj-id (get-in @s [:data :prj-id]))
-                             (swap! s assoc :ver-id (get-in @s [:data :ver-id]))
-                             (prn "<<< RECEIVED" (:data @s))
-                             (usage s)      
+                             (usage s)
                              ))
         ))
   )
 
 (defn save-pub [s]
   (as-> (:data @s) $
-    (if (:prj-id $) $ (assoc $ :prj-id (:prj-id @s) :user-id (:user-id @s)))
     (mutate/prepare $)
     (go (let [res (<! (http/post (str url "/pubs") {:edn-params $}))]
           (prn "SENT >>>" $)
           (prn "<<< RECEIVED"(:body res))
           (_handle-res s res (fn [s res]
-                               (swap! s merge (:body res))
-                               ;(prn "PRJ ID" (:prj-id @s))
-                               ;; Better get the pub if save updated stuff (ex. doi) - JBG
-                               ;(get-pub s)
+                               ;; ... - JBG
                                ))
           ))
     )
@@ -165,12 +172,10 @@
         ))
   )
 
-(defn get-prj [s prj-id]
-  (prn "GET PRJ" prj-id)
-  (go (let [res (<! (http/get (str url "/prjs/" prj-id) (options s)))]
+(defn get-prj [s]
+  (go (let [res (<! (http/get (str url "/prjs/" (get-in @s [:data :prj-id])) (options s)))]
         (_handle-res s res (fn [s res]
-                             (swap! s assoc :prj-id prj-id)
-                             (if-let [id (:pub-id @s)] (get-pub s)) 
+                             ;; Load the disk usage for the project - JBG
                              (usage s)
                              ))
         ))

@@ -14,15 +14,16 @@
 (defqueries "yesql/hzcms-queries.sql" )
 (defn _connection [] {:connection db})
 
-(defn add [pub-id ver-id user-id i f type]
+(defn add [pub-id ver-id user-id f]
+  (prn "ADD FILE" f)
   (insert-attachment<! {:publication_version_id ver-id 
                         :publication_id pub-id
                         :created (f/unparse (:mysql f/formatters) (t/now))
                         :created_by user-id 
                         :role 1
                         :type "file"
-                        :ordering i
-                        :element_id (type {:content 1 :images 2 :support-docs 3})
+                        :ordering (:index f) 
+                        :element_id ((:type f) {:content 1 :images 2 :support-docs 3})
                         :path (:path f)
                         } (_connection))
   )

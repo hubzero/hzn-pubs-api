@@ -10,6 +10,7 @@
             [ring.util.response :as response]
             [hubzero-pubs.classic.authors :as authors]
             [hubzero-pubs.classic.citations :as citations]
+            [hubzero-pubs.classic.files :as files]
             [hubzero-pubs.classic.licenses :as licenses]
             [hubzero-pubs.classic.prjs :as prjs]
             [hubzero-pubs.classic.pubs :as pubs]
@@ -32,15 +33,15 @@
     )
   )
 
-(defn get-pub [id]
-  (if-let [pub (pubs/get-pub id)]
+(defn get-pub [req]
+  (if-let [pub (pubs/get-pub (:version-id (:params req)))]
     (response pub)
     (errors/four-oh-4)
     )
   )
 
 (defn save-pub [req]
-  (if-let [res (pubs/save-pub (:body-params req))]
+  (if-let [res (pubs/save-pub (:id (:user req)) (:body-params req))]
     (response res)
     (errors/five-hundred)
     )
@@ -77,18 +78,6 @@
   (ui-state/create (:body-params req))
   )
 
-(defn add-tag [req]
-  (response (tags/add-tag (:body-params req)
-                          (:id (:params req))
-                          (:vid (:params req))
-                          (:id (:user req))))
-  )
-
-(defn remove-tag [req]
-  (response (tags/remove-tag (:id (:params req))
-                             (:version-id (:params req))
-                             (:id (:user req))))
-  )
 
 (defn add-author [req]
   (authors/add (:version-id req)
@@ -105,13 +94,39 @@
   )
 
 (defn add-citation [req]
-  (citations/add (:version-id req) (:body-params req)) 
+  (response (citations/add (:version-id req) (:body-params req)))
   )
 
 (defn rm-citation [req]
   (citations/rm (:citation-id req)) 
   )
 
+(defn add-file [req]
+  (response (files/add (:id (:params req))
+                       (:version-id (:params req))
+                       (:id (:user req))
+                       (:body-params req)
+                       )  
+            )
+  )
+
+(defn rm-file [req]
+  (files/rm (:file-id (:params req)))
+  )
+
+(defn add-tag [req]
+  (response (tags/add-tag (:body-params req)
+                          (:id (:params req))
+                          (:vid (:params req))
+                          (:id (:user req))))
+  )
+
+(defn remove-tag [req]
+  (response (tags/remove-tag (:id (:params req))
+                             (:version-id (:params req))
+                             (:id (:user req))))
+  )
+ 
 (def pubroot "/pubs/:id/v/:version-id")
 
 (defroutes api-routes
@@ -122,14 +137,16 @@
   (POST   "/prjs/:id/owners"                       req   (add-owner req))
 
   (POST   "/pubs"                                  req   (save-pub req))
-  (GET    pubroot                                  [id]  (get-pub id))
+  (GET    pubroot                                  req   (get-pub req))
   (POST   (str pubroot "/authors")                 req   (add-author req))
   (DELETE (str pubroot "/authors/:author-id")      req   (rm-author req))
   (PUT    (str pubroot "/authors/:author-id")      req   (edit-author req))
-  (POST   (str pubroot "/tags")                    req   (add-tag req))
-  (DELETE (str pubroot "/tags/:tag-id")            req   (remove-tag req))
   (POST   (str pubroot "/citations")               req   (add-citation req))
   (DELETE (str pubroot "/citations/:citation-id")  req   (rm-citation req))
+  (POST   (str pubroot "/files")                   req   (add-file req))
+  (DELETE (str pubroot "/files/:file-id")          req   (rm-file req))
+  (POST   (str pubroot "/tags")                    req   (add-tag req))
+  (DELETE (str pubroot "/tags/:tag-id")            req   (remove-tag req)) 
 
   (GET    "/users/me"                              req   (response (:user req)))
   (POST   "/users/search"                          req   (search-users req))

@@ -12,11 +12,11 @@
   )
 
 ;; TODO: Remove, I'm a placeholder! - JBG
-(defn set-html! [content]
-  (-> (js/document.getElementById "app") 
-      (aset "innerHTML" content) 
-    )
-  )
+;(defn set-html! [content]
+;  (-> (js/document.getElementById "app") 
+;      (aset "innerHTML" content) 
+;    )
+;  )
 ;; END TODO
 
 (defn hook-browser-navigation! []
@@ -25,30 +25,36 @@
     (.setEnabled true))
   )
 
+(def pubsroot "/pubs/:id/v/:ver-id")
+
 (defn app-routes [s]
   (secretary/set-config! :prefix "#")
 
   (defroute "/prjs/:id" {:as params}
     (prn "PRJ" (:id params) "NEW")
     (swap! s assoc-in [:ui :summary] false)
-    ;(swap! s assoc :prj-id (:id params))
-    (data/get-prj s (:id params))
+    (swap! s assoc-in [:data :prj-id] (:id params))
+    (data/get-prj s)
+    ;; Create a new pub - JBG
+    (data/save-pub s)
     )
 
-  (defroute "/pubs/:id" {:as params}
-    (prn "PUB" (:id params))
+  (defroute (str pubsroot) {:as params}
+    (prn "PUB" (:id params) (:ver-id params))
     (swap! s assoc-in [:ui :summary] true)
-    (swap! s assoc :ver-id (:id params))
+    (swap! s assoc-in [:data :pub-id] (:id params))
+    (swap! s assoc-in [:data :ver-id] (:ver-id params))
     (data/get-pub s)
     )
 
-  (defroute "/pubs/:id/edit" {:as params}
+  (defroute (str pubsroot "/edit") {:as params}
     (swap! s assoc-in [:ui :summary] false)
-    (swap! s assoc :ver-id (:id params))
+    (swap! s assoc-in [:data :pub-id] (:id params))
+    (swap! s assoc-in [:data :ver-id] (:ver-id params))
     (data/get-pub s)
     )
 
-  (defroute "/summary" {:as params}
+  (defroute (str pubsroot "/submit") {:as params}
     (if (utils/valid? s)
       (do
         (swap! s assoc-in [:ui :summary] true)
@@ -56,13 +62,6 @@
         )
       (panels/show s nil true :errors)
       ) 
-    )
-
-  (defroute "/submit" {:as params}
-    ;;(set-html! "<h1>Submitted. :)</h1>")
-    ;(swap! s assoc-in [:data :submitted] true)
-    (swap! s assoc-in [:ui :summary] true)
-    (data/save-pub s)
     )
 
   ;; Catch all

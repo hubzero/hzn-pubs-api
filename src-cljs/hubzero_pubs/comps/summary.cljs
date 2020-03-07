@@ -151,22 +151,28 @@
   )
 
 (defn- _submit [s e]
+  ;; This will trigger the backend to grab a DOI - JBG
   (swap! s assoc-in [:data :state] 1)
   (data/save-pub s) 
   )
 
 (defn aside [s]
-  (prn "ASIDE" (:pub-id @s))
   [:aside
    [:div.inner
     [:div.notification
      [:header "Your publication is ready for submission!"]
      [:p "Please review your publication and make sure everything looks good."]
      [:fieldset.buttons-aside
-      [:a.btn {:href "/pubs/#/submit"
+      [:a.btn {:href (str
+                       "/pubs/#/pubs" (get-in @s [:data :pub-id])
+                       "/v/" (get-in @s [:data :ver-id])
+                       )
                :on-click #(_submit s %)
                } "Submit publication"]
-      [:a.btn.secondary {:href (str "/pubs/#/pubs/" (:ver-id @s) "/edit")} "Edit draft"]
+      [:a.btn.secondary {:href (str
+                                 "/pubs/#/pubs/" (get-in @s [:data :pub-id])
+                                 "/v/" (get-in @s [:data :ver-id])
+                                 "/edit")} "Edit draft"]
       ]
      ]
     ]

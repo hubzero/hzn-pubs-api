@@ -27,9 +27,8 @@
 
 (defn savable? [s]
   (-> 
-    (:prj-id @s false)
-    (and (:user-id @s false))
-    (and (get-in @s [:data :title] false)) 
+    (and (get-in @s [:data :prj-id] false)) 
+    (and (get-in @s [:data :user-id] false)) 
     )
   )
 

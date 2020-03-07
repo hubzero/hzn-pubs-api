@@ -67,13 +67,14 @@
   )
 
 (defn file [s k v id]
-  [:li.item {:key v}
+  (prn "FILE" k v id)
+  [:li.item {:key id}
    (ui/icon s "#icon-file-text2")
-   [:div.main [:a {:href "#"} v]]
+   [:div.main [:a {:href "#"} (:name v)]]
    [:div.options {:on-click (fn [e]
                               (.preventDefault e)
                               (.stopPropagation e)
-                              (swap! s assoc-in [:ui :options k v] true)
+                              (swap! s assoc-in [:ui :options k id] true)
                               )}
     (ui/icon s "#icon-dots")
     (options/items s k v id)
@@ -471,6 +472,7 @@
    ])
 
 (defn- _save [s]
+  (prn "STATE" @s)
   (if (utils/savable? s) (data/save-pub s)) 
   (data/save-state s)
   )

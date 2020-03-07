@@ -10,6 +10,16 @@
   (str path "/" file)
   )
 
+(defn get-id [s k path file]
+  (as-> (get-in @s [:data k]) $
+    (vals $)
+    (group-by :path $)
+    ($ (spf path file))
+    (first $)
+    (:id $)
+    )
+  )
+
 (defn folder-pop [s e]
   (-> (get-in @s [:ui :current-panel])
       (first)

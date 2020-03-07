@@ -64,20 +64,35 @@
    ]
   )
 
+(defn- _add-file [s path name key k]
+  (prn "ADD FILE" path name key k)
+  (data/add-file s {:type key
+                    :index (count (get-in @s [:data key]))
+                    :path (folders/spf path name)
+                    :name name
+                    })
+  )
+
+(defn- _rm-file [s path name key k]
+  (prn "RM FILE" path name key k)
+  (swap! s update-in [:data key] dissoc k)
+  )
+
 (defn file-click [s path name key e]
-  (let [k (folders/spf path name)]
+  (let [k (folders/get-id s key path name)]
     (if (get-in @s [:data key k])
-      (swap! s update-in [:data key] dissoc k)
-      (swap! s assoc-in [:data key k] name)
+      (_rm-file s path name key k)
+      (_add-file s path name key k)
       )   
     )
   (data/usage s)
   )
 
 (defn file [s path name key]
+  (prn "SELECTED?" path name key (folders/get-id s key path name) (get-in @s [:data key (folders/get-id s key path name)]))
   [:li {:key name :on-click #(file-click s path name key %)}
    [:div.inner
-    [:div.selected-indicator {:class (if (get-in @s [:data key (folders/spf path name)]) :selected)}
+    [:div.selected-indicator {:class (if (get-in @s [:data key (folders/get-id s key path name)]) :selected)}
      [:div.icon
       (ui/icon s "#icon-checkmark")
       [:span.name "Selected"]

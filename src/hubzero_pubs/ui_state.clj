@@ -23,15 +23,16 @@
 (defn- _keys-to-strs
   "Mongo doesn't like Long type keys, make them Strings"
   [s k]
-  (->> (into {} (map (fn [[k v]] [(str k) v]) (k s)))
-       (assoc s k) 
+  (->> (into {} (map (fn [[k v]] [(str k) v]) (get-in s k)))
+       (assoc-in s k) 
        )
   )
 
 (defn create [s]
   (prn "SAVING UI STATE" s)
   (as-> s $
-    (_keys-to-strs $ :users)
+    (_keys-to-strs $ [:users])
+    (_keys-to-strs $ [:data :content])
     (assoc $
            :_id (ObjectId.)
            :app "pubs"
@@ -41,7 +42,6 @@
     (:_id $)
     {:_id (.toString $)}
     )
-
   )
 
 (comment
