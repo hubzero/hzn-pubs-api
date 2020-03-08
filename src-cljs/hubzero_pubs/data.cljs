@@ -42,7 +42,9 @@
         ))
   )
 
-(defn add-file [s file]
+(defn add-file
+  "s is the state, file is a map - :type, :index, :path, :name - JBG"
+  [s file]
   (go (let [res (<! (http/post (str url
                                     "/pubs/" (get-in @s [:data :pub-id])
                                     "/v/" (get-in @s [:data :ver-id])
@@ -55,7 +57,21 @@
         ))
   )
 
-(defn get-files [s]
+(defn rm-file
+  "s is the state, k is the type - :content, :images, :support-docs, and file-id - JBG"
+  [s k file-id]
+  (go (let [res (<! (http/delete (str url
+                                      "/pubs/" (get-in @s [:data :pub-id])
+                                      "/v/" (get-in @s [:data :ver-id])
+                                      "/files/" file-id) 
+                                 (options s)))]
+        (_handle-res s res (fn [s res]
+                             (swap! s update-in [:data k] dissoc file-id)
+                             ))
+        )) 
+  )
+
+(defn ls-files [s]
   (go (let [res (<! (http/get (str url "/prjs/" (get-in @s [:data :prj-id]) "/files")
                               (options s)))]
         ;(prn (:body res))
@@ -63,6 +79,21 @@
         (swap! s assoc-in [:ui :current-folder] [["Project files" (first (first (:files @s)))]])
         ))
   )
+
+(defn get-files [s]
+  (go (let [res (<! (http/get (str url
+                                   "/pubs/" (get-in @s [:data :pub-id])
+                                   "/v/" (get-in @s [:data :ver-id])
+                                   "/files")
+                              (options s)))]
+        (prn (:body res))
+        (_handle-res s res (fn [s res]
+                             (swap! s update :data merge (:body res))
+                             ))
+
+        ))
+  )
+
 
 (defn get-users [s]
   (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s) "/users")
@@ -130,7 +161,7 @@
   )
 
 (defn usage [s]
-  (go (let [res (<! (http/post (str url "/prjs/" (get-in @s [:data :prj-id]) "/usage" ) {:edn-params (keys (get-in @s [:data :content] {}))}))]
+  (go (let [res (<! (http/post (str url "/prjs/" (get-in @s [:data :prj-id]) "/usage" ) {:edn-params (map #(:path %) (get-in @s [:data :content] {})) }))]
         ;(prn (:body res))
         (swap! s assoc :usage (:body res))
         ))
@@ -146,6 +177,7 @@
                                   (mutate/coerce)
                                   (swap! s assoc :data)
                                   )
+                             (get-files s)
                              (usage s)
                              ))
         ))
@@ -158,14 +190,14 @@
           (prn "SENT >>>" $)
           (prn "<<< RECEIVED"(:body res))
           (_handle-res s res (fn [s res]
-                               ;; ... - JBG
+                               (swap! s update :data merge (:body res))
                                ))
           ))
     )
   )
 
 (defn save-state [s]
-  (go (let [res (<! (http/post (str url "/ui-state") {:edn-params @s}))]
+  (go (let [res (<! (http/post (str url "/ui-state") {:edn-params (mutate/coerce-ui-state s)}))]
         (_handle-res s res (fn [s res]
                              (prn "Saved state.")
                              ))

@@ -29,7 +29,7 @@
   )
 
 (defn rm [file-id]
-  (del-attachment! {:id file-id} (_connection))
+  {:status (if (del-attachment! {:id file-id} (_connection)) 200 500)}
   )
 
 (defn- _filename [s]
@@ -38,9 +38,20 @@
        )
   )
 
-(defn _files [files]
-  (reduce (fn [c f]
-            (update c ({1 :content 2 :images 3 :support-docs} (:element_id f)) conj {:path (:path f) :name (_filename (:path f)) :id (:id f)})
-            ) {} files)
+(defn ls [ver-id]
+  (->>
+    (sel-attachment {:publication_version_id ver-id} (_connection))
+    (reduce (fn [c f]
+              (update c ({1 :content 2 :images 3 :support-docs} (:element_id f)) conj {:path (:path f) :name (_filename (:path f)) :id (:id f) :index (:ordering f)})
+              ) {})  
+    (map (fn [[k v]] [k
+                      (->>
+                        (group-by :id v)
+                        (map (fn [[kk vv]] [kk (first vv)]))
+                        (into {})
+                        )
+                      ]))
+    (into {})
+    )
   )
- 
+

@@ -48,3 +48,9 @@
       (_coerce-files :support-docs)
       )
   )
+
+(defn coerce-ui-state [s]
+  (->
+    (update @s :ui dissoc :current-panel) ;; This is a dom node reference which doesn't tavel well - JBG
+    ) 
+  )

@@ -64,7 +64,9 @@
    ]
   )
 
-(defn- _add-file [s path name key k]
+(defn- _add-file
+  "state, file path, file name, key is type - :content, :images, :support-docs"
+  [s path name key k]
   (prn "ADD FILE" path name key k)
   (data/add-file s {:type key
                     :index (count (get-in @s [:data key]))
@@ -73,9 +75,11 @@
                     })
   )
 
-(defn- _rm-file [s path name key k]
+(defn- _rm-file
+  "state, file path, file name, key is type - :content, :images, :support-docs, k is file id - JBG"
+  [s path name key k]
   (prn "RM FILE" path name key k)
-  (swap! s update-in [:data key] dissoc k)
+  (data/rm-file s key k)
   )
 
 (defn file-click [s path name key e]

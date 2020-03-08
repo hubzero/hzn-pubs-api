@@ -114,6 +114,10 @@
   (files/rm (:file-id (:params req)))
   )
 
+(defn get-files [req]
+  (response (files/ls (:version-id (:params req))))
+  )
+
 (defn add-tag [req]
   (response (tags/add-tag (:body-params req)
                           (:id (:params req))
@@ -143,6 +147,7 @@
   (PUT    (str pubroot "/authors/:author-id")      req   (edit-author req))
   (POST   (str pubroot "/citations")               req   (add-citation req))
   (DELETE (str pubroot "/citations/:citation-id")  req   (rm-citation req))
+  (GET    (str pubroot "/files")                   req   (get-files req))
   (POST   (str pubroot "/files")                   req   (add-file req))
   (DELETE (str pubroot "/files/:file-id")          req   (rm-file req))
   (POST   (str pubroot "/tags")                    req   (add-tag req))

@@ -33,6 +33,7 @@
   (as-> s $
     (_keys-to-strs $ [:users])
     (_keys-to-strs $ [:data :content])
+    (_keys-to-strs $ [:ui :options :content])
     (assoc $
            :_id (ObjectId.)
            :app "pubs"

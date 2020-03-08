@@ -24,7 +24,12 @@
   (prn "REMOVE" k id)
   (.preventDefault e)
   (.stopPropagation e)
-  (swap! s assoc-in [:data k] (dissoc (get-in @s [:data k]) id))
+;  (swap! s assoc-in [:data k] (dissoc (get-in @s [:data k]) id))
+  (case k
+    :content (data/rm-file s k id)
+    :images (data/rm-file s k id)
+    :support-docs (data/rm-file s k id)
+    )
   )
 
 (defn items [s k v id]

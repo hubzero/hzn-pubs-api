@@ -53,16 +53,21 @@
     (reduce (fn [c f]
               (if (clojure.string/includes? (first f) $)
                 (reduce (fn [c2 f2]
-                          (let [k (spf (first f) f2)]
+                          (prn "FOLDER" key (first f) f2)
+                          (let [k (get-id s key (first f) f2)]
                             (if selected 
-                              (assoc c2 k f2)
-                              (dissoc c2 k)
+                              (data/add-file s {:type key
+                    :index 0 
+                    :path (spf (first f) f2)
+                    :name f2 
+                    })
+                              (data/rm-file s key k)
                               )
                             )
                           ) c (last f)) c)
               )
             (get-in @s [:data key]) (:files @s))
-    (swap! s assoc-in [:data key] $)
+    ;(swap! s assoc-in [:data key] $)
     )
   )
 
@@ -74,10 +79,10 @@
       (.querySelector ".selected-indicator")
       .-classList
       )]
-      (toggle-folder-files s key index (not (boolean (some #{"selected"} (js/Array.from classes )))))
+      (toggle-folder-files s key index (not (boolean (some #{"selected"} (js/Array.from classes)))))
       (.toggle classes "selected")
     )
-  (data/usage s)
+;  (data/usage s)
   )
 
 (defn _folder-selected? [s key index]
@@ -88,8 +93,8 @@
               (if (clojure.string/includes? (first f) $)
                 (and c
                      (reduce (fn [x y] (and x y)) (reduce (fn [c2 f2]
-                                                            (and c2 (get-in @s [:data key (spf (first f) f2)]))
-                                                            ) c (last f))) 
+                                                            (and c2 (get-in @s [:data key (get-id s key (first f) f2)]))
+                                                            ) c (last f)))
                      )
 
                 c)

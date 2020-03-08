@@ -67,7 +67,6 @@
   )
 
 (defn file [s k v id]
-  (prn "FILE" k v id)
   [:li.item {:key id}
    (ui/icon s "#icon-file-text2")
    [:div.main [:a {:href "#"} (:name v)]]
@@ -80,6 +79,21 @@
     (options/items s k v id)
     ]
    ] 
+  )
+
+(defn image [s k v id]
+  [:li.item {:key id}
+   (ui/icon s "#icon-file-picture")
+   [:div.main [:a {:href "#"} (:name v)]]
+   [:div.options {:on-click (fn [e]
+                              (.preventDefault e)
+                              (.stopPropagation e)
+                              (swap! s assoc-in [:ui :options k id] true)
+                              )}
+    (ui/icon s "#icon-dots")
+    (options/items s k v id)
+    ]
+   ]
   )
 
 (defn handle-poc-click [s e id]
@@ -113,20 +127,6 @@
    ]
   )
 
-(defn image [s k v id]
-  [:li.item {:key v}
-   (ui/icon s "#icon-file-picture")
-   [:div.main [:a {:href "#"} v]]
-   [:div.options {:on-click (fn [e]
-                              (.preventDefault e)
-                              (.stopPropagation e)
-                              (swap! s assoc-in [:ui :options k v] true)
-                              )}
-    (ui/icon s "#icon-dots")
-    (options/items s k v id)
-    ]
-   ]
-  )
 
 (defn citation [s k c]
   [:li.item {:key (:id c)}
@@ -271,7 +271,7 @@
   )
 
 (defn handle-files-options [s e key]
-  (data/get-files s)
+  (data/ls-files s)
   (panels/show s e true key)
   )
 
@@ -473,7 +473,7 @@
 
 (defn- _save [s]
   (prn "STATE" @s)
-  (if (utils/savable? s) (data/save-pub s)) 
+  (if (utils/savable? s) (data/save-pub s))
   (data/save-state s)
   )
 
