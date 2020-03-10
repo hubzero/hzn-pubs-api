@@ -21,7 +21,6 @@
   )
 
 (defn- _remove [s e k id]
-  (prn "REMOVE" k id)
   (.preventDefault e)
   (.stopPropagation e)
 ;  (swap! s assoc-in [:data k] (dissoc (get-in @s [:data k]) id))
@@ -29,6 +28,7 @@
     :content (data/rm-file s k id)
     :images (data/rm-file s k id)
     :support-docs (data/rm-file s k id)
+    :authors-list (data/rm-author s id)
     )
   )
 
@@ -68,7 +68,7 @@
 (defn handle-add-author [s e]
   (.preventDefault e)
   (.stopPropagation e)
-  (data/get-users s)
+  (data/get-owners s)
   (panels/show-overlay s true)
   (swap! s assoc-in [:ui :panels :authors-list] true)
   (close s)

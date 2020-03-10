@@ -20,7 +20,9 @@
   (sel-session {:session_id id} (_connection))
   )
 
-(defn search-users [name]
-  (sel-users {:name name} (_connection))
+(defn search-users
+  "search users by name, n - JBG"
+  [n]
+  (sel-users {:name n} (_connection))
   )
 

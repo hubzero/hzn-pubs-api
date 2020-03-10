@@ -58,7 +58,7 @@
   )
 
 (defn search-users [req]
-  (users/search-users (:body-params req))
+  (response (users/search-users (:q (:body-params req)))) 
   )
 
 (defn search-citations [req]
@@ -78,15 +78,28 @@
   (ui-state/create (:body-params req))
   )
 
+(defn get-authors [req]
+  (response (authors/ls (:version-id (:params req))))
+  )
 
 (defn add-author [req]
-  (authors/add (:version-id req)
-               (:id (:user req))
-               (:body-params req))
+  (response
+    (authors/add (:version-id (:params req))
+                 (:id (:user req))
+                 (:body-params req))  
+    )
+  )
+
+(defn create-author [req]
+  (response
+    (authors/create (:version-id (:params req))
+                    (:id (:user req))
+                    (:body-params req))  
+    )
   )
 
 (defn rm-author [req]
-  (authors/add (:version-id req) (:author-id req))
+  (as-> (:params req) $ (authors/rm (:author-id $)))
   )
 
 (defn edit-author [req]
@@ -130,19 +143,25 @@
                              (:version-id (:params req))
                              (:id (:user req))))
   )
+
+(defn get-owners [prj-id]
+  (response (prjs/get-owners prj-id))
+  )
  
 (def pubroot "/pubs/:id/v/:version-id")
 
 (defroutes api-routes
   (GET    "/prjs/:id"                              [id]  (get-prj id))
   (GET    "/prjs/:id/files"                        [id]  (prjs/get-files id))
-  (GET    "/prjs/:id/users"                        [id]  (prjs/get-users id))
-  (POST   "/prjs/:id/usage"                        req   (get-usage req))
+  (GET    "/prjs/:id/owners"                       [id]  (get-owners id))
   (POST   "/prjs/:id/owners"                       req   (add-owner req))
+  (POST   "/prjs/:id/usage"                        req   (get-usage req))
 
   (POST   "/pubs"                                  req   (save-pub req))
   (GET    pubroot                                  req   (get-pub req))
+  (GET    (str pubroot "/authors")                 req   (get-authors req))
   (POST   (str pubroot "/authors")                 req   (add-author req))
+  (POST   (str pubroot "/authors/new")             req   (create-author req))
   (DELETE (str pubroot "/authors/:author-id")      req   (rm-author req))
   (PUT    (str pubroot "/authors/:author-id")      req   (edit-author req))
   (POST   (str pubroot "/citations")               req   (add-citation req))

@@ -93,7 +93,6 @@
   )
 
 (defn file [s path name key]
-  (prn "SELECTED?" path name key (folders/get-id s key path name) (get-in @s [:data key (folders/get-id s key path name)]))
   [:li {:key name :on-click #(file-click s path name key %)}
    [:div.inner
     [:div.selected-indicator {:class (if (get-in @s [:data key (folders/get-id s key path name)]) :selected)}

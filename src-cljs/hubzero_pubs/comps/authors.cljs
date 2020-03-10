@@ -11,7 +11,7 @@
   (swap! s update-in [:ui key (utils/author-key u)] not)
   (if (get-in @s [:data key (utils/author-key u)])
     (swap! s update-in [:data key] dissoc (utils/author-key u))
-    (swap! s assoc-in [:data key (utils/author-key u)] u)
+    (data/add-author s u)
     )
   )
 
@@ -51,9 +51,10 @@
   )
 
 (defn add-click [s k e u]
+  (prn "ADDD CLICK" u)
   (.preventDefault e)
   (.stopPropagation e)
-  (swap! s update-in [:data :authors-list] assoc (utils/author-key u) u)
+  (data/new-author s (assoc u :fullname (str (:firstname u) " " (:lastname u))))
   (panels/close s e)
   ;; Clear form - JBG
   (swap! s update :data dissoc k)
@@ -64,10 +65,7 @@
 (defn buttons-new [s k]
   [:div.field.buttons
    [:a.btn {:href "#"
-            :on-click #(add-click s k % {:id (get-in @s [:data k :id] 0) 
-                                         :fullname (or (get-in @s [:data k :fullname]) (str (get-in @s [:data k :firstname]) " " (get-in @s [:data k :lastname])))
-                                         :organization (get-in @s [:data k :organization]) 
-                                         })
+            :on-click #(add-click s k % (get-in @s [:data k]))
             } "Add author"]
    [:a.btn.secondary {:href "#"
                       :on-click #(panels/close s %)
@@ -75,15 +73,16 @@
    ] 
   )
 
-(defn result-click [s key e res]
+(defn result-click [s k e res]
   (.preventDefault e)
   (.stopPropagation e)
-  (swap! s assoc-in [:data key :firstname] (str (:givenname res) " " (:middlename res)) ) 
-  (swap! s assoc-in [:data key :lastname] (:surname res))
-  (swap! s assoc-in [:data key :organization] (:org res))
-  (swap! s assoc-in [:data key :email] (:email res))
-  (swap! s assoc-in [:data key :id] (:id res))
-  (swap! s assoc-in [:data key :name] (:name res))
+  (swap! s assoc-in [:data k] {:firstname (str (:givenname res) " " (:middlename res))
+                               :lastname (:surname res)
+                               :organization (:org res)
+                               :email (:email res)
+                               :id (:id res 0)
+                               :name (:name res)
+                               })
   (swap! s assoc :user-query "")
   (swap! s assoc :user-results nil)
   )

@@ -91,9 +91,14 @@
     )
   )
  
-(defn get-users [id]
-  (sel-prj-users {:id id} (_connection))
+(defn get-owners [prj-id]
+  (sel-prj-users {:id prj-id} (_connection))
   )
+
+(defn get-owner [owner-id]
+  (first (sel-owner-by-id {:id owner-id} (_connection))) 
+  )
+
 
 (defn add-owner [prj-id a]
   (insert-owner<! {:project_id prj-id 

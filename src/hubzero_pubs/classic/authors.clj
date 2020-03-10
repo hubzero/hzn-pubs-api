@@ -6,6 +6,8 @@
             [clojure.java.jdbc :as jdbc]
             [hubzero-pubs.config :refer [config]]
             [hubzero-pubs.utils :as utils]
+            [hubzero-pubs.classic.prjs :as prjs]
+            [hubzero-pubs.classic.pubs :as pubs]
             [mount.core :as mount :refer [defstate]]
             )
   )
@@ -15,6 +17,7 @@
 (defn _connection [] {:connection db})
 
 (defn add [ver-id user-id a]
+  (prn "ADD AUTHOR" ver-id user-id a)
   (insert-author<! {:publication_version_id ver-id
                     :user_id (:userid a 0)
                     :ordering (:index a)
@@ -26,13 +29,31 @@
                     :created (f/unparse (:mysql f/formatters) (t/now))
                     :created_by user-id 
                     :status 1
-                    :project_owner_id (:project_owner_id a)
-                    } (_connection)) 
+                    :project_owner_id (:id a)
+                    } (_connection))
   )
 
-(defn rm [ver-id author-id]
-  (del-author! {:publication_version_id ver-id 
-                :user_id author-id} (_connection))
+(defn create [ver-id user-id a]
+  (prn "ADD AUTHOR" a)
+  (let [pub (pubs/get-pub ver-id)
+        owners (->> (prjs/get-owners (:prj-id pub))
+                    (map (fn [o] [(:userid o) o]))
+                    (into {})
+                    )
+        ]
+    (prn "PUB" pub)
+    (if-let [o (owners (:id a))]
+      (add ver-id user-id (assoc a :id (:id o)))
+      (as-> (prjs/add-owner (:prj-id pub) a) $
+        (:generated_key $)
+        (add ver-id user-id (assoc a :id $))
+        )
+      )
+    )
+  )
+
+(defn rm [author-id]
+  {:status (if (del-author! {:id author-id} (_connection)) 200 500)} 
   )
 
 (defn edit [ver-id prj-id a]
@@ -51,7 +72,7 @@
     )
   )
  
-(defn authors [ver-id]
+(defn ls [ver-id]
   (->>
     (sel-pub-authors {:publication_version_id ver-id} (_connection))
     (reduce (fn [m a]
@@ -68,5 +89,15 @@
               ) {})
     )
   )
- 
 
+(comment
+
+(ls ver-id)
+
+(def ver-id 196)
+(def user-id 1001)
+(def a
+  {:firstname "J B", :lastname "G", :fullname "J B G", :organization "Bob Taco Stand", :email "jbg@example.com", :id 1001, :name "J B G"}
+  )
+  
+  )

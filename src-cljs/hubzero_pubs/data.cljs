@@ -95,26 +95,85 @@
   )
 
 
-(defn get-users [s]
-  (go (let [res (<! (http/get (str url "/prjs/" (:prj-id @s) "/users")
+(defn get-owners [s]
+  (go (let [res (<! (http/get (str url "/prjs/" (get-in @s [:data :prj-id]) "/owners")
                               (options s)))]
-        (prn "USERS" (:body res))
         (->>
-          (cljs.reader/read-string (:body res))
+          (:body res)
           (map (fn [u] [(:id u) u]))
           (into {})
           (swap! s assoc :users))
-        ))
+        )
+      )
   )
 
 (defn search-users [s]
-  (go (let [res (<! (http/get (str url "/users/" (:user-query @s))
-                              (options s)))]
-        ;(prn (:body res))
-        (->>
-          (cljs.reader/read-string (:body res))
-          (swap! s assoc :user-results))
+  (go (let [res (<! (http/post (str url "/users/search")
+                               {:edn-params {:q (:user-query @s)}}
+                               ))]
+        (prn "USER RESPONSE" (:body res))
+        (swap! s assoc :user-results (:body res))
         ))
+  )
+
+(defn get-authors [s]
+  (go (let [res (<! (http/get (str url
+                                   "/pubs/" (get-in @s [:data :pub-id])
+                                   "/v/" (get-in @s [:data :ver-id])
+                                   "/authors")
+                              (options s)))]
+        (_handle-res s res (fn [s res]
+                             (swap! s assoc-in [:data :authors-list] (:body res))
+                             ))
+
+        ))
+  )
+
+(defn add-author
+  "s is the state, author is a map - JBG"
+  [s author]
+  (go (let [res (<! (http/post (str url
+                                    "/pubs/" (get-in @s [:data :pub-id])
+                                    "/v/" (get-in @s [:data :ver-id])
+                                    "/authors")  {:edn-params author}))]
+        (prn "<<< AUTHOR" (:body res))
+        (as-> (:body res) $
+          (:generated_key $)
+          (assoc author :id $)
+          (swap! s assoc-in [:data :authors-list (:id $)] $)
+          )
+        ))
+  )
+
+(defn new-author
+  [s author]
+  (go (let [res (<! (http/post (str url
+                                    "/pubs/" (get-in @s [:data :pub-id])
+                                    "/v/" (get-in @s [:data :ver-id])
+                                    "/authors/new") {:edn-params author}))]
+        (prn "<<< OWNER" (:body res))
+        (as-> (:body res) $
+          (:generated_key $)
+          (assoc author :id $)
+          (swap! s assoc-in [:data :authors-list (:id $)] $)
+          )
+        ))
+
+  )
+
+(defn rm-author 
+  "s is the state, and author-id - JBG"
+  [s author-id]
+  (prn "REMOVING AUTHOR" author-id)
+  (go (let [res (<! (http/delete (str url
+                                      "/pubs/" (get-in @s [:data :pub-id])
+                                      "/v/" (get-in @s [:data :ver-id])
+                                      "/authors/" author-id) 
+                                 (options s)))]
+        (_handle-res s res (fn [s res]
+                             (swap! s update-in [:data :authors-list] dissoc author-id)
+                             ))
+        )) 
   )
 
 (defn get-licenses [s]
@@ -178,6 +237,7 @@
                                   (swap! s assoc :data)
                                   )
                              (get-files s)
+                             (get-authors s)
                              (usage s)
                              ))
         ))

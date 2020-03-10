@@ -125,6 +125,10 @@ INSERT INTO `jos_tags_log` (`tag_id`,`action`,`comments`,`timestamp`,`user_id`,`
 --
 SELECT DISTINCT * FROM jos_project_owners AS o JOIN jos_projects as p ON o.projectid=p.id LEFT JOIN jos_publication_authors as pa ON o.id=pa.project_owner_id AND pa.publication_version_id=:publication_version_id LEFT JOIN jos_xprofiles as x ON o.userid=x.uidNumber LEFT JOIN jos_xgroups as g ON o.groupid=g.gidNumber WHERE o.projectid=:project_id AND (o.userid > 0 OR o.invited_email IS NOT null OR o.invited_name IS NOT null) AND o.status NOT IN (2,4) GROUP BY o.id, pa.name, pa.organization, pa.credit
 
+-- name: sel-owner-by-id
+--
+SELECT * FROM jos_project_owners where `id` = :id
+
 -- name: sel-pub-authors
 --
 SELECT A.*, PO.id AS project_owner_id, PO.invited_name, PO.invited_email FROM jos_publication_authors as A JOIN jos_project_owners as PO ON PO.id=A.project_owner_id  WHERE A.publication_version_id=:publication_version_id AND A.status=1 AND (A.role != 'submitter' || A.role IS NULL) ORDER BY A.ordering ASC
