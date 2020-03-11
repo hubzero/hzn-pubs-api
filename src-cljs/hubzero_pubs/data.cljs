@@ -238,6 +238,26 @@
         ))
   )
 
+(defn get-tags [s]
+  (go (let [res (<! (http/get (str url
+                                   "/pubs/" (get-in @s [:data :pub-id])
+                                   "/v/" (get-in @s [:data :ver-id])
+                                   "/tags") 
+                              (options s)))]
+        (prn "<<< TAGS" (:body res))
+        (_handle-res s res (fn [s res]
+                             (swap! s assoc-in [:data :tags]
+                                    (->>
+                                      (:body res)
+                                      (group-by :id)
+                                      (map (fn [[k v]] [k (first v)]))
+                                      (into {})
+                                      )
+                                    )
+                             ))
+        ))
+  )
+
 (defn get-pub [s]
   (go (let [res (<! (http/get (str url
                                    "/pubs/" (get-in @s [:data :pub-id])
@@ -250,6 +270,7 @@
                                   )
                              (get-files s)
                              (get-authors s)
+                             (get-tags s)
                              (usage s)
                              ))
         ))
@@ -284,4 +305,36 @@
                              ))
         ))
   )
+
+(defn add-tag
+  "s is the state, tag-str is the tag as a str - JBG"
+  [s tag-str]
+  (prn "ADDING TAG" tag-str)
+  (go (let [res (<! (http/post (str url
+                                    "/pubs/" (get-in @s [:data :pub-id])
+                                    "/v/" (get-in @s [:data :ver-id])
+                                    "/tags")  {:edn-params tag-str}))]
+        (prn "<<< TAG" (:body res))
+        ;(as-> (:body res) $
+        ;  (:generated_key $)
+        ;  )
+        (swap! s update-in [:data :tags] conj tag-str)
+        (swap! s assoc-in [:ui :tag] false)
+        ))
+  )
+
+(defn rm-tag
+  "s is the state, and tag-id - JBG"
+  [s tag-id]
+  (go (let [res (<! (http/delete (str url
+                                      "/pubs/" (get-in @s [:data :pub-id])
+                                      "/v/" (get-in @s [:data :ver-id])
+                                      "/tags/" tag-id) 
+                                 (options s)))]
+        (_handle-res s res (fn [s res]
+                             (swap! s update-in [:data :tags] dissoc tag-id)
+                             ))
+        ))
+  )
+
 

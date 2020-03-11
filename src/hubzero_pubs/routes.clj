@@ -134,17 +134,20 @@
   (response (files/ls (:version-id (:params req))))
   )
 
+(defn get-tags [req]
+  (response (tags/ls (:version-id (:params req))))
+  )
+
 (defn add-tag [req]
   (response (tags/add-tag (:body-params req)
-                          (:id (:params req))
-                          (:vid (:params req))
+                          (:version-id (:params req))
                           (:id (:user req))))
   )
 
-(defn remove-tag [req]
-  (response (tags/remove-tag (:id (:params req))
-                             (:version-id (:params req))
-                             (:id (:user req))))
+(defn rm-tag [req]
+  {:status (if (tags/rm-tag (:version-id (:params req))
+                            (:tag-id (:params req))
+                            ) 200 500) }
   )
 
 (defn get-owners [prj-id]
@@ -172,8 +175,9 @@
   (GET    (str pubroot "/files")                   req   (get-files req))
   (POST   (str pubroot "/files")                   req   (add-file req))
   (DELETE (str pubroot "/files/:file-id")          req   (rm-file req))
+  (GET    (str pubroot "/tags")                    req   (get-tags req))
   (POST   (str pubroot "/tags")                    req   (add-tag req))
-  (DELETE (str pubroot "/tags/:tag-id")            req   (remove-tag req)) 
+  (DELETE (str pubroot "/tags/:tag-id")            req   (rm-tag req)) 
 
   (GET    "/users/me"                              req   (response (:user req)))
   (POST   "/users/search"                          req   (search-users req))

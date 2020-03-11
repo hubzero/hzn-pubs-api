@@ -1,6 +1,7 @@
 (ns hubzero-pubs.comps.tags
   (:require [reagent.core :as r]
             [hubzero-pubs.comps.ui :as ui]
+            [hubzero-pubs.data :as data]
             [hubzero-pubs.utils :as utils]
             )
   )
@@ -22,10 +23,9 @@
 (defn add-tag [s e]
   (.preventDefault e)
   (.stopPropagation e)
-  (swap! s update-in [:data :tags] conj (-> js/document
-                                            (.querySelector ".new-tag")
-                                            .-value))
-  (swap! s assoc-in [:ui :tag] false)
+  (data/add-tag s (-> js/document
+                      (.querySelector ".new-tag")
+                      .-value))
   )
 
 (defn tag-input [s]
@@ -39,7 +39,8 @@
                       :type :text
                       :placeholder "Enter tag"
                       :onKeyUp #(if (= 13 (.-keyCode %)) (add-tag s %))
-                      }] 
+                      ;:on-change #(swap! s assoc-in [:ui :tag-str] (-> % .-target .-value)) 
+                      }]
      )])
 
 (defn tag-creating [s]
@@ -54,22 +55,23 @@
    ]
   )
 
-(defn remove-tag [s e]
+(defn remove-tag [s t e]
   (.preventDefault e)
   (.stopPropagation e)
-  (swap! s assoc-in [:data :tags] (remove #{(-> e
-                                                .-target
-                                                (utils/find-ancestor ".ptag")
-                                                (.getAttribute "data-val"))} (get-in @s [:data :tags])))
+  (data/rm-tag s (:id t))
   )
 
-(defn tag [s name]
-  [:a.ptag {:href "#" :key name :data-val name :on-click (fn [e]
-                                                           (.preventDefault e)
-                                                           (.stopPropagation e)
-                                                           )}
-   [:div.inner name
-    [:div.remove.icon {:on-click #(remove-tag s %)}
+(defn tag
+  "s state, t is the tag map - JBG" 
+  [s t]
+  [:a.ptag {:href "#"
+            :key (:id t)
+            :on-click (fn [e]
+                        (.preventDefault e)
+                        (.stopPropagation e)
+                        )}
+   [:div.inner (:raw_tag t) 
+    [:div.remove.icon {:on-click #(remove-tag s t %)}
      (ui/icon s "#icon-cross")
      ]
     ]
@@ -82,7 +84,7 @@
    [:div.field-wrapper
     (merge
       [:div.item.ui.ptags]
-      (map #(tag s %)  (get-in @s [:data :tags]))
+      (map #(tag s %) (vals (get-in @s [:data :tags])))
       (tag-creator s)
       (tag-creating s)
       )

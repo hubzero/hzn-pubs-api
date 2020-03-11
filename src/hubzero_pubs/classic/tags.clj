@@ -34,14 +34,12 @@
   (first (sel-tag-by-id {:id id} (_connection)))
   )
 
-(defn get-all [ver-id]
+(defn ls [ver-id]
   (->>
     (sel-tag-objs {:object_id ver-id
                    :tbl "publications"
                    } (_connection))
-    (map (fn [to]
-           (:raw_tag (_get-tag-by-id (:tagid to)))
-           ))
+    (map (fn [to] (_get-tag-by-id (:tagid to))))
     )
   )
 
@@ -104,7 +102,8 @@
     )
   )
 
-(defn remove-tag [ver-id tag-id]
+(defn rm-tag [ver-id tag-id]
+  (prn "BLAH BLAH" ver-id tag-id)
   (del-tag-obj! {:tag_id tag-id
                  :object_id ver-id
                  } (_connection))
