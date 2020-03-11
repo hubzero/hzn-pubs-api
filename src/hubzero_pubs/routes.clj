@@ -103,7 +103,10 @@
   )
 
 (defn edit-author [req]
-  (authors/edit (:version-id req) (:author-id req) (:body-params req))
+  (prn "EDIT AUTHOR" (:version-id (:params req)) (:author-id (:params req)) (:body-params req))
+  (authors/edit (:version-id (:params req))
+                (:author-id (:params req))
+                (:body-params req))
   )
 
 (defn add-citation [req]

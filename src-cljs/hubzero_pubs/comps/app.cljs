@@ -105,12 +105,30 @@
     )
   )
 
+(defn- _fillname [v]
+  (assoc v
+         :firstname (or (:firstname v) (first (clojure.string/split (:fullname v) #" ")))
+         :lastname (or (:lastname v) (last (clojure.string/split (:fullname v) #" "))))
+  )
+
+(defn edit-author [s v e]
+  (.preventDefault e)
+  (.stopPropagation e)
+  (prn "EDIT AUTHOR" v)
+  (swap! s assoc-in [:data :authors-new] (_fillname v))
+  (options/handle-author false s e)
+  )
+
 (defn author [s k v id]
   [:li.item {:key id}
    (ui/icon s "#icon-user")
    [:div.main
-    [:div.subject [:a {:href "#"} (:fullname v)] ]
-    [:div.meta [:a {:href "#"} (:organization v)] ]
+    [:div.subject [:a {:href "#"
+                       :on-click #(edit-author s v %)
+                       } (:fullname v)] ]
+    [:div.meta [:a {:href "#"
+                    :on-click #(edit-author s v %)
+                    } (:organization v)] ]
     [:div.ui.checkbox.inline.meta
      [:input (merge {:type :checkbox :name :poc :on-change #(handle-poc-click s % id)} {:checked (boolean (some #{id} (get-in @s [:data :poc]))) })]
      [:label (:for :poc) "Point of contact"]

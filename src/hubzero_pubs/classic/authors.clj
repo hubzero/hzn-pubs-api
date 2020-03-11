@@ -56,22 +56,26 @@
   {:status (if (del-author! {:id author-id} (_connection)) 200 500)} 
   )
 
-(defn edit [ver-id prj-id a]
-  (update-author! {:ordering (:index a)
-                   :name (:fullname a)
-                   :firstname (:firstname a "")
-                   :lastname (:lastname a "")
-                   :org (:organization a "")
-                   :credit (:credit a "")
-                   :publication_version_id ver-id
-                   :user_id (:user_id a)
-                   :project_owner_id (:project_owner_id a)
-                   } (_connection))
-  (if-let [poid (:id a)]
-    (update-prj-owner! {:invited_email (:email a) :id poid} (_connection))
-    )
+(defn edit [ver-id author-id a]
+  {:status
+   (if
+     (update-author! {:id author-id
+                      :ordering (:index a)
+                        :name (:fullname a)
+                        :firstname (:firstname a "")
+                        :lastname (:lastname a "")
+                        :organization (:organization a "")
+                        :credit (:credit a "")
+                        :publication_version_id ver-id
+                        :user_id (:user_id a)
+                        :project_owner_id (:project_owner_id a)
+                        } (_connection))
+
+     (if-let [poid (:project_owner_id a)]
+       (if (update-prj-owner! {:invited_email (:email a) :id poid} (_connection))
+         200 500) 200) 500) }
   )
- 
+
 (defn ls [ver-id]
   (->>
     (sel-pub-authors {:publication_version_id ver-id} (_connection))
@@ -96,8 +100,11 @@
 
 (def ver-id 196)
 (def user-id 1001)
+
 (def a
-  {:firstname "J B", :lastname "G", :fullname "J B G", :organization "Bob Taco Stand", :email "jbg@example.com", :id 1001, :name "J B G"}
+ {:id 431, :name "Petra Smart", :organization "foo"} 
   )
+
+(edit ver-id a)
   
   )

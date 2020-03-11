@@ -62,8 +62,14 @@
    ]
   )
 
-
-
+(defn handle-author [is-new s e]
+   (.preventDefault e)
+   (.stopPropagation e)
+   (panels/show-overlay s true)
+   (swap! s assoc-in [:ui :panels :authors-new] true)
+   (swap! s assoc-in [:ui :author-options :is-new] is-new)
+   (close s) ;; why?
+  )
 
 (defn handle-add-author [s e]
   (.preventDefault e)
@@ -75,11 +81,7 @@
   )
 
 (defn handle-new-author [s e]
-  (.preventDefault e)
-  (.stopPropagation e)
-  (panels/show-overlay s true)
-  (swap! s assoc-in [:ui :panels :authors-new] true)
-  (close s)
+  (handle-author true s e)
   )
 
 (defn authors [s]

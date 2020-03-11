@@ -161,6 +161,18 @@
 
   )
 
+(defn update-author
+  [s author]
+  (go (let [res (<! (http/put (str url
+                                    "/pubs/" (get-in @s [:data :pub-id])
+                                    "/v/" (get-in @s [:data :ver-id])
+                                    "/authors/" (:id author)) {:edn-params author}))]
+        (prn "<<< UPDATED AUTHOR" (:body res))
+        (get-authors s)
+        
+        ))
+  )
+
 (defn rm-author 
   "s is the state, and author-id - JBG"
   [s author-id]

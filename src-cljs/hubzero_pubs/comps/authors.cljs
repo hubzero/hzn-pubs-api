@@ -50,11 +50,20 @@
    ]
   )
 
-(defn add-click [s k e u]
-  (prn "ADDD CLICK" u)
+(defn add-click [s k e]
   (.preventDefault e)
   (.stopPropagation e)
-  (data/new-author s (assoc u :fullname (str (:firstname u) " " (:lastname u))))
+  (let [u (get-in @s [:data k])]
+    (prn "ADDDDD USER" u)
+    (if (get-in @s [:ui :author-options :is-new]) 
+      (data/new-author s (assoc u
+                                :fullname (str (:firstname u) " " (:lastname u))
+                                :id (:id u 0)
+                                ))
+      (data/update-author s u)
+      )   
+    )
+
   (panels/close s e)
   ;; Clear form - JBG
   (swap! s update :data dissoc k)
@@ -62,15 +71,15 @@
   (-> js/document (.querySelector (str "." (name k) " .inner")) (.scrollTo 0 0))
   )
 
-(defn buttons-new [s k]
+(defn authors-buttons [s k]
   [:div.field.buttons
    [:a.btn {:href "#"
-            :on-click #(add-click s k % (get-in @s [:data k]))
-            } "Add author"]
+            :on-click #(add-click s k %)
+            }  (if (get-in @s [:ui :author-options :is-new]) "Add author" "Save author")]
    [:a.btn.secondary {:href "#"
                       :on-click #(panels/close s %)
                       } "Close"]
-   ] 
+   ]
   )
 
 (defn result-click [s k e res]
@@ -123,20 +132,26 @@
 
 (defn fieldset [s key fields] 
   [:fieldset {:class key}
-   (search s key)
-   [:hr]
+   (when (get-in @s [:ui :author-options :is-new])
+     [:div (search s key)
+      [:hr]
+      ]
+     )
    (merge
      [:div.selected-item]
      (doall (map #(panels/field s key %) fields))
      )
-   (buttons-new s key) 
+   (authors-buttons s key)
    ]
   )
 
 (defn authors-new [s key]
   [:div.page-panel.as-panel {:class [key (if (get-in @s [:ui :panels key]) :open)]}
    [:div.inner
-    (panels/header s "Add new authors")
+    (if (get-in @s [:ui :author-options :is-new])
+      (panels/header s "Add new authors")
+      (panels/header s "Edit author information")
+      )
     (fieldset s key [{:name "firstname" :label "First name" :type :text}
                      {:name "lastname" :label "Last name" :type :text}
                      {:name "organization" :label "Organization" :type :text}
