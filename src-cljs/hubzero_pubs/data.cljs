@@ -214,6 +214,35 @@
         ))
   )
 
+(defn add-citation
+  "s is the state, tag-str is the tag as a str - JBG"
+  [s c]
+  (prn "ADDING CITATION" c)
+  (go (let [res (<! (http/post (str url
+                                    "/pubs/" (get-in @s [:data :pub-id])
+                                    "/v/" (get-in @s [:data :ver-id])
+                                    "/citations")  {:edn-params c}))]
+        (prn "<<< CITATION" (:body res))
+        (swap! s update-in [:data :citations] assoc (:id c) c)
+        ))
+  )
+
+(defn rm-citation
+  "s is the state, and citation-id - JBG"
+  [s citation-id]
+  (prn "RM CITATION>>>" citation-id)
+  (go (let [res (<! (http/delete (str url
+                                      "/pubs/" (get-in @s [:data :pub-id])
+                                      "/v/" (get-in @s [:data :ver-id])
+                                      "/citations/" citation-id) 
+                                 (options s)))]
+        (prn "<<< RM CITATION" citation-id)
+        (_handle-res s res (fn [s res]
+                             (swap! s update-in [:data :citations] dissoc citation-id)
+                             ))
+        ))
+  )
+
 (defn create-citation [s]
   (go (let [c (get-in @s [:data :citations-manual])
             res (<! (http/post (str url "/citations") {:edn-params c}))]
@@ -222,13 +251,13 @@
           (:body res)
           (:generated_key)
           (assoc c :id)
-          (add-citation s c)
           ;(swap! s update-in [:data :citations] conj c)
 
           ;; Manual citation form needs a reset - JBG
           (swap! s update :data dissoc :citations-manual)
           (-> js/document (.querySelector ".citations-manual .inner") (.scrollTo 0 0))
           )
+        (add-citation s c)
         ))
   )
 
@@ -373,22 +402,4 @@
                              ))
         ))
   )
-
-(defn add-citation
-  "s is the state, tag-str is the tag as a str - JBG"
-  [s c]
-  (prn "ADDING CITATION" c)
-  (go (let [res (<! (http/post (str url
-                                    "/pubs/" (get-in @s [:data :pub-id])
-                                    "/v/" (get-in @s [:data :ver-id])
-                                    "/citations")  {:edn-params c}))]
-        (prn "<<< TAG" (:body res))
-        (swap! s update-in [:data :citations (:id c)] c)
-        ))
-  )
-
-
-
-
-
 

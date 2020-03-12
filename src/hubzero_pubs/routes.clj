@@ -69,10 +69,6 @@
  (response (citations/create (:body-params req))) 
  )
 
-(defn rm-citation [req]
- (response (citations/rm (:citation-id (:params req)))) 
- )
-
 
 (defn save-ui-state [req]
   (ui-state/create (:body-params req))
@@ -118,9 +114,12 @@
   )
 
 (defn rm-citation [req]
-  (citations/rm (:citation-id req)) 
-  )
+  {:status (if (citations/rm (:version-id (:params req))
+                             (:citation-id (:params req))
+                             ) 200 500) }
 
+  )
+ 
 (defn add-file [req]
   (response (files/add (:id (:params req))
                        (:version-id (:params req))
@@ -143,15 +142,15 @@
   )
 
 (defn add-tag [req]
-  (response (tags/add-tag (:body-params req)
-                          (:version-id (:params req))
-                          (:id (:user req))))
+  (response (tags/add (:body-params req)
+                      (:version-id (:params req))
+                      (:id (:user req))))
   )
 
 (defn rm-tag [req]
-  {:status (if (tags/rm-tag (:version-id (:params req))
-                            (:tag-id (:params req))
-                            ) 200 500) }
+  {:status (if (tags/rm (:version-id (:params req))
+                        (:tag-id (:params req))
+                        ) 200 500) }
   )
 
 (defn get-owners [prj-id]

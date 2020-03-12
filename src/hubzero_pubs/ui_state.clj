@@ -40,6 +40,7 @@
     (_keys-to-strs $ [:data :citations])
     (_keys-to-strs $ [:ui :options :content])
     (_keys-to-strs $ [:ui :options :authors-list])
+    (_keys-to-strs $ [:ui :options :citation])
     (assoc $
            :_id (ObjectId.)
            :app "pubs"

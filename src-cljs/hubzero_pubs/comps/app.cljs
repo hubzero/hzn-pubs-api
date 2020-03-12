@@ -151,13 +151,13 @@
    [:div.icon (ui/icon s "#icon-file-text2")]
    [:div.main
     [:div.subject
-     [:a {:href "#"} (utils/format-citation (second c))]
+     [:a {:href "#"} (utils/format-citation c)]
      ]
     ]
    [:div.options {:on-click (fn [e]
                               (.preventDefault e)
                               (.stopPropagation e)
-                              (swap! s assoc-in [:ui :options (:id c)] true)
+                              (swap! s assoc-in [:ui :options :citation (:id c)] true)
                               )}
     (ui/icon s "#icon-dots")
     (options/citation s k c)
@@ -171,7 +171,7 @@
       :support-docs (file s k (second v) (first v))
       :authors-list (author s k (second v) (first v))
       :images (image s k (second v) (first v))
-      :citations (citation s k v)
+      :citations (citation s k (second v))
       })
   )
 

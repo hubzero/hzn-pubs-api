@@ -95,14 +95,14 @@
     )
   )
 
-(defn add-tag [s ver-id user-id]
+(defn add [s ver-id user-id]
   (if-let [tag (get-tag s)]
     (_tag tag ver-id user-id)
     (_create-tag s user-id)
     )
   )
 
-(defn rm-tag [ver-id tag-id]
+(defn rm [ver-id tag-id]
   (prn "BLAH BLAH" ver-id tag-id)
   (del-tag-obj! {:tag_id tag-id
                  :object_id ver-id
