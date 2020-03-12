@@ -49,7 +49,7 @@
   [user-id p]
   (merge p {:title (:title p "")
             :created_by user-id 
-            :license_type (:id (:licenses p))
+            :license_type (:license_type p)
             :params (_params-str p)
             :release_notes (:release-notes p "")
             :published_up (if-let [dstr (:publication-date p)] (_fmt-pub-date dstr))
@@ -106,6 +106,7 @@
        :ack (= (:licenseagreement params) "1")
        ;:authors-list (get-authors ver-id)
        ;:licenses (get-license (:license_type pub-ver))
+       :license_type (:license_type pub-ver)
        :release-notes (:release_notes pub-ver)
        ;:tags (tags/get-all ver-id)
        :doi (:doi pub-ver)

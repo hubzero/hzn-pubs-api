@@ -43,7 +43,7 @@ INSERT INTO `jos_publication_versions` (`publication_id`, `main`, `state`, `titl
 
 -- name: update-pub-version!
 --
-UPDATE `jos_publication_versions` SET `publication_id`=:publication_id, `main`=:main,`doi`=:doi, `state`=:state, `title`=:title, `description`=:description, `abstract`=:abstract, `created`=:created, `created_by`=:created_by, `modified`=:modified, `modified_by`=:modified_by, `version_label`=:version_label, `secret`=:secret, `version_number`=:version_number, `license_type`=:license_type, `access`=:access, `rating`=:rating, `times_rated`=:times_rated, `ranking`=:ranking, `forked_from`=:forked_from, `release_notes`=:release_notes, `published_up`=:published_up, `popupURL`=:popupURL WHERE `id`=:id
+UPDATE `jos_publication_versions` SET `publication_id`=:publication_id, `main`=:main,`doi`=:doi, `state`=:state, `title`=:title, `description`=:description, `abstract`=:abstract, `created`=:created, `created_by`=:created_by, `modified`=:modified, `modified_by`=:modified_by, `version_label`=:version_label, `secret`=:secret, `version_number`=:version_number, `license_type`=:license_type, `access`=:access, `rating`=:rating, `times_rated`=:times_rated, `ranking`=:ranking, `forked_from`=:forked_from, `release_notes`=:release_notes, `published_up`=:published_up, `popupURL`=:popupURL, `params`=:params WHERE `id`=:id
 
 -- name: insert-attachment<!
 --

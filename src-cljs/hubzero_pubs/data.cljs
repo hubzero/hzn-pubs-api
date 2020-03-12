@@ -189,7 +189,7 @@
   )
 
 (defn get-licenses [s]
-  (go (let [res (<! (http/get (str url "/pubs/licenses") (options s)))]
+  (go (let [res (<! (http/get (str url "/licenses") (options s)))]
         ;(prn (:body res))
         (->>
           (cljs.reader/read-string (:body res))
@@ -258,19 +258,33 @@
         ))
   )
 
+(defn get-license [s]
+  (if-let [license-type (get-in @s [:data :license_type])]
+    (go (let [res (<! (http/get (str url "/licenses/" license-type)
+                                (options s)))]
+          (prn "<<< LICENSE" (:body res))
+          (_handle-res s res (fn [s res]
+                               (swap! s assoc-in [:data :licenses] (:body res))
+                               ))
+          ))
+    )
+  )
+
 (defn get-pub [s]
   (go (let [res (<! (http/get (str url
                                    "/pubs/" (get-in @s [:data :pub-id])
                                    "/v/" (get-in @s [:data :ver-id])
                                    ) (options s)))]
+        (prn "<<< PUB" (:body res))
         (_handle-res s res (fn [s res]
                              (->> (:body res)
-                                  (mutate/coerce)
+                                  ;(mutate/coerce)
                                   (swap! s assoc :data)
                                   )
                              (get-files s)
                              (get-authors s)
                              (get-tags s)
+                             (get-license s)
                              (usage s)
                              ))
         ))
@@ -280,7 +294,7 @@
   (as-> (:data @s) $
     (mutate/prepare $)
     (go (let [res (<! (http/post (str url "/pubs") {:edn-params $}))]
-          (prn "SENT >>>" $)
+          (prn "SENT PUB >>>" $)
           (prn "<<< RECEIVED"(:body res))
           (_handle-res s res (fn [s res]
                                (swap! s update :data merge (:body res))

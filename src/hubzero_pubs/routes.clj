@@ -153,6 +153,10 @@
 (defn get-owners [prj-id]
   (response (prjs/get-owners prj-id))
   )
+
+(defn get-license [req]
+  (response (licenses/get-by-id (:license-id (:params req))))
+  )
  
 (def pubroot "/pubs/:id/v/:version-id")
 
@@ -183,6 +187,7 @@
   (POST   "/users/search"                          req   (search-users req))
 
   (GET    "/licenses"                              []    (licenses/get-all))
+  (GET    "/licenses/:license-id"                  req   (get-license req))
 
   (POST   "/citations/search"                      req   (search-citations req))
   (POST   "/citations"                             req   (create-citation req))

@@ -33,6 +33,8 @@
   (as-> s $
     (_keys-to-strs $ [:users])
     (_keys-to-strs $ [:data :content])
+    (_keys-to-strs $ [:data :images])
+    (_keys-to-strs $ [:data :support-docs])
     (_keys-to-strs $ [:data :authors-list])
     (_keys-to-strs $ [:data :tags])
     (_keys-to-strs $ [:ui :options :content])
