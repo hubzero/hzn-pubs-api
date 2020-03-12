@@ -246,18 +246,15 @@
 (defn create-citation [s]
   (go (let [c (get-in @s [:data :citations-manual])
             res (<! (http/post (str url "/citations") {:edn-params c}))]
-        ;(prn c)
+        (prn "CREATE CITATION >>>>> " c)
+        (prn "<<<< CITATION" (:body res))
+
         (->>
           (:body res)
           (:generated_key)
           (assoc c :id)
-          ;(swap! s update-in [:data :citations] conj c)
-
-          ;; Manual citation form needs a reset - JBG
-          (swap! s update :data dissoc :citations-manual)
-          (-> js/document (.querySelector ".citations-manual .inner") (.scrollTo 0 0))
+          (add-citation s)
           )
-        (add-citation s c)
         ))
   )
 
