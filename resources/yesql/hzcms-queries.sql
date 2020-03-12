@@ -151,7 +151,7 @@ SELECT cid FROM jos_citations_assoc WHERE `oid` = :oid
 
 -- name: del-citation-assoc!
 --
-DELETE FROM jos_citations_assoc WHERE `id` = :id 
+DELETE FROM jos_citations_assoc WHERE `cid` = :cid AND `oid` = :oid
 
 -- name: sel-citation-by-id
 --

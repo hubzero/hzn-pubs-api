@@ -151,7 +151,7 @@
    [:div.icon (ui/icon s "#icon-file-text2")]
    [:div.main
     [:div.subject
-     [:a {:href "#"} (utils/format-citation c)]
+     [:a {:href "#"} (utils/format-citation (second c))]
      ]
     ]
    [:div.options {:on-click (fn [e]

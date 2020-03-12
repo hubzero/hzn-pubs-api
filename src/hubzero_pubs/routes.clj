@@ -109,8 +109,12 @@
                 (:body-params req))
   )
 
+(defn get-citations [req]
+  (response (citations/ls (:version-id (:params req))))
+  )
+
 (defn add-citation [req]
-  (response (citations/add (:version-id req) (:body-params req)))
+  (response (citations/add (:version-id (:params req)) (:id (:body-params req))))
   )
 
 (defn rm-citation [req]
@@ -174,6 +178,7 @@
   (POST   (str pubroot "/authors/new")             req   (create-author req))
   (DELETE (str pubroot "/authors/:author-id")      req   (rm-author req))
   (PUT    (str pubroot "/authors/:author-id")      req   (edit-author req))
+  (GET    (str pubroot "/citations")               req   (get-citations req))
   (POST   (str pubroot "/citations")               req   (add-citation req))
   (DELETE (str pubroot "/citations/:citation-id")  req   (rm-citation req))
   (GET    (str pubroot "/files")                   req   (get-files req))

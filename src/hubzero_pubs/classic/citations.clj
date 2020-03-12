@@ -37,7 +37,14 @@
                             } (_connection))
   )
 
-(defn rm [citation-id]
-  (del-citation-assoc! {:id citation-id} (_connection))
+(defn rm [ver-id citation-id]
+  (del-citation-assoc! {:cid citation-id :oid ver-id} (_connection))
+  )
+
+(defn ls [ver-id]
+  (->>
+    (sel-citation-assocs-oid {:oid ver-id} (_connection))
+    (map #(first (sel-citation-by-id % (_connection))))
+    ) 
   )
 

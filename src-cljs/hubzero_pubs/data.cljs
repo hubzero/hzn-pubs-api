@@ -214,7 +214,7 @@
         ))
   )
 
-(defn add-citation [s]
+(defn create-citation [s]
   (go (let [c (get-in @s [:data :citations-manual])
             res (<! (http/post (str url "/citations") {:edn-params c}))]
         ;(prn c)
@@ -222,7 +222,8 @@
           (:body res)
           (:generated_key)
           (assoc c :id)
-          (swap! s update-in [:data :citations] conj)
+          (add-citation s c)
+          ;(swap! s update-in [:data :citations] conj c)
 
           ;; Manual citation form needs a reset - JBG
           (swap! s update :data dissoc :citations-manual)
@@ -258,6 +259,27 @@
         ))
   )
 
+(defn get-citations [s]
+  (go (let [res (<! (http/get (str url
+                                   "/pubs/" (get-in @s [:data :pub-id])
+                                   "/v/" (get-in @s [:data :ver-id])
+                                   "/citations") 
+                              (options s)))]
+        (prn "<<< CITATIONS" (:body res))
+        (_handle-res s res (fn [s res]
+                             (swap! s assoc-in [:data :citations]
+                                    (->>
+                                      (:body res)
+                                      (group-by :id)
+                                      (map (fn [[k v]] [k (first v)]))
+                                      (into {})
+                                      )
+                                    )
+                             ))
+        ))
+  )
+
+
 (defn get-license [s]
   (if-let [license-type (get-in @s [:data :license_type])]
     (go (let [res (<! (http/get (str url "/licenses/" license-type)
@@ -285,6 +307,7 @@
                              (get-authors s)
                              (get-tags s)
                              (get-license s)
+                             (get-citations s)
                              (usage s)
                              ))
         ))
@@ -350,5 +373,22 @@
                              ))
         ))
   )
+
+(defn add-citation
+  "s is the state, tag-str is the tag as a str - JBG"
+  [s c]
+  (prn "ADDING CITATION" c)
+  (go (let [res (<! (http/post (str url
+                                    "/pubs/" (get-in @s [:data :pub-id])
+                                    "/v/" (get-in @s [:data :ver-id])
+                                    "/citations")  {:edn-params c}))]
+        (prn "<<< TAG" (:body res))
+        (swap! s update-in [:data :citations (:id c)] c)
+        ))
+  )
+
+
+
+
 
 

@@ -7,10 +7,10 @@
     )
   )
 
-(defn add-citation [s e]
+(defn create-citation [s e]
   (.preventDefault e)
   (.stopPropagation e)
-  (data/add-citation s)
+  (data/create-citation s)
   (panels/close s e)
   )
 
@@ -37,7 +37,7 @@
                           :on-click (fn [e]
                                       (.preventDefault e)
                                       (.stopPropagation e)
-                                      (swap! s update-in [:data :citations] conj c)
+                                      (data/add-citation s c)
                                       )
                           } (utils/format-citation c)]
   )
@@ -179,7 +179,7 @@
     ]
    [:hr]
    [:div.field.buttons
-    [:a.btn {:href "#" :on-click #(add-citation s %)} "Add citation"]
+    [:a.btn {:href "#" :on-click #(create-citation s %)} "Add citation"]
     ]
    ]
   )

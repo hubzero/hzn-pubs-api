@@ -37,6 +37,7 @@
     (_keys-to-strs $ [:data :support-docs])
     (_keys-to-strs $ [:data :authors-list])
     (_keys-to-strs $ [:data :tags])
+    (_keys-to-strs $ [:data :citations])
     (_keys-to-strs $ [:ui :options :content])
     (_keys-to-strs $ [:ui :options :authors-list])
     (assoc $
