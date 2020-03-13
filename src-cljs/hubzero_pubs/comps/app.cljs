@@ -368,7 +368,11 @@
   (.preventDefault e) 
   (.stopPropagation e) 
   (if (utils/valid? s)
-    (secretary/dispatch! "/summary")
+    (secretary/dispatch! (str "/pubs/"
+                              (get-in @s [:data :pub-id])
+                              "/v/"
+                              (get-in @s [:data :version-id])
+                              ))
     (panels/show s e true :errors)
     )
   )

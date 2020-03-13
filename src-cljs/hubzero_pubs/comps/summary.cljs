@@ -14,9 +14,9 @@
   )
 
 (defn file [s f]
-  [:li {:class :item :key f}
+  [:li {:class :item :key (:id f)}
    [:div {:class :icon} (ui/icon s "#icon-file-text2") ]
-   [:div {:class :main} f]
+   [:div {:class :main} (:name f)]
    ] 
   )
 
@@ -24,16 +24,16 @@
   [:li {:class :item :key (:id a )}
    [:div {:class :icon} (ui/icon s "#icon-user")]
    [:div {:class :main} 
-    [:div {:class :subject} [:a {:href "#"} (:name a)]]
+    [:div {:class :subject} [:a {:href "#"} (:fullname a)]]
     [:div {:class :subject} [:a {:href "#"} (:organization a)]]
     ]
    ]
   )
 
 (defn image [s i]
-  [:li {:class :item :key i}
+  [:li {:class :item :key (:id i)}
    [:div {:class :icon} (ui/icon s "#icon-file-picture")]
-   [:div {:class :main} i]
+   [:div {:class :main} (:name i)]
    ]
   )
 
@@ -83,12 +83,12 @@
   )
 
 (defn tag [s t]
-  [:div {:class :tag :key t} [:div {:class :inner} t]]
+  [:div {:class :tag :key t} [:div {:class :inner} (:raw_tag t)]]
   )
 
 (defn tags [s key type]
   [:div {:class [:item :ui :tags]}
-   (doall (map #(tag s %) (get-in @s [:data :tags]))) ] 
+   (doall (map #(tag s %) (vals (get-in @s [:data :tags]))))] 
   )
 
 (defn _type [s key type bold?]
@@ -164,7 +164,7 @@
      [:p "Please review your publication and make sure everything looks good."]
      [:fieldset.buttons-aside
       [:a.btn {:href (str
-                       "/pubs/#/pubs" (get-in @s [:data :pub-id])
+                       "/pubs/#/pubs/" (get-in @s [:data :pub-id])
                        "/v/" (get-in @s [:data :ver-id])
                        )
                :on-click #(_submit s %)
