@@ -60,16 +60,16 @@
   {:status
    (if
      (update-author! {:id author-id
-                      :ordering (:index a)
-                        :name (:fullname a)
-                        :firstname (:firstname a "")
-                        :lastname (:lastname a "")
-                        :organization (:organization a "")
-                        :credit (:credit a "")
-                        :publication_version_id ver-id
-                        :user_id (:user_id a)
-                        :project_owner_id (:project_owner_id a)
-                        } (_connection))
+                      :ordering (:index a 0)
+                      :name (:fullname a)
+                      :firstname (:firstname a "")
+                      :lastname (:lastname a "")
+                      :organization (:organization a "")
+                      :credit (:credit a "")
+                      :publication_version_id ver-id
+                      :user_id (:user_id a)
+                      :project_owner_id (:project_owner_id a)
+                      } (_connection))
 
      (if-let [poid (:project_owner_id a)]
        (if (update-prj-owner! {:invited_email (:email a) :id poid} (_connection))
@@ -89,6 +89,7 @@
                                 :credit (:credit a)
                                 :email (:invited_email a)
                                 :project_owner_id (:project_owner_id a)
+                                :index (:ordering a)
                                 })
               ) {})
     )
