@@ -1,6 +1,6 @@
 (ns hubzero-pubs.auth
   (:require [digest :as digest]
-            [hubzero-pubs.classic.users :as users]
+            [hubzero-pubs.models.users :as users]
             [hubzero-pubs.config :refer [config]]
             )
   )
