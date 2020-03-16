@@ -95,7 +95,7 @@
   )
 
 (defn get-datacite [pub]
-  (_get-datacite (with-out-str (pub2xml pub))) 
+  (_get-datacite (with-out-str (pub2xml pub)))
   )
 
 (comment
