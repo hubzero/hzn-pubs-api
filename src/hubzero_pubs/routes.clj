@@ -57,6 +57,10 @@
                   )
   )
 
+(defn search-tags [req]
+  (response (tags/search (:q (:body-params req)))) 
+  )
+
 (defn search-users [req]
   (response (users/search-users (:q (:body-params req)))) 
   )
@@ -142,7 +146,7 @@
   )
 
 (defn add-tag [req]
-  (response (tags/add (:body-params req)
+  (response (tags/add (:tag (:body-params req))
                       (:version-id (:params req))
                       (:id (:user req))))
   )
@@ -186,6 +190,8 @@
   (GET    (str pubroot "/tags")                    req   (get-tags req))
   (POST   (str pubroot "/tags")                    req   (add-tag req))
   (DELETE (str pubroot "/tags/:tag-id")            req   (rm-tag req)) 
+
+  (POST   "/tags/search"                           req   (search-tags req))
 
   (GET    "/users/me"                              req   (response (:user req)))
   (POST   "/users/search"                          req   (search-users req))

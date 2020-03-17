@@ -89,6 +89,10 @@ DELETE FROM jos_publication_authors WHERE `id` = :id
 --
 SELECT * FROM `jos_tags` WHERE `raw_tag` = :tag
 
+-- name: sel-tags
+--
+SELECT * FROM `jos_tags` WHERE `raw_tag` LIKE :tag
+
 -- name: sel-tag-by-id
 --
 SELECT * FROM `jos_tags` WHERE `id` = :id

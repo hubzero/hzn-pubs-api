@@ -19,6 +19,7 @@
   )
 
 (defn- _add-tag [s user-id]
+  (prn "ADD TAG" s)
   (insert-tag<! {:admin 0
                  :raw_tag s 
                  :description ""
@@ -109,4 +110,12 @@
                  } (_connection))
   )
 
+(defn search [tag-str]
+  (sel-tags {:tag (str "%" tag-str "%")} (_connection))
+  )
 
+(comment
+
+  (search "f")
+
+  )
