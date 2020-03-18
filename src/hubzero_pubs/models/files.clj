@@ -25,6 +25,9 @@
                         :ordering (:index f) 
                         :element_id ((:type f) {:content 1 :images 2 :support-docs 3})
                         :path (:path f)
+                        :vcs_hash (:vcs_hash f "")
+                        :vcs_revision (:vcs_revision f "")
+                        :content_hash (:content_hash f "")
                         } (_connection))
   )
 

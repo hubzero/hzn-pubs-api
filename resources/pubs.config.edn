@@ -5,7 +5,9 @@
                         :dbname   "example"
                         :user     "root"
                         :password "PUk8zFrxsqsS83"
-                        :host     "localhost"}
+                        :host     "localhost"
+                        :serverTimezone "UTC"
+                        }
  :mongodb              {:host "localhost"}
  :files                {:root "/srv/example/projects/"
                         :dir  "/files"}
