@@ -22,25 +22,24 @@
 
 (defn- _keys-to-strs
   "Mongo doesn't like Long type keys, make them Strings"
-  [s k]
-  (->> (into {} (map (fn [[k v]] [(str k) v]) (get-in s k)))
-       (assoc-in s k) 
+  [m]
+  (->> (into {} (map (fn [[k v]] [(str k) v]) m))
+       )
+  )
+
+(defn- _convert-map-keys
+  "Recursive conversion w/ _keys-to-strs"
+  [m] 
+  (->> (_keys-to-strs m)
+       (reduce (fn [c [k v]]
+                 (assoc c k (if (map? v) (_convert-map-keys v) v))) {})
        )
   )
 
 (defn create [s]
   (prn "SAVING UI STATE" s)
   (as-> s $
-    (_keys-to-strs $ [:users])
-    (_keys-to-strs $ [:data :content])
-    (_keys-to-strs $ [:data :images])
-    (_keys-to-strs $ [:data :support-docs])
-    (_keys-to-strs $ [:data :authors-list])
-    (_keys-to-strs $ [:data :tags])
-    (_keys-to-strs $ [:data :citations])
-    (_keys-to-strs $ [:ui :options :content])
-    (_keys-to-strs $ [:ui :options :authors-list])
-    (_keys-to-strs $ [:ui :options :citation])
+    (_convert-map-keys $)
     (assoc $
            :_id (ObjectId.)
            :app "pubs"
@@ -53,6 +52,8 @@
   )
 
 (comment
+
+  (_convert-map-keys {1 :a 2 {3 {4 [:b] 5 "foo"}}})
 
   (def s {:ver-id 153})
 
