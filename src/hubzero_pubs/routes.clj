@@ -48,6 +48,7 @@
   )
 
 (defn get-usage [req]
+  (prn "GET USAGE" (:id (:params req)) (:body-params req))
   (response (prjs/usage (:id (:params req)) (:body-params req)))
   )
 
