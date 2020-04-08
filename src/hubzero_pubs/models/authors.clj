@@ -17,31 +17,33 @@
 (defn _connection [] {:connection db})
 
 (defn add [ver-id user-id a]
-  (prn "ADD AUTHOR" ver-id user-id a)
-  (insert-author<! {:publication_version_id ver-id
-                    :user_id (:userid a 0)
-                    :ordering (:index a)
-                    :name (:fullname a)
-                    :firstname (:firstname a "")
-                    :lastname (:lastname a "")
-                    :org (:organization a "")
-                    :credit (:credit a "") 
-                    :created (f/unparse (:mysql f/formatters) (t/now))
-                    :created_by user-id 
-                    :status 1
-                    :project_owner_id (:id a)
-                    } (_connection))
+  (if-let [ex (first (sel-author {:publication_version_id ver-id
+                                  :project_owner_id (:id a)
+                                  } (_connection)))]
+    {:generated_key (:id ex)} ;; Author exists just return their id - JBG
+    (insert-author<! {:publication_version_id ver-id
+                      :user_id (:userid a 0)
+                      :ordering (:index a)
+                      :name (:fullname a)
+                      :firstname (:firstname a "")
+                      :lastname (:lastname a "")
+                      :org (:organization a "")
+                      :credit (:credit a "") 
+                      :created (f/unparse (:mysql f/formatters) (t/now))
+                      :created_by user-id 
+                      :status 1
+                      :project_owner_id (:id a)
+                      } (_connection))
+    )
   )
 
 (defn create [ver-id user-id a]
-  (prn "ADD AUTHOR" a)
   (let [pub (pubs/get-pub ver-id)
         owners (->> (prjs/get-owners (:prj-id pub))
                     (map (fn [o] [(:userid o) o]))
                     (into {})
                     )
         ]
-    (prn "PUB" pub)
     (if-let [o (owners (:id a))]
       (add ver-id user-id (assoc a :id (:id o)))
       (as-> (prjs/add-owner (:prj-id pub) a) $
@@ -95,17 +97,3 @@
     )
   )
 
-(comment
-
-(ls ver-id)
-
-(def ver-id 196)
-(def user-id 1001)
-
-(def a
- {:id 431, :name "Petra Smart", :organization "foo"} 
-  )
-
-(edit ver-id a)
-  
-  )
