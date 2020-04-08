@@ -99,7 +99,7 @@ SELECT * FROM `jos_tags` WHERE `raw_tag` = :tag
 
 -- name: sel-tags
 --
-SELECT * FROM `jos_tags` WHERE `raw_tag` LIKE :tag
+SELECT * FROM `jos_tags` WHERE `raw_tag` LIKE :tag ORDER BY `raw_tag` ASC
 
 -- name: sel-tag-by-id
 --
