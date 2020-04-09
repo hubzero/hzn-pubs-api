@@ -43,8 +43,18 @@
 
 (defn ls [ver-id]
   (->>
+
     (sel-citation-assocs-oid {:oid ver-id} (_connection))
+
     (map #(first (sel-citation-by-id % (_connection))))
     ) 
+  )
+
+(comment
+
+  (ls 192)
+
+    (sel-citation-assocs-oid {:oid 192} (_connection))
+
   )
 

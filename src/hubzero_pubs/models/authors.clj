@@ -33,6 +33,7 @@
                       :created_by user-id 
                       :status 1
                       :project_owner_id (:id a)
+                      :repository_contact (:poc a false)
                       } (_connection))
     )
   )
@@ -63,7 +64,7 @@
    (if
      (update-author! {:id author-id
                       :ordering (:index a 0)
-                      :name (:fullname a)
+                      :name (str (:firstname a) " " (:lastname a))
                       :firstname (:firstname a "")
                       :lastname (:lastname a "")
                       :organization (:organization a "")
@@ -71,6 +72,7 @@
                       :publication_version_id ver-id
                       :user_id (:user_id a)
                       :project_owner_id (:project_owner_id a)
+                      :repository_contact (:poc a false)
                       } (_connection))
 
      (if-let [poid (:project_owner_id a)]
@@ -92,6 +94,7 @@
                                 :email (:invited_email a)
                                 :project_owner_id (:project_owner_id a)
                                 :index (:ordering a)
+                                :poc (:repository_contact a)
                                 })
               ) {})
     )

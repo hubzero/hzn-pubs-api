@@ -115,7 +115,10 @@
   )
 
 (defn add-citation [req]
-  (response (citations/add (:version-id (:params req)) (:id (:body-params req))))
+  (if-let [cid (:id (:body-params req))]
+    (response (citations/add (:version-id (:params req)) cid))
+    {:status 400} 
+    )
   )
 
 (defn rm-citation [req]

@@ -87,7 +87,7 @@ INSERT INTO jos_publication_authors (publication_version_id, user_id, ordering, 
 
 -- name: update-author!
 --
-UPDATE `jos_publication_authors` SET `ordering` = :ordering, `name` = :name, `firstName` = :firstname, `lastName` = :lastname, `organization` = :organization WHERE `id` = :id
+UPDATE `jos_publication_authors` SET `ordering` = :ordering, `name` = :name, `firstName` = :firstname, `lastName` = :lastname, `organization` = :organization, `repository_contact` = :repository_contact WHERE `id` = :id
 
 -- name: del-author!
 --
