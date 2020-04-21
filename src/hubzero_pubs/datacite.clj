@@ -1,5 +1,8 @@
 (ns hubzero-pubs.datacite
   (:require [clojure.xml :as xml]
+            [clj-time.core :as t]
+            [clj-time.format :as f] 
+            [clj-time.coerce :as c]
             [clj-http.client :as http]
             [cheshire.core :as json]
             [hubzero-pubs.config :refer [config]]
@@ -68,10 +71,15 @@
                {:tag :version :content [(str (:ver-id pub))]}
                (_descriptions pub)
                ]            
-              (if-let [d (:publication-date pub)] [{:tag :publicationYear :content [(_year d)]} (_dates d)])
+
+              (if-let [d (:publication-date pub)]
+                [{:tag :publicationYear :content [(_year d)]} (_dates d)]
+                (let [d (f/unparse (f/formatter "MM/dd/yyyy") (t/now))]
+                  [{:tag :publicationYear :content [(_year d)]} (_dates d)]
+                  )
+                )
 
               (if-let [s (get-in pub [:licenses :name])] [(_license s)])
-
               )
    }
   )
@@ -103,27 +111,27 @@
   (:doi_shoulder config)
   (:ver-id pub)
 
-    (def pub {
-              :tags {5 {:description "<p>The foo tag.</p>", :admin 0, :objects 71, :raw_tag "foo", :created #inst "2020-01-08T10:44:33.000-00:00", :modified #inst "2020-03-11T10:56:36.000-00:00", :id 5, :tag "foo", :modified_by 1001, :created_by 1000, :substitutes 0}}, 
-              :pub-id 209, 
-              :ver-id 196, 
-              :prj-id 1, 
-              :authors-list {431 {:email "ps@example.com", :project_owner_id 42, :userid 0, :lastname "Smart", :fullname "Petra Smart", :organization "foo", :firstname "Petra", :id 431, :credit ""}, 422 {:email "fb@example.com", :project_owner_id 41, :userid 0, :lastname nil, :fullname "Femke Blokje", :organization nil, :firstname nil, :id 422, :credit ""}, 452 {:email "jbg@example.com", :project_owner_id 1, :userid 0, :lastname "G", :fullname "J B G", :organization "Bob Taco Stand Baz", :firstname "J B", :id 452, :credit ""}}, 
-              :content {241 {:path "prjfoobar/files/foo", :name "foo", :id 241, :index 0}}, 
-              :images {242 {:path "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png", :name "Screenshot from 2019-09-09 20-35-28.png", :id 242, :index 0}},
-              :support-docs {243 {:path "prjfoobar/files/foo", :name "foo", :id 243, :index 0}},
-              :comments "Blha blha blha",
-              :abstract "blah foo bar",
-              :licenses {:restriction nil, :opensource false, :name "cc", :agreement 1, :icon "/components/com_publications/assets/img/logos/cc.gif", :title "CC0 - Creative Commons", :customizable 0, :ordering 2, :active 1, :id 2, :info "CC0 enables scientists, educators, artists and other creators and owners of copyright- or database-protected content to waive those interests in their works and thereby place them as completely as possible in the public domain, so that others may freely build upon, enhance and reuse the works for any purposes without restriction under copyright or database law.", :url "http://creativecommons.org/about/cc0", :main 1, :derivatives 1, :text ""},
-              :user-id 1001, 
-              :state 3, 
-              :doi "", 
-              :title "Hahaha", 
-              :publication-date "03/31/2020",
-              :ack true,
-              :url nil,
-              :license_type 2,
-              :release-notes "hahahahaha"}
+  (def pub {
+            :tags {5 {:description "<p>The foo tag.</p>", :admin 0, :objects 71, :raw_tag "foo", :created #inst "2020-01-08T10:44:33.000-00:00", :modified #inst "2020-03-11T10:56:36.000-00:00", :id 5, :tag "foo", :modified_by 1001, :created_by 1000, :substitutes 0}}, 
+            :pub-id 209, 
+            :ver-id 196, 
+            :prj-id 1, 
+            :authors-list {431 {:email "ps@example.com", :project_owner_id 42, :userid 0, :lastname "Smart", :fullname "Petra Smart", :organization "foo", :firstname "Petra", :id 431, :credit ""}, 422 {:email "fb@example.com", :project_owner_id 41, :userid 0, :lastname nil, :fullname "Femke Blokje", :organization nil, :firstname nil, :id 422, :credit ""}, 452 {:email "jbg@example.com", :project_owner_id 1, :userid 0, :lastname "G", :fullname "J B G", :organization "Bob Taco Stand Baz", :firstname "J B", :id 452, :credit ""}}, 
+            :content {241 {:path "prjfoobar/files/foo", :name "foo", :id 241, :index 0}}, 
+            :images {242 {:path "prjfoobar/files/Screenshot from 2019-09-09 20-35-28.png", :name "Screenshot from 2019-09-09 20-35-28.png", :id 242, :index 0}},
+            :support-docs {243 {:path "prjfoobar/files/foo", :name "foo", :id 243, :index 0}},
+            :comments "Blha blha blha",
+            :abstract "blah foo bar",
+            :licenses {:restriction nil, :opensource false, :name "cc", :agreement 1, :icon "/components/com_publications/assets/img/logos/cc.gif", :title "CC0 - Creative Commons", :customizable 0, :ordering 2, :active 1, :id 2, :info "CC0 enables scientists, educators, artists and other creators and owners of copyright- or database-protected content to waive those interests in their works and thereby place them as completely as possible in the public domain, so that others may freely build upon, enhance and reuse the works for any purposes without restriction under copyright or database law.", :url "http://creativecommons.org/about/cc0", :main 1, :derivatives 1, :text ""},
+            :user-id 1001, 
+            :state 3, 
+            :doi "", 
+            :title "Hahaha", 
+            :publication-date "03/31/2020",
+            :ack true,
+            :url nil,
+            :license_type 2,
+            :release-notes "hahahahaha"}
     )
 
 

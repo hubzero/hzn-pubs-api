@@ -64,7 +64,7 @@
    (if
      (update-author! {:id author-id
                       :ordering (:index a 0)
-                      :name (str (:firstname a) " " (:lastname a))
+                      :name (or (:fullname a) (str (:firstname a) " " (:lastname a))) 
                       :firstname (:firstname a "")
                       :lastname (:lastname a "")
                       :organization (:organization a "")
