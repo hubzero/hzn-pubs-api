@@ -97,7 +97,7 @@
   (insert-tag-log<! {:tag_id (:id tag)
                      :action action
                      ;:json (json/write-value-as-string tag)
-                     :json (json/generate-string (_translate-dates tag))
+                     :json (json/generate-string tag)
                      :time (f/unparse (:mysql f/formatters) (t/now))
                      :user_id user-id 
                      :actor_id user-id 
@@ -127,14 +127,12 @@
   )
 
 (defn rm [ver-id tag-id]
-  (prn "BLAH BLAH" ver-id tag-id)
   (del-tag-obj! {:tag_id tag-id
                  :object_id ver-id
                  } (_connection))
   )
 
 (defn search [tag-str]
-  (prn "TAG SEARCH" tag-str)
   (sel-tags {:tag (str "%" tag-str "%")} (_connection))
   )
 
