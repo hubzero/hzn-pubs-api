@@ -50,7 +50,7 @@
       (as-> (prjs/add-owner (:prj-id pub) a) $
         (:generated_key $)
         (add ver-id user-id (assoc a :id $))
-        )
+        )  
       )
     )
   )
