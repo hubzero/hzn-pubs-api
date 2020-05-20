@@ -162,7 +162,8 @@
 
 
 
-  (search "f")
+(count (search "f"))  
+
 
 
   )

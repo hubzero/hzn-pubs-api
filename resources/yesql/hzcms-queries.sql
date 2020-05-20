@@ -99,7 +99,7 @@ SELECT * FROM `jos_tags` WHERE `raw_tag` = :tag
 
 -- name: sel-tags
 --
-SELECT * FROM `jos_tags` WHERE `raw_tag` LIKE :tag ORDER BY `raw_tag` ASC
+SELECT * FROM `jos_tags` WHERE `raw_tag` LIKE :tag ORDER BY `raw_tag` ASC LIMIT 10
 
 -- name: sel-tag-by-id
 --
@@ -190,13 +190,7 @@ INSERT INTO `jos_publication_curation_history` (`publication_version_id`,`create
 --
 SELECT * FROM `jos_publication_curation_history` WHERE `publication_version_id` = :publication_version_id
 
-
-
-
-
-
 -- name: update-curation!
 --
 UPDATE `jos_publication_curation` SET `publication_id`=:publication_id, `publication_version_id`=:publication_id, `updated`=:updated, `updated_by`= :updated_by, `update`=:update,`reviewed_by`=:reviewed_by, `review_status`=:review_status, `block`=:block, `step`=:step, `element`=:element WHERE `id`=:id
-
 

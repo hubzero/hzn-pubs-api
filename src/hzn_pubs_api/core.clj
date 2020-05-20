@@ -14,8 +14,6 @@
    ["-c" "--config EDNFILE"  "EDN Config Overrides"]
    ["-b" "--bind address"    "Bind address"]])
 
-
-
 (defstate ^{:on-reload :noop} http-server
   :start
   (http/start
