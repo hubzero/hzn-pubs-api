@@ -88,6 +88,7 @@
   )
 
 (defn- _get-datacite [xml-str]
+  ;(prn "XML >>>>>> " xml-str)
   (->>
     (http/post (str (get-in config [:datacite-doi :service]) "/metadata/" (get-in config [:doi :shoulder]))
                {:headers {"Authorization" (str "Basic " (_encode (get-in config [:datacite-doi :userpw])))

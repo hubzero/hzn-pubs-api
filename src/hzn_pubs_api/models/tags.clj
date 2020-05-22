@@ -115,14 +115,19 @@
     (:generated_key $)
     (sel-tag-by-id {:id $} (_connection))
     (first $)
-    (_log-tag $ "tag_created" user-id)
     )
+
   )
 
 (defn add [s ver-id user-id]
   (if-let [tag (get-tag s)]
     (_tag tag ver-id user-id)
-    (_create-tag s user-id)
+    ;; Create it first - JBG
+    (let [tag (_create-tag s user-id)]
+      (_log-tag tag "tag_created" user-id)
+      ;; Now tag the object - JBG
+      (_tag tag ver-id user-id)
+      )
     )
   )
 
