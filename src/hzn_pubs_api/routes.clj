@@ -28,7 +28,10 @@
 
 (defn get-prj [id]
   (if-let [prj (prjs/get-prj id)]
-    (response {:id (:id prj)})
+    (response {:id (:id prj)
+               :alias (:alias prj)
+               :title (:title prj)
+               })
     (errors/!404)
     )
   )
