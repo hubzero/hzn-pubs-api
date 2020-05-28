@@ -170,6 +170,10 @@
 (defn get-license [req]
   (response (licenses/get-by-id (:license-id (:params req))))
   )
+
+(defn get-types [req]
+  (response (pubs/get-master-types))
+  )
  
 (def pubroot "/pubs/:id/v/:version-id")
 
@@ -208,6 +212,8 @@
   (POST   "/citations/search"                      req   (search-citations req))
   (POST   "/citations"                             req   (create-citation req))
   (GET    "/citations/types"                       []    (citations/get-types))
+
+ (GET     "/types"                                 req   (get-types req))
 
   (POST   "/ui-state"                              req   (save-ui-state req))
   )

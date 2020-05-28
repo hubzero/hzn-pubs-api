@@ -18,12 +18,18 @@
 
 (defn create-pub [user-id p]
   (insert-pub<! {:category 1
-                 :master_type "1"
+                 :master_type (or (:master-type p) "1")
                  :project_id (:prj-id p)
                  :access 0
                  :created_by user-id 
                  :created (f/unparse (:mysql f/formatters) (t/now))
                  } (_connection))
+  )
+
+(defn update-pub [p]
+  (update-pub! {:id (:pub-id p)
+                :master_type (or (:master-type p) 1)
+                } (_connection))
   )
 
 (defn- _params-str [pub]
@@ -42,6 +48,12 @@
 
 (defn- _doi [p]
   (doi/get-datacite p)
+  )
+
+(defn get-master-types
+  "Get the publiction master types from the database"
+  []
+  (sel-master-types {} (_connection))
   )
 
 (defn- _mutate
@@ -114,6 +126,7 @@
        :url (:popupurl pub-ver)
        :comments (:comment (last history))
        :state (:state pub-ver)
+       :master-type (:master_type pub)
        }
       ;(merge (_files files))
       )
@@ -154,6 +167,7 @@
   )
 
 (defn- _update-pub [user-id p]
+  (update-pub p)
   (_update-pub-version user-id p)
   (_add-curation-hist (:ver-id p) user-id p)
   {:pub-id (:pub-id p) :ver-id (:ver-id p)}
@@ -163,13 +177,18 @@
   (if (:ver-id p)
     (_update-pub user-id p)
     (_save-pub user-id p)
-    ) 
+    )
   )
 
 (comment
 
   (save-pub 1001 {:prj-id "1", :authors-list {}, :content (), :images (), :support-docs ()})
 
- 
+  (as-> (get-pub 232) $
+    (assoc $ :master-type 2)
+    (save-pub 1001 $)
+    ) 
+    (get-pub 232)
+
   )
 

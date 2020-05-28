@@ -29,6 +29,9 @@ C.checked_out, C.checked_out_time, C.rating as master_rating, C.group_owner, C.m
 --
 INSERT INTO `jos_publications` (`category`, `master_type`, `project_id`, `access`, `created_by`, `created` ) VALUES (:category, :master_type, :project_id, :access, :created_by, :created)
 
+-- name: update-pub!
+UPDATE `jos_publications` SET `master_type` = :master_type WHERE `id` = :id
+
 -- name: sel-pub
 --
 SELECT * FROM `jos_publications` WHERE `id` = :id
@@ -193,4 +196,8 @@ SELECT * FROM `jos_publication_curation_history` WHERE `publication_version_id` 
 -- name: update-curation!
 --
 UPDATE `jos_publication_curation` SET `publication_id`=:publication_id, `publication_version_id`=:publication_id, `updated`=:updated, `updated_by`= :updated_by, `update`=:update,`reviewed_by`=:reviewed_by, `review_status`=:review_status, `block`=:block, `step`=:step, `element`=:element WHERE `id`=:id
+
+-- name: sel-master-types
+--
+SELECT * FROM `jos_publication_master_types`
 
