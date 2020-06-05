@@ -190,5 +190,11 @@
     ) 
     (get-pub 232)
 
+    (->>
+      (get-master-types)
+      (filter #(some #{(:type %)} ["File(s)" "Databases" "Series"]))
+      (count)
+      )
+
   )
 

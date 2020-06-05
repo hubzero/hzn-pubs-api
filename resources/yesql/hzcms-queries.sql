@@ -174,7 +174,11 @@ SELECT * FROM jos_citations WHERE `id` = :cid
 
 -- name: insert-citation<!
 --
-INSERT INTO `jos_citations` (`type`, `title`, `year`, `month`, `author`, `journal`, `booktitle`, `volume`, `number`, `pages`, `eprint`, `isbn`, `doi`, `abstract`, `series`, `edition`, `publisher`, `url`, `formatted`) VALUES (:type, :title, :year, :month, :author, :journal, :book, :volume, :issue, :pages, :eprint, :isbn, :doi, :abstract, :series, :edition, :publisher, :url, :citation)
+INSERT INTO `jos_citations` (`type`, `title`, `year`, `month`, `author`, `journal`, `booktitle`, `volume`, `number`, `pages`, `eprint`, `isbn`, `doi`, `abstract`, `series`, `edition`, `publisher`, `url`, `formatted`) VALUES (:type, :title, :year, :month, :author, :journal, :book, :volume, :issue, :pages, :eprint, :isbn, :doi, :abstract, :series, :edition, :publisher, :url, :formatted)
+
+-- name: insert-citation-formatted<!
+--
+INSERT INTO `jos_citations` (`doi`, `formatted`, `url`) VALUES (:doi, :formatted, :url)
 
 -- name: sel-citation-types
 --
