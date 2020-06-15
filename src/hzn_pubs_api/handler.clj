@@ -11,23 +11,23 @@
             [mount.core :refer [defstate]]        
             [hzn-pubs-api.auth :as auth]
             [hzn-pubs-api.errors :as errors]
-            ;[hzn-session-auth.middleware :as hsam]
+            [hzn-session-auth.middleware :as hsam]
             ))
 
 
-(defn wrap-auth [handler]
-  (fn [req]
-    (try
-      (if-let [user (auth/cookie req)]
-        (handler (merge req {:user user}))
-        (errors/!401)
-        )
-      (catch Exception e
-        (.printStackTrace e)
-        (errors/!401))
-      )
-    )
-  )
+;(defn wrap-auth [handler]
+;  (fn [req]
+;    (try
+;      (if-let [user (auth/cookie req)]
+;        (handler (merge req {:user user}))
+;        (errors/!401)
+;        )
+;      (catch Exception e
+;        (.printStackTrace e)
+;        (errors/!401))
+;      )
+;    )
+;  )
 
 (defstate init-app
   :start #(prn "START handler")
@@ -43,8 +43,8 @@
       (-> #'ui-routes 
           )
       (route/not-found (errors/!404)))
-    ;hsam/wrap-auth
-    wrap-auth
+    hsam/wrap-auth
+    ;wrap-auth
     wrap-cookies
     wrap-session
     )

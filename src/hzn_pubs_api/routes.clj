@@ -206,7 +206,7 @@
   (GET    "/users/me"                              req   (response (:user req)))
   (POST   "/users/search"                          req   (search-users req))
 
-  (GET    "/licenses"                              []    (licenses/get-all))
+  (GET    "/licenses"                              []    (response (licenses/get-all)) )
   (GET    "/licenses/:license-id"                  req   (get-license req))
 
   (POST   "/citations/search"                      req   (search-citations req))

@@ -59,7 +59,7 @@
            (->
              (_get-tag-by-id (:tagid to))
              ;; New jdk and java.time... just broke everything - JBG
-             ;;(_translate-dates)
+             ;(_translate-dates)
              )
            ))
     )

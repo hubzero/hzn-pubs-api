@@ -2,6 +2,7 @@
   (:require [clojure.tools.cli :refer [parse-opts]]
             [mount.core :as mount :refer [defstate]]
             [clojure.tools.logging :as log]
+            [cheshire.generate :as gen]
             [hzn-pubs-api.http-server :as http]
             [hzn-pubs-api.repl-server :as repl]
             [hzn-pubs-api.handler :as handler]
@@ -33,6 +34,17 @@
   :stop
   (when repl-server
     (repl/stop repl-server)))
+
+
+(gen/add-encoder java.time.LocalDateTime
+                 (fn [ldt jsonGenerator]
+                   (.writeString jsonGenerator
+                                 (->
+                                   ldt
+                                   (.toInstant java.time.ZoneOffset/UTC)
+                                   ;    java.util.Date/from
+                                   .toString
+                                   ))))
 
 (defn stop-app []
   (doseq [component (:stopped (mount/stop))]
