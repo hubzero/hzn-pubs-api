@@ -17,9 +17,12 @@
 (defn- search-doi-org
   "Ask doi.org for a specific DOI"
   [doi]
-  (let [res (http/get (str "https://doi.org/doi:" doi)
-              {:headers {"Accept" "text/x-bibliography; style=apa"}})]
-    (if (= 200 (:status res)) (:body res))
+  (try
+    (let [res (http/get (str "https://doi.org/doi:" doi)
+                        {:headers {"Accept" "text/x-bibliography; style=apa"}})]
+      (if (= 200 (:status res)) (:body res))
+      )
+    (catch Exception e nil)
     )
   )
 
@@ -33,6 +36,7 @@
       ;; Otherwise ask the internet
       (if-let [citation (search-doi-org doi)]
         [{:doi doi :formatted citation}] 
+        []
         )
       )
     )
@@ -77,5 +81,7 @@
 (search-doi-org "10.1029/2007wr006641")
 
 (search-doi-org "foo")
+
+(search "foo")
 
   )
