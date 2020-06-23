@@ -28,8 +28,6 @@
                  [digest "1.4.9"]
                  [me.raynes/fs "1.4.6"]
                  [com.novemberain/monger "3.1.0"]
-                 ;; hzn - JBG
-                 [hzn-session-auth "0.1.0-SNAPSHOT"] 
                  ]
 
 :profiles {:uberjar {:aot :all :omit-source true}}
