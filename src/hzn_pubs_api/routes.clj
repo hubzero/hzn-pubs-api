@@ -73,8 +73,8 @@
   )
 
 (defn create-citation [req]
- (response (citations/create (:body-params req))) 
- )
+  (response (citations/create (:body-params req))) 
+  )
 
 
 (defn save-ui-state [req]
@@ -129,7 +129,7 @@
                              ) 200 500) }
 
   )
- 
+
 (defn add-file [req]
   (response (files/add (:id (:params req))
                        (:version-id (:params req))
@@ -174,7 +174,7 @@
 (defn get-types [req]
   (response (pubs/get-master-types))
   )
- 
+
 (def pubroot "/pubs/:id/v/:version-id")
 
 (defroutes api-routes
@@ -213,7 +213,7 @@
   (POST   "/citations"                             req   (create-citation req))
   (GET    "/citations/types"                       []    (citations/get-types))
 
- (GET     "/types"                                 req   (get-types req))
+  (GET    "/types"                                 req   (get-types req))
 
   (POST   "/ui-state"                              req   (save-ui-state req))
   )
