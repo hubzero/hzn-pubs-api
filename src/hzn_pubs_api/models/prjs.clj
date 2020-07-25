@@ -112,6 +112,10 @@
                    } (_connection))
   )
 
+(defn update-email [id email]
+  (update-prj-owner! {:invited_email email :id id} (_connection))
+  )
+ 
 (comment
 
   (get-prj 1)

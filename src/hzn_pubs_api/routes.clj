@@ -102,14 +102,17 @@
   )
 
 (defn rm-author [req]
-  (as-> (:params req) $ (authors/rm (:author-id $)))
+  (response
+    (as-> (:params req) $ (authors/rm (:author-id $)))
+    )
   )
 
 (defn edit-author [req]
-  (prn "EDIT AUTHOR" (:version-id (:params req)) (:author-id (:params req)) (:body-params req))
-  (authors/edit (:version-id (:params req))
-                (:author-id (:params req))
-                (:body-params req))
+  (response
+    (authors/edit (:version-id (:params req))
+                  (:author-id (:params req))
+                  (:body-params req))  
+    )
   )
 
 (defn get-citations [req]
@@ -179,7 +182,7 @@
 
 (defroutes api-routes
   (GET    "/prjs/:id"                              [id]  (get-prj id))
-  (GET    "/prjs/:id/files"                        [id]  (prjs/get-files id))
+  (GET    "/prjs/:id/files"                        [id]  (response (prjs/get-files id)))
   (GET    "/prjs/:id/owners"                       [id]  (get-owners id))
   (POST   "/prjs/:id/owners"                       req   (add-owner req))
   (POST   "/prjs/:id/usage"                        req   (get-usage req))
@@ -211,7 +214,7 @@
 
   (POST   "/citations/search"                      req   (search-citations req))
   (POST   "/citations"                             req   (create-citation req))
-  (GET    "/citations/types"                       []    (citations/get-types))
+  (GET    "/citations/types"                       []    (response (citations/get-types)))
 
   (GET    "/types"                                 req   (get-types req))
 

@@ -205,3 +205,7 @@ UPDATE `jos_publication_curation` SET `publication_id`=:publication_id, `publica
 --
 SELECT * FROM `jos_publication_master_types`
 
+-- name: sel-author-by-id
+--
+SELECT * FROM `jos_publication_authors` where id = :id
+

@@ -16,25 +16,45 @@
 (defqueries "yesql/hzcms-queries.sql" )
 (defn _connection [] {:connection db})
 
+(defn set-email [a]
+  (->> a
+       :project_owner_id
+       (prjs/get-owner)
+       :invited_email
+       (assoc a :email)
+       )
+  )
+
+(defn get-author [id]
+  (->> (sel-author-by-id {:id id} (_connection))
+       first
+       set-email
+       )
+  )
+
 (defn add [ver-id user-id a]
   (if-let [ex (first (sel-author {:publication_version_id ver-id
                                   :project_owner_id (:id a)
                                   } (_connection)))]
-    {:generated_key (:id ex)} ;; Author exists just return their id - JBG
-    (insert-author<! {:publication_version_id ver-id
-                      :user_id (:userid a 0)
-                      :ordering (:index a)
-                      :name (:fullname a)
-                      :firstname (:firstname a "")
-                      :lastname (:lastname a "")
-                      :org (:organization a "")
-                      :credit (:credit a "") 
-                      :created (f/unparse (:mysql f/formatters) (t/now))
-                      :created_by user-id 
-                      :status 1
-                      :project_owner_id (:id a)
-                      :repository_contact (:poc a false)
-                      } (_connection))
+    ex
+    (->>
+      (insert-author<! {:publication_version_id ver-id
+                        :user_id (:userid a 0)
+                        :ordering (:index a)
+                        :name (:fullname a)
+                        :firstname (:firstname a "")
+                        :lastname (:lastname a "")
+                        :org (:organization a "")
+                        :credit (:credit a "") 
+                        :created (f/unparse (:mysql f/formatters) (t/now))
+                        :created_by user-id 
+                        :status 1
+                        :project_owner_id (:id a)
+                        :repository_contact (:poc a false)
+                        } (_connection))  
+      :generated_key
+      (get-author)
+      )
     )
   )
 
@@ -55,34 +75,37 @@
     )
   )
 
+
+
 (defn rm [author-id]
-  {:status (if (del-author! {:id author-id} (_connection)) 200 500)} 
+  (let [a (get-author author-id)]
+    (del-author! {:id author-id} (_connection))
+    a
+    )
   )
 
-(defn edit [ver-id author-id a]
-  {:status
-   (if
-     (update-author! {:id author-id
-                      :ordering (:index a 0)
-                      :name (or (:fullname a) (str (:firstname a) " " (:lastname a))) 
-                      :firstname (:firstname a "")
-                      :lastname (:lastname a "")
-                      :organization (:organization a "")
-                      :credit (:credit a "")
-                      :publication_version_id ver-id
-                      :user_id (:user_id a)
-                      :project_owner_id (:project_owner_id a)
-                      :repository_contact (:poc a false)
-                      } (_connection))
 
-     (if-let [poid (:project_owner_id a)]
-       (if (update-prj-owner! {:invited_email (:email a) :id poid} (_connection))
-         200 500) 200) 500) }
+(defn edit [ver-id author-id a]
+  (update-author! {:id author-id
+                   :ordering (:index a 0)
+                   :name (or (:fullname a) (str (:firstname a) " " (:lastname a))) 
+                   :firstname (:firstname a "")
+                   :lastname (:lastname a "")
+                   :organization (:organization a "")
+                   :credit (:credit a "")
+                   :publication_version_id ver-id
+                   :user_id (:user_id a)
+                   :project_owner_id (:project_owner_id a)
+                   :repository_contact (:poc a false)
+                   } (_connection))
+  (prjs/update-email (:project_owner_id a) (:email a))
+  (get-author author-id)
   )
 
 (defn ls [ver-id]
   (->>
     (sel-pub-authors {:publication_version_id ver-id} (_connection))
+    (map set-email)
     (reduce (fn [m a]
               (assoc m (:id a) {:id (:id a)
                                 :userid (:user_id a)
@@ -91,12 +114,23 @@
                                 :lastname (:lastname a)
                                 :organization (:organization a)
                                 :credit (:credit a)
-                                :email (:invited_email a)
+                                :email (:email a)
                                 :project_owner_id (:project_owner_id a)
                                 :index (:ordering a)
                                 :poc (:repository_contact a)
                                 })
               ) {})
     )
+  )
+
+(comment
+
+  (ls 209)
+
+  (prjs/get-owner 41)
+
+(update-prj-owner! {:invited_email "fem@ke-2.us" :id 41} (_connection))
+
+  (get-author )
   )
 

@@ -57,7 +57,6 @@
   )
 
 (defn rm [file-id]
-  (prn "RM FILE")
   {:status (if (del-attachment! {:id file-id} (_connection)) 200 500)}
   )
 

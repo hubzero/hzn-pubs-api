@@ -8,6 +8,7 @@
             [hzn-pubs-api.config :refer [config]]
             [mount.core :as mount :refer [defstate]]
             )
+  (:import [org.jsoup Jsoup])
   )
 
 (defstate db :start (:mysql config))
@@ -20,7 +21,12 @@
   (try
     (let [res (http/get (str "https://doi.org/doi:" doi)
                         {:headers {"Accept" "text/x-bibliography; style=apa"}})]
-      (if (= 200 (:status res)) (:body res))
+      (if (= 200 (:status res))
+        (->>  (:body res)
+             (Jsoup/parse)
+             (.text)
+             ) 
+        )
       )
     (catch Exception e nil)
     )
@@ -79,6 +85,8 @@
 
 
 (search-doi-org "10.1029/2007wr006641")
+
+(search-doi-org "10.4231/24AV-1A55")
 
 (search-doi-org "foo")
 
