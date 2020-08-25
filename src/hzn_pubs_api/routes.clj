@@ -127,10 +127,9 @@
   )
 
 (defn rm-citation [req]
-  {:status (if (citations/rm (:version-id (:params req))
-                             (:citation-id (:params req))
-                             ) 200 500) }
-
+  (response (citations/rm (:version-id (:params req))
+                          (:citation-id (:params req))
+                          ))
   )
 
 (defn add-file [req]

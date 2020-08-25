@@ -56,6 +56,18 @@
   (sel-master-types {} (_connection))
   )
 
+(defn- doi [p]
+  (if (and
+        (= (count (:doi p)) 0)
+        (or
+          (= 1 (:state p))
+          (= 5 (:state p))
+          )
+        ) 
+    (_doi p)
+    (:doi p ""))
+  )
+
 (defn- _mutate
   "Fields come from client with different names, map them - JBG"
   [user-id p]
@@ -67,9 +79,7 @@
             :published_up (if-let [dstr (:publication-date p)] (_fmt-pub-date dstr))
             :description (:description p "")
             :abstract (:abstract p "")
-            :doi (if (and (= (count (:doi p)) 0) (= 1 (:state p))) 
-                   (_doi p)
-                   (:doi p ""))
+            :doi (doi p)
             :popupURL (:url p)
             :state (or (:state p) 3)  
             })

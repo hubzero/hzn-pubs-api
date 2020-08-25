@@ -15,6 +15,13 @@
 (defqueries "yesql/hzcms-queries.sql" )
 (defn _connection [] {:connection db})
 
+(defn get-citation [id]
+  (->>
+    (sel-citation-by-id {:cid id} (_connection))
+    first
+    )  
+  )
+
 (defn- search-doi-org
   "Ask doi.org for a specific DOI"
   [doi]
@@ -49,10 +56,13 @@
   )
 
 (defn create [m]
-  (->
+  (as->
     (reduce (fn [c k] (if (k c) c (assoc c k nil))) m
-            [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition :formatted])
-    (insert-citation<! (_connection)))
+            [:type :title :year :month :author :journal :volume :pages :isbn :doi :abstract :publisher :url :issue :series :book :citation :eprint :edition :formatted]) $
+    (insert-citation<! $ (_connection))
+    (:generated_key $) 
+    (get-citation $)
+    )
   )
 
 (defn get-types []
@@ -65,10 +75,12 @@
                             :type nil
                             :tbl "publications"
                             } (_connection))
+  (get-citation citation-id) 
   )
 
 (defn rm [ver-id citation-id]
   (del-citation-assoc! {:cid citation-id :oid ver-id} (_connection))
+  (get-citation citation-id) 
   )
 
 (defn ls [ver-id]
@@ -91,5 +103,10 @@
 (search-doi-org "foo")
 
 (search "foo")
+
+(->>
+  (create {:title "blah"})
+  :id
+  )
 
   )

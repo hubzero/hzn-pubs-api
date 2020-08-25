@@ -25,10 +25,15 @@
        )
   )
 
+(defn set-poc [a]
+  (assoc a :poc (boolean (> (:repository_contact a) 0)))
+  )
+
 (defn get-author [id]
   (->> (sel-author-by-id {:id id} (_connection))
        first
        set-email
+       set-poc
        )
   )
 
@@ -88,7 +93,9 @@
 (defn edit [ver-id author-id a]
   (update-author! {:id author-id
                    :ordering (:index a 0)
-                   :name (or (:fullname a) (str (:firstname a) " " (:lastname a))) 
+                   :name (or (:fullname a)
+                             (:name a)
+                             (str (:firstname a) " " (:lastname a))) 
                    :firstname (:firstname a "")
                    :lastname (:lastname a "")
                    :organization (:organization a "")
