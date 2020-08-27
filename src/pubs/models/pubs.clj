@@ -1,14 +1,14 @@
-(ns hzn-pubs-api.models.pubs
+(ns pubs.models.pubs
   (:require [clj-time.core :as t]
             [clj-time.format :as f] 
             [clj-time.coerce :as c]
             [yesql.core :refer [defqueries]]
             [clojure.java.jdbc :as jdbc]
-            [hzn-pubs-api.config :refer [config]]
-            [hzn-pubs-api.utils :as utils]
+            [pubs.config :refer [config]]
+            [pubs.utils :as utils]
             [mount.core :as mount :refer [defstate]]
-            [hzn-pubs-api.datacite :as doi]
-            [hzn-pubs-api.models.tags :as tags]
+            [pubs.datacite :as doi]
+            [pubs.models.tags :as tags]
             )
   )
 

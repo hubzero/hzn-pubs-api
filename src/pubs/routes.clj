@@ -1,4 +1,4 @@
-(ns hzn-pubs-api.routes
+(ns pubs.routes
   (:require [compojure.core :refer [defroutes context GET POST DELETE PUT]]
             [compojure.route :as route]
             [clojure.tools.logging :as log]
@@ -8,16 +8,16 @@
                                         content-type
                                         resource-response]]
             [ring.util.response :as response]
-            [hzn-pubs-api.models.authors :as authors]
-            [hzn-pubs-api.models.citations :as citations]
-            [hzn-pubs-api.models.files :as files]
-            [hzn-pubs-api.models.licenses :as licenses]
-            [hzn-pubs-api.models.prjs :as prjs]
-            [hzn-pubs-api.models.pubs :as pubs]
-            [hzn-pubs-api.models.tags :as tags]
-            [hzn-pubs-api.models.users :as users]
-            [hzn-pubs-api.ui-state :as ui-state]
-            [hzn-pubs-api.errors :as errors]
+            [pubs.models.authors :as authors]
+            [pubs.models.citations :as citations]
+            [pubs.models.files :as files]
+            [pubs.models.licenses :as licenses]
+            [pubs.models.prjs :as prjs]
+            [pubs.models.pubs :as pubs]
+            [pubs.models.tags :as tags]
+            [pubs.models.users :as users]
+            [pubs.ui-state :as ui-state]
+            [pubs.errors :as errors]
             ))
 
 ;(defn handle-file [req]

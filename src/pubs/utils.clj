@@ -1,4 +1,4 @@
-(ns hzn-pubs-api.utils
+(ns pubs.utils
   (:require [clojure.string :as string])
   (:import java.security.SecureRandom
            java.math.BigInteger)

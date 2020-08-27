@@ -1,13 +1,13 @@
-(ns hzn-pubs-api.models.authors
+(ns pubs.models.authors
   (:require [clj-time.core :as t]
             [clj-time.format :as f] 
             [clj-time.coerce :as c]
             [yesql.core :refer [defqueries]]
             [clojure.java.jdbc :as jdbc]
-            [hzn-pubs-api.config :refer [config]]
-            [hzn-pubs-api.utils :as utils]
-            [hzn-pubs-api.models.prjs :as prjs]
-            [hzn-pubs-api.models.pubs :as pubs]
+            [pubs.config :refer [config]]
+            [pubs.utils :as utils]
+            [pubs.models.prjs :as prjs]
+            [pubs.models.pubs :as pubs]
             [mount.core :as mount :refer [defstate]]
             )
   )

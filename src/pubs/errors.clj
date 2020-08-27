@@ -1,4 +1,4 @@
-(ns hzn-pubs-api.errors)
+(ns pubs.errors)
 
 (defn !400 []
   {:status 400

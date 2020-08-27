@@ -1,4 +1,4 @@
-(ns hzn-pubs-api.repl-server
+(ns pubs.repl-server
   (:require [clojure.tools.nrepl.server :as nrepl]
             [clojure.tools.logging :as log]))
 

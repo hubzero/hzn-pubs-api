@@ -1,4 +1,4 @@
-(ns hzn-pubs-api.http-server
+(ns pubs.http-server
   (:require [clojure.tools.logging :as log]
             [immutant.web :as immutant]
             [clojure.set :refer [rename-keys]]))

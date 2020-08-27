@@ -1,5 +1,5 @@
-(ns hzn-pubs-api.handler
-  (:require [hzn-pubs-api.routes :refer [api-routes ui-routes]]
+(ns pubs.handler
+  (:require [pubs.routes :refer [api-routes ui-routes]]
             [compojure.core :refer [routes wrap-routes]]
             [compojure.route :as route]
             [muuntaja.middleware :refer [wrap-format]]
@@ -9,8 +9,8 @@
             ;[ring.middleware.session.cookie :refer [cookie-store]]
             [ring.middleware.defaults :refer :all]
             [mount.core :refer [defstate]]        
-            [hzn-pubs-api.auth :as auth]
-            [hzn-pubs-api.errors :as errors]
+            [pubs.auth :as auth]
+            [pubs.errors :as errors]
             ))
 
 (defn wrap-auth [handler]

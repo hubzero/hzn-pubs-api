@@ -1,4 +1,4 @@
-(ns hzn-pubs-api.config
+(ns pubs.config
   (:require [cprop.source :as source]
             [cprop.core :refer [load-config]]
             [mount.core :as mount :refer [defstate]]))

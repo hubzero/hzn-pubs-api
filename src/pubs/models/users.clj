@@ -1,8 +1,8 @@
-(ns hzn-pubs-api.models.users
+(ns pubs.models.users
   (:require 
     [yesql.core :refer [defqueries]]
     [clojure.java.jdbc :as jdbc]
-    [hzn-pubs-api.config :refer [config]]
+    [pubs.config :refer [config]]
     [mount.core :as mount :refer [defstate]]
     )
   )

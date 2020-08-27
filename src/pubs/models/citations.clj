@@ -1,11 +1,11 @@
-(ns hzn-pubs-api.models.citations
+(ns pubs.models.citations
   (:require [clj-time.core :as t]
             [clj-time.format :as f] 
             [clj-time.coerce :as c]
             [clj-http.client :as http]
             [yesql.core :refer [defqueries]]
             [clojure.java.jdbc :as jdbc]
-            [hzn-pubs-api.config :refer [config]]
+            [pubs.config :refer [config]]
             [mount.core :as mount :refer [defstate]]
             )
   (:import [org.jsoup Jsoup])

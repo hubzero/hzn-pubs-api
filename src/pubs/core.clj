@@ -1,12 +1,12 @@
-(ns hzn-pubs-api.core
+(ns pubs.core
   (:require [clojure.tools.cli :refer [parse-opts]]
             [mount.core :as mount :refer [defstate]]
             [clojure.tools.logging :as log]
             [cheshire.generate :as gen]
-            [hzn-pubs-api.http-server :as http]
-            [hzn-pubs-api.repl-server :as repl]
-            [hzn-pubs-api.handler :as handler]
-            [hzn-pubs-api.config :refer [config]]
+            [pubs.http-server :as http]
+            [pubs.repl-server :as repl]
+            [pubs.handler :as handler]
+            [pubs.config :refer [config]]
             )
   (:gen-class))
 

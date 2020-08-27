@@ -1,12 +1,12 @@
-(ns hzn-pubs-api.models.prjs
+(ns pubs.models.prjs
   (:require [clj-time.core :as t]
             [clj-time.format :as f] 
             [clj-time.coerce :as c]
             [yesql.core :refer [defqueries]]
             [clojure.java.jdbc :as jdbc]
             [me.raynes.fs :as fs]
-            [hzn-pubs-api.config :refer [config]]
-            [hzn-pubs-api.utils :as utils]
+            [pubs.config :refer [config]]
+            [pubs.utils :as utils]
             [mount.core :as mount :refer [defstate]]
             )
   )

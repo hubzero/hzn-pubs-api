@@ -1,10 +1,10 @@
-(ns hzn-pubs-api.datacite
+(ns pubs.datacite
   (:require [clojure.xml :as xml]
             [clj-time.core :as t]
             [clj-time.format :as f] 
             [clj-time.coerce :as c]
             [clj-http.client :as http]
-            [hzn-pubs-api.config :refer [config]]
+            [pubs.config :refer [config]]
             )
   (:import java.util.Base64))
 

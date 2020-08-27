@@ -1,4 +1,4 @@
-(ns hzn-pubs-api.ui-state
+(ns pubs.ui-state
   (:require [clj-time.core :as t]
             [clj-time.coerce :as c]
             [monger.core :as mg]
@@ -6,7 +6,7 @@
             [monger.conversion :refer [from-db-object]]
             [monger.operators :refer :all]
             [mount.core :as mount :refer [defstate]]
-            [hzn-pubs-api.config :refer [config]]
+            [pubs.config :refer [config]]
             )
   (:import org.bson.types.ObjectId)
   )
