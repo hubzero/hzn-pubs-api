@@ -92,7 +92,10 @@
   )
  
 (defn get-owners [prj-id]
-  (sel-prj-users {:id prj-id} (_connection))
+  (->>
+    (sel-prj-users {:id prj-id} (_connection))
+    (filter #(< (:status %) 2))
+    )
   )
 
 (defn get-owner [owner-id]
@@ -119,6 +122,12 @@
 (comment
 
   (get-prj 1)
+
+  (->>
+  (get-owners 1)
+  (map :fullname
+       )
+    )
 
   )
 
