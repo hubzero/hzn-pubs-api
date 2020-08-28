@@ -55,10 +55,14 @@ INSERT INTO `jos_publication_attachments` (`publication_version_id`,`publication
 -- name: sel-attachment
 --
 SELECT * FROM `jos_publication_attachments` WHERE `publication_version_id`=:publication_version_id AND `element_id`=:element_id AND `path`=:path AND `content_hash`=:content_hash
- 
+
+-- name: sel-attachment-by-id
+--
+SELECT * FROM `jos_publication_attachments` WHERE `id`=:id
+
 -- name: update-attachment!
 --
-UPDATE `jos_publication_attachments` SET `publication_version_id`=:publication_version_id, `publication_id`=:publication_id, `created`=:created, `created_by`=:created_by, `role`=:role, `path`=:path, `type`=:type, `ordering`=:ordering, `content_hash`=:content_hash, `element_id`=:element_id, `modified_by`=:modified_by, `object_id`=:object_id, `object_name`=:object_name, `object_instance`=object_instance, `object_revision`=:object_revision WHERE `id`=:id
+UPDATE `jos_publication_attachments` SET `ordering`=:ordering WHERE `id`=:id
 
 -- name: sel-attachments
 --

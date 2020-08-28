@@ -40,6 +40,7 @@
   (DELETE (str pubroot "/citations/:citation-id")  req   (c/rm-citation req))
   (GET    (str pubroot "/files")                   req   (c/get-files req))
   (POST   (str pubroot "/files")                   req   (c/add-file req))
+  (PUT    (str pubroot "/files/:file-id")          req   (c/edit-file req))
   (DELETE (str pubroot "/files/:file-id")          req   (c/rm-file req))
   (GET    (str pubroot "/tags")                    req   (c/get-tags req))
   (POST   (str pubroot "/tags")                    req   (c/add-tag req))

@@ -1,4 +1,4 @@
-# hubzero-pubs 
+# hzn-pubs-api 
 
 
 ## Configuration

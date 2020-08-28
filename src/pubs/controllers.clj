@@ -142,6 +142,13 @@
             )
   )
 
+(defn edit-file [req]
+  (response
+    (files/edit (:file-id (:params req))
+                (:body-params req))  
+    )
+  )
+
 (defn rm-file [req]
   (files/rm (:file-id (:params req)))
   )

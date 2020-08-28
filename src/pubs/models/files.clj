@@ -39,25 +39,42 @@
 
 (defn add [pub-id ver-id user-id f]
   (if-let [a (get-attachment ver-id f)]
-    {:generated_key (:id a)}
-    (insert-attachment<! {:publication_version_id ver-id 
-                          :publication_id pub-id
-                          :created (f/unparse (:mysql f/formatters) (t/now))
-                          :created_by user-id 
-                          :role 1
-                          :type "file"
-                          :ordering (:index f) 
-                          :element_id (_type f) 
-                          :path (:path f)
-                          :vcs_hash (:vcs_hash f "")
-                          :vcs_revision (:vcs_revision f "")
-                          :content_hash (_content-hash f)
-                          } (_connection))  
+    a
+    (as->
+      (insert-attachment<! {:publication_version_id ver-id 
+                            :publication_id pub-id
+                            :created (f/unparse (:mysql f/formatters) (t/now))
+                            :created_by user-id 
+                            :role 1
+                            :type "file"
+                            :ordering (:index f) 
+                            :element_id (_type f) 
+                            :path (:path f)
+                            :vcs_hash (:vcs_hash f "")
+                            :vcs_revision (:vcs_revision f "")
+                            :content_hash (_content-hash f)
+                            } (_connection)) $
+      (:generated_key $)
+      (first (sel-attachment-by-id {:id $} (_connection)))
+      )
     )
   )
 
+(defn edit [file-id f]
+  (update-attachment! {:id file-id
+                       :ordering (:index f 0)
+                       })
+  (first (sel-attachment-by-id {:id file-id} (_connection)))
+  )
+
 (defn rm [file-id]
-  {:status (if (del-attachment! {:id file-id} (_connection)) 200 500)}
+  (if-let [f (sel-attachment-by-id {:id file-id} (_connection))]
+    (if (del-attachment! {:id file-id} (_connection))
+      f
+      {:status 500}       
+      ) 
+    {:status 404} 
+    )
   )
 
 (defn- _filename [s]
