@@ -24,4 +24,12 @@ This script would sit in the `/home` directory of the server(s).  It deploys or 
 
     $ ./deploy.sh
 
+## start.sh
+
+This script is used by the apache user on the server to start the JVM.
+
+## stop.sh
+
+This script is used by the apache user on the server to stop the JVM.
+
 

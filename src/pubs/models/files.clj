@@ -63,7 +63,7 @@
 (defn edit [file-id f]
   (update-attachment! {:id file-id
                        :ordering (:index f 0)
-                       })
+                       } (_connection))
   (first (sel-attachment-by-id {:id file-id} (_connection)))
   )
 
