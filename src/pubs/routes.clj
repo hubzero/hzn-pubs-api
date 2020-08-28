@@ -8,16 +8,9 @@
                                         content-type
                                         resource-response]]
             [ring.util.response :as response]
-            [pubs.models.authors :as authors]
-            [pubs.models.citations :as citations]
-            [pubs.models.files :as files]
-            [pubs.models.licenses :as licenses]
-            [pubs.models.prjs :as prjs]
-            [pubs.models.pubs :as pubs]
-            [pubs.models.tags :as tags]
-            [pubs.models.users :as users]
             [pubs.ui-state :as ui-state]
             [pubs.errors :as errors]
+            [pubs.controllers :as c]
             ))
 
 ;(defn handle-file [req]
@@ -26,198 +19,47 @@
 ;  "ok"
 ;  )
 
-(defn get-prj [id]
-  (if-let [prj (prjs/get-prj id)]
-    (response {:id (:id prj)
-               :alias (:alias prj)
-               :title (:title prj)
-               })
-    (errors/!404)
-    )
-  )
-
-(defn get-pub [req]
-  (if-let [pub (pubs/get-pub (:version-id (:params req)))]
-    (response pub)
-    (errors/!404)
-    )
-  )
-
-(defn save-pub [req]
-  (if-let [res (pubs/save-pub (:id (:user req)) (:body-params req))]
-    (response res)
-    (errors/!500)
-    )
-  )
-
-(defn get-usage [req]
-  (response (prjs/usage (:id (:params req)) (:body-params req)))
-  )
-
-(defn add-owner [req]
-  (prjs/add-owner (get-in req [:params :id])
-                  (:body-params req)
-                  )
-  )
-
-(defn search-tags [req]
-  (response (tags/search (:q (:body-params req)))) 
-  )
-
-(defn search-users [req]
-  (response (users/search-users (:q (:body-params req)))) 
-  )
-
-(defn search-citations [req]
-  (response (citations/search (:doi (:body-params req))))
-  )
-
-(defn create-citation [req]
-  (response (citations/create (:body-params req))) 
-  )
-
-
-(defn save-ui-state [req]
-  (ui-state/create (:body-params req))
-  )
-
-(defn get-authors [req]
-  (response (authors/ls (:version-id (:params req))))
-  )
-
-(defn add-author [req]
-  (response
-    (authors/add (:version-id (:params req))
-                 (:id (:user req))
-                 (:body-params req))  
-    )
-  )
-
-(defn create-author [req]
-  (response
-    (authors/create (:version-id (:params req))
-                    (:id (:user req))
-                    (:body-params req))  
-    )
-  )
-
-(defn rm-author [req]
-  (response
-    (as-> (:params req) $ (authors/rm (:author-id $)))
-    )
-  )
-
-(defn edit-author [req]
-  (response
-    (authors/edit (:version-id (:params req))
-                  (:author-id (:params req))
-                  (:body-params req))  
-    )
-  )
-
-(defn get-citations [req]
-  (response (citations/ls (:version-id (:params req))))
-  )
-
-(defn add-citation [req]
-  (if-let [cid (:id (:body-params req))]
-    (response (citations/add (:version-id (:params req)) cid))
-    {:status 400} 
-    )
-  )
-
-(defn rm-citation [req]
-  (response (citations/rm (:version-id (:params req))
-                          (:citation-id (:params req))
-                          ))
-  )
-
-(defn add-file [req]
-  (response (files/add (:id (:params req))
-                       (:version-id (:params req))
-                       (:id (:user req))
-                       (:body-params req)
-                       )  
-            )
-  )
-
-(defn rm-file [req]
-  (files/rm (:file-id (:params req)))
-  )
-
-(defn get-files [req]
-  (response (files/ls (:version-id (:params req))))
-  )
-
-(defn get-tags [req]
-  (response (tags/ls (:version-id (:params req))))
-  )
-
-(defn add-tag [req]
-  (response (tags/add (:tag (:body-params req))
-                      (:version-id (:params req))
-                      (:id (:user req))))
-  )
-
-(defn rm-tag [req]
-  {:status (if (tags/rm (:version-id (:params req))
-                        (:tag-id (:params req))
-                        ) 200 500) }
-  )
-
-(defn get-owners [prj-id]
-  (response (prjs/get-owners prj-id))
-  )
-
-(defn get-license [req]
-  (response (licenses/get-by-id (:license-id (:params req))))
-  )
-
-(defn get-types [req]
-  (response (pubs/get-master-types))
-  )
-
 (def pubroot "/pubs/:id/v/:version-id")
 
 (defroutes api-routes
-  (GET    "/prjs/:id"                              [id]  (get-prj id))
-  (GET    "/prjs/:id/files"                        [id]  (response (prjs/get-files id)))
-  (GET    "/prjs/:id/owners"                       [id]  (get-owners id))
-  (POST   "/prjs/:id/owners"                       req   (add-owner req))
-  (POST   "/prjs/:id/usage"                        req   (get-usage req))
+  (GET    "/prjs/:id"                              [id]  (c/get-prj id))
+  (GET    "/prjs/:id/files"                        [id]  (c/prj-files id))
+  (GET    "/prjs/:id/owners"                       [id]  (c/get-owners id))
+  (POST   "/prjs/:id/owners"                       req   (c/add-owner req))
+  (POST   "/prjs/:id/usage"                        req   (c/get-usage req))
 
-  (POST   "/pubs"                                  req   (save-pub req))
-  (GET    pubroot                                  req   (get-pub req))
-  (GET    (str pubroot "/authors")                 req   (get-authors req))
-  (POST   (str pubroot "/authors")                 req   (add-author req))
-  (POST   (str pubroot "/authors/new")             req   (create-author req))
-  (DELETE (str pubroot "/authors/:author-id")      req   (rm-author req))
-  (PUT    (str pubroot "/authors/:author-id")      req   (edit-author req))
-  (GET    (str pubroot "/citations")               req   (get-citations req))
-  (POST   (str pubroot "/citations")               req   (add-citation req))
-  (DELETE (str pubroot "/citations/:citation-id")  req   (rm-citation req))
-  (GET    (str pubroot "/files")                   req   (get-files req))
-  (POST   (str pubroot "/files")                   req   (add-file req))
-  (DELETE (str pubroot "/files/:file-id")          req   (rm-file req))
-  (GET    (str pubroot "/tags")                    req   (get-tags req))
-  (POST   (str pubroot "/tags")                    req   (add-tag req))
-  (DELETE (str pubroot "/tags/:tag-id")            req   (rm-tag req)) 
+  (POST   "/pubs"                                  req   (c/save-pub req))
+  (GET    pubroot                                  req   (c/get-pub req))
+  (GET    (str pubroot "/authors")                 req   (c/get-authors req))
+  (POST   (str pubroot "/authors")                 req   (c/add-author req))
+  (POST   (str pubroot "/authors/new")             req   (c/create-author req))
+  (DELETE (str pubroot "/authors/:author-id")      req   (c/rm-author req))
+  (PUT    (str pubroot "/authors/:author-id")      req   (c/edit-author req))
+  (GET    (str pubroot "/citations")               req   (c/get-citations req))
+  (POST   (str pubroot "/citations")               req   (c/add-citation req))
+  (DELETE (str pubroot "/citations/:citation-id")  req   (c/rm-citation req))
+  (GET    (str pubroot "/files")                   req   (c/get-files req))
+  (POST   (str pubroot "/files")                   req   (c/add-file req))
+  (DELETE (str pubroot "/files/:file-id")          req   (c/rm-file req))
+  (GET    (str pubroot "/tags")                    req   (c/get-tags req))
+  (POST   (str pubroot "/tags")                    req   (c/add-tag req))
+  (DELETE (str pubroot "/tags/:tag-id")            req   (c/rm-tag req)) 
 
-  (POST   "/tags/search"                           req   (search-tags req))
+  (POST   "/tags/search"                           req   (c/search-tags req))
 
-  (GET    "/users/me"                              req   (response (:user req)))
-  (POST   "/users/search"                          req   (search-users req))
+  (GET    "/users/me"                              req   (c/me req))
+  (POST   "/users/search"                          req   (c/search-users req))
 
-  (GET    "/licenses"                              []    (response (licenses/get-all)) )
-  (GET    "/licenses/:license-id"                  req   (get-license req))
+  (GET    "/licenses"                              []    (c/ls-licenses))
+  (GET    "/licenses/:license-id"                  req   (c/get-license req))
 
-  (POST   "/citations/search"                      req   (search-citations req))
-  (POST   "/citations"                             req   (create-citation req))
-  (GET    "/citations/types"                       []    (response (citations/get-types)))
+  (POST   "/citations/search"                      req   (c/search-citations req))
+  (POST   "/citations"                             req   (c/create-citation req))
+  (GET    "/citations/types"                       []    (c/citation-types))
 
-  (GET    "/types"                                 req   (get-types req))
+  (GET    "/types"                                 req   (c/get-types req))
 
-  (POST   "/ui-state"                              req   (save-ui-state req))
+  (POST   "/ui-state"                              req   (c/save-ui-state req))
   )
 
 (defroutes ui-routes
