@@ -18,11 +18,7 @@
 (defn _connection [] {:connection db})
 
 (defn- scrub-html [s]
-  (->> s
-       (Jsoup/parse)
-       (.text)
-       )
-  )
+  (if s (->> s (Jsoup/parse) (.text)) ""))
 
 (defn create-pub [user-id p]
   (insert-pub<! {:category 1
