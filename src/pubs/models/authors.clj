@@ -26,7 +26,7 @@
   )
 
 (defn set-poc [a]
-  (assoc a :poc (boolean (> (:repository_contact a) 0)))
+  (assoc a :poc (boolean (> (:repository_contact a 0) 0)))
   )
 
 (defn get-author [id]

@@ -10,11 +10,19 @@
             [pubs.datacite :as doi]
             [pubs.models.tags :as tags]
             )
+  (:import [org.jsoup Jsoup])
   )
 
 (defstate db :start (:mysql config))
 (defqueries "yesql/hzcms-queries.sql" )
 (defn _connection [] {:connection db})
+
+(defn- scrub-html [s]
+  (->> s
+       (Jsoup/parse)
+       (.text)
+       )
+  )
 
 (defn create-pub [user-id p]
   (insert-pub<! {:category 1
@@ -129,7 +137,7 @@
        ;:authors-list (get-authors ver-id)
        ;:licenses (get-license (:license_type pub-ver))
        :license_type (:license_type pub-ver)
-       :release-notes (:release_notes pub-ver)
+       :release-notes (scrub-html (:release_notes pub-ver)) 
        ;:tags (tags/get-all ver-id)
        :doi (:doi pub-ver)
        ;:citations (map #(first (sel-citation-by-id % (_connection))) citations)
@@ -193,6 +201,9 @@
 (comment
 
   (save-pub 1001 {:prj-id "1", :authors-list {}, :content (), :images (), :support-docs ()})
+
+
+  (get-pub 306)
 
   (as-> (get-pub 232) $
     (assoc $ :master-type 2)
