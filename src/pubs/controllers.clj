@@ -195,7 +195,6 @@
   )
 
 (defn prj-databases [prj-id]
-  (prn "GET DBS" prj-id)
   (response (prjs/get-dbs prj-id))
   )
 

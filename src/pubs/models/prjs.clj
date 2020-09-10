@@ -48,7 +48,6 @@
   )
 
 (defn get-dbs [id]
-  (prn "GET PRJ DB" id)
   (sel-dbs {:project id} (_connection))
   )
 
