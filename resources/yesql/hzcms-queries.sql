@@ -50,7 +50,7 @@ UPDATE `jos_publication_versions` SET `publication_id`=:publication_id, `main`=:
 
 -- name: insert-attachment<!
 --
-INSERT INTO `jos_publication_attachments` (`publication_version_id`,`publication_id`,`created`,`created_by`,`role`,`path`,`type`,`ordering`,`element_id`,`vcs_hash`,`vcs_revision`,`content_hash`) VALUES (:publication_version_id, :publication_id, :created, :created_by, :role, :path, :type, :ordering, :element_id, :vcs_hash, :vcs_revision, :content_hash)
+INSERT INTO `jos_publication_attachments` (`publication_version_id`,`publication_id`,`created`,`created_by`,`role`,`path`,`type`,`ordering`,`element_id`,`vcs_hash`,`vcs_revision`,`content_hash`, `title`) VALUES (:publication_version_id, :publication_id, :created, :created_by, :role, :path, :type, :ordering, :element_id, :vcs_hash, :vcs_revision, :content_hash, :title)
 
 -- name: sel-attachment
 --
@@ -66,7 +66,7 @@ UPDATE `jos_publication_attachments` SET `ordering`=:ordering WHERE `id`=:id
 
 -- name: sel-attachments
 --
-SELECT * FROM `jos_publication_attachments` WHERE `publication_version_id`=:publication_version_id
+SELECT * FROM `jos_publication_attachments` WHERE `publication_version_id`=:publication_version_id AND `type`=:type
 
 -- name: sel-attachment-with-type
 --
@@ -212,4 +212,8 @@ SELECT * FROM `jos_publication_master_types`
 -- name: sel-author-by-id
 --
 SELECT * FROM `jos_publication_authors` where id = :id
+
+-- name: sel-dbs
+--
+SELECT * FROM `jos_project_databases` where project = :project
 

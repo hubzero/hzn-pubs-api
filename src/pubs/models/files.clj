@@ -53,6 +53,7 @@
                             :vcs_hash (:vcs_hash f "")
                             :vcs_revision (:vcs_revision f "")
                             :content_hash (_content-hash f)
+                            :title ""
                             } (_connection)) $
       (:generated_key $)
       (first (sel-attachment-by-id {:id $} (_connection)))
@@ -85,7 +86,7 @@
 
 (defn ls [ver-id]
   (->>
-    (sel-attachments {:publication_version_id ver-id} (_connection))
+    (sel-attachments {:publication_version_id ver-id :type "file"} (_connection))
     (reduce (fn [c f]
               (update c ({1 :content 2 :images 3 :support-docs} (:element_id f)) conj {:path (:path f) :name (_filename (:path f)) :id (:id f) :index (:ordering f)})
               ) {})  

@@ -27,6 +27,7 @@
   (GET    "/prjs/:id/owners"                       [id]  (c/get-owners id))
   (POST   "/prjs/:id/owners"                       req   (c/add-owner req))
   (POST   "/prjs/:id/usage"                        req   (c/get-usage req))
+  (GET    "/prjs/:id/databases"                    [id]  (c/prj-databases id))
 
   (POST   "/pubs"                                  req   (c/save-pub req))
   (GET    pubroot                                  req   (c/get-pub req))
@@ -38,6 +39,10 @@
   (GET    (str pubroot "/citations")               req   (c/get-citations req))
   (POST   (str pubroot "/citations")               req   (c/add-citation req))
   (DELETE (str pubroot "/citations/:citation-id")  req   (c/rm-citation req))
+  (GET    (str pubroot "/databases")               req   (c/get-databases req))
+  (POST   (str pubroot "/databases")               req   (c/add-database req))
+  (PUT    (str pubroot "/databases/:db-id")        req   (c/edit-database req))
+  (DELETE (str pubroot "/databases/:db-id")        req   (c/rm-database req))
   (GET    (str pubroot "/files")                   req   (c/get-files req))
   (POST   (str pubroot "/files")                   req   (c/add-file req))
   (PUT    (str pubroot "/files/:file-id")          req   (c/edit-file req))

@@ -8,6 +8,7 @@
             [ring.util.response :as response]
             [pubs.models.authors :as authors]
             [pubs.models.citations :as citations]
+            [pubs.models.databases :as databases]
             [pubs.models.files :as files]
             [pubs.models.licenses :as licenses]
             [pubs.models.prjs :as prjs]
@@ -191,5 +192,34 @@
 
 (defn get-types [req]
   (response (pubs/get-master-types))
+  )
+
+(defn prj-databases [prj-id]
+  (prn "GET DBS" prj-id)
+  (response (prjs/get-dbs prj-id))
+  )
+
+(defn get-databases [req]
+  (response (databases/ls (:version-id (:params req))))
+  )
+
+(defn add-database [req]
+  (response (databases/add (:id (:params req))
+                           (:version-id (:params req))
+                           (:id (:user req))
+                           (:body-params req)
+                           )  
+            )
+  )
+
+(defn edit-database [req]
+  (response
+    (databases/edit (:db-id (:params req))
+                    (:body-params req))  
+    )
+  )
+
+(defn rm-database [req]
+  (databases/rm (:db-id (:params req)))
   )
 

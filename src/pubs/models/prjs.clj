@@ -47,6 +47,11 @@
     )
   )
 
+(defn get-dbs [id]
+  (prn "GET PRJ DB" id)
+  (sel-dbs {:project id} (_connection))
+  )
+
 (defn prj-size [id]
   (reduce (fn  [c [path _ files]]
             (reduce (fn [c f] 
@@ -128,6 +133,10 @@
   (map :fullname
        )
     )
+
+  (get-dbs 1)
+
+  (get-files 1)
 
   )
 
