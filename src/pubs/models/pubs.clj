@@ -103,7 +103,7 @@
   )
 
 (defn- _update-pub-version [user-id p]
-  (-> (first (sel-pub-version {:id (:ver-id p)} (_connection)))
+  (-> (first (sel-pub-version-by-id {:id (:ver-id p)} (_connection)))
       (merge (_mutate user-id p))
       (merge {:modified (f/unparse (:mysql f/formatters) (t/now)) 
               :modified_by user-id
@@ -148,9 +148,13 @@
   )
 
 (defn get-pub [ver-id]
-  (if-let [ pub-ver (first (sel-pub-version {:id ver-id} (_connection))) ]
+  (if-let [ pub-ver (first (sel-pub-version-by-id {:id ver-id} (_connection))) ]
     (_get-pub pub-ver)
     ) 
+  )
+
+(defn search [s]
+  (sel-pub-version {:str s} (_connection))
   )
 
 (defn- _add-curation-hist [ver-id user-id p]
@@ -212,6 +216,12 @@
       (filter #(some #{(:type %)} ["File(s)" "Databases" "Series"]))
       (count)
       )
+
+    (->>
+      (search-pubs "Foo")
+      (map :title)
+      ) 
+
 
   )
 

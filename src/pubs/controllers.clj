@@ -13,6 +13,7 @@
             [pubs.models.licenses :as licenses]
             [pubs.models.prjs :as prjs]
             [pubs.models.pubs :as pubs]
+            [pubs.models.series :as series]
             [pubs.models.tags :as tags]
             [pubs.models.users :as users]
             [pubs.ui-state :as ui-state]
@@ -32,6 +33,10 @@
                })
     (errors/!404)
     )
+  )
+
+(defn search-series [req]
+  (response (pubs/search (:q (:body-params req))))
   )
 
 (defn get-pub [req]
@@ -220,5 +225,30 @@
 
 (defn rm-database [req]
   (databases/rm (:db-id (:params req)))
+  )
+
+
+(defn get-series [req]
+  (response (series/ls (:version-id (:params req))))
+  )
+
+(defn add-series [req]
+  (response (series/add (:id (:params req))
+                        (:version-id (:params req))
+                        (:id (:user req))
+                        (:body-params req)
+                        )  
+            )
+  )
+
+(defn edit-series [req]
+  (response
+    (series/edit (:attach-id (:params req))
+                 (:body-params req))  
+    )
+  )
+
+(defn rm-series [req]
+  (series/rm (:attach-id (:params req)))
   )
 

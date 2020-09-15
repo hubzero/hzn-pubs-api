@@ -36,17 +36,27 @@
   (POST   (str pubroot "/authors/new")             req   (c/create-author req))
   (DELETE (str pubroot "/authors/:author-id")      req   (c/rm-author req))
   (PUT    (str pubroot "/authors/:author-id")      req   (c/edit-author req))
+
   (GET    (str pubroot "/citations")               req   (c/get-citations req))
   (POST   (str pubroot "/citations")               req   (c/add-citation req))
   (DELETE (str pubroot "/citations/:citation-id")  req   (c/rm-citation req))
+
   (GET    (str pubroot "/databases")               req   (c/get-databases req))
   (POST   (str pubroot "/databases")               req   (c/add-database req))
   (PUT    (str pubroot "/databases/:db-id")        req   (c/edit-database req))
   (DELETE (str pubroot "/databases/:db-id")        req   (c/rm-database req))
+
+  (GET    (str pubroot "/series")                  req   (c/get-series req))
+  (POST   (str pubroot "/series")                  req   (c/add-series req))
+  (PUT    (str pubroot "/series/:attach-id")       req   (c/edit-series req))
+  (DELETE (str pubroot "/series/:attach-id")       req   (c/rm-series req))
+
+
   (GET    (str pubroot "/files")                   req   (c/get-files req))
   (POST   (str pubroot "/files")                   req   (c/add-file req))
   (PUT    (str pubroot "/files/:file-id")          req   (c/edit-file req))
   (DELETE (str pubroot "/files/:file-id")          req   (c/rm-file req))
+
   (GET    (str pubroot "/tags")                    req   (c/get-tags req))
   (POST   (str pubroot "/tags")                    req   (c/add-tag req))
   (DELETE (str pubroot "/tags/:tag-id")            req   (c/rm-tag req)) 
@@ -62,6 +72,8 @@
   (POST   "/citations/search"                      req   (c/search-citations req))
   (POST   "/citations"                             req   (c/create-citation req))
   (GET    "/citations/types"                       []    (c/citation-types))
+
+  (POST   "/series/search"                         req   (c/search-series req))
 
   (GET    "/types"                                 req   (c/get-types req))
 

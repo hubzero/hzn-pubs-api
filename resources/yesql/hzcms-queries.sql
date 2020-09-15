@@ -36,9 +36,13 @@ UPDATE `jos_publications` SET `master_type` = :master_type WHERE `id` = :id
 --
 SELECT * FROM `jos_publications` WHERE `id` = :id
 
--- name: sel-pub-version
+-- name: sel-pub-version-by-id
 --
 SELECT * FROM `jos_publication_versions` WHERE `id` = :id
+
+-- name: sel-pub-version
+--
+SELECT * FROM `jos_publication_versions` WHERE `title` LIKE :str OR `description` LIKE :str OR `abstract` LIKE :str OR `release_notes` LIKE :str OR `doi` LIKE :str
 
 -- name: insert-pub-version<!
 --
