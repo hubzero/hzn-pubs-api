@@ -42,7 +42,7 @@ SELECT * FROM `jos_publication_versions` WHERE `id` = :id
 
 -- name: sel-pub-version
 --
-SELECT * FROM `jos_publication_versions` WHERE `title` LIKE :str OR `description` LIKE :str OR `abstract` LIKE :str OR `release_notes` LIKE :str OR `doi` LIKE :str
+SELECT * FROM `jos_publication_versions` WHERE (`title` LIKE :str OR `description` LIKE :str OR `abstract` LIKE :str OR `release_notes` LIKE :str OR `doi` LIKE :str) AND `state` = 1
 
 -- name: insert-pub-version<!
 --
