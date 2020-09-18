@@ -53,6 +53,7 @@
                             :vcs_revision ""
                             :content_hash ""
                             :title (:title db)
+                            :object_id (:id db)
                             } (_connection)) $
       (:generated_key $)
       (first (sel-attachment-by-id {:id $} (_connection)))
