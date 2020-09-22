@@ -13,7 +13,7 @@ services:
         - MYSQL__HOST=mysql
         - MYSQL__USER=root
         - MYSQL__PASSWORD=PUk8zFrxsqsS83
-        - MYSQL__DBNAME=example
+        - MYSQL__DBNAME=example?zeroDateTimeBehavior=CONVERT_TO_NULL
         - FILES__ROOT=/srv/example/projects/
         - FILES__DIR=/files
         - DATACITE_DOI__USERPW=PURDUE.DDCC:Purduedatacite2018
