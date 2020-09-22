@@ -2,7 +2,7 @@
  :secret               "hd3SqnDQ0gNuGVxbfFH9AmsU1KeTv6site"
  :nrepl                {:port 7884 :bind "localhost"}
  :mysql                {:dbtype   "mysql"
-                        :dbname   "example"
+                        :dbname   "example?zerodatetimebehavior=Converttonull"
                         :user     "root"
                         :password "PUk8zFrxsqsS83"
                         :host     "localhost"

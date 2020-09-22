@@ -154,7 +154,7 @@
   )
 
 (defn search [s]
-  (sel-pub-version {:str s} (_connection))
+  (sel-pub-version {:str (str "%" s "%")} (_connection))
   )
 
 (defn- _add-curation-hist [ver-id user-id p]
@@ -218,9 +218,9 @@
       )
 
     (->>
-      (search-pubs "Foo")
+      (search "Foo")
       (map :title)
-      ) 
+      )
 
 
   )

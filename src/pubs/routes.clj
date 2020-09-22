@@ -51,7 +51,6 @@
   (PUT    (str pubroot "/series/:attach-id")       req   (c/edit-series req))
   (DELETE (str pubroot "/series/:attach-id")       req   (c/rm-series req))
 
-
   (GET    (str pubroot "/files")                   req   (c/get-files req))
   (POST   (str pubroot "/files")                   req   (c/add-file req))
   (PUT    (str pubroot "/files/:file-id")          req   (c/edit-file req))
