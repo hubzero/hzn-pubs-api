@@ -5,7 +5,8 @@
             [clj-time.coerce :as c]
             [clj-http.client :as http]
             [pubs.config :refer [config]])
-  (:import java.util.Base64))
+  (:import java.util.Base64
+           [org.jsoup Jsoup]))
 
 (defn- _year [d]
   (-> d (clojure.string/split  #"/") (last)))
@@ -41,11 +42,16 @@
                       :relationType "IsNewVersionOf"}
               :content [(str (:ver-id pub))]}]})
 
+(defn- escape-abstract [abstract]
+  (if abstract
+    (-> abstract Jsoup/parse .text)
+    ""))
+
 (defn- _descriptions [pub]
   {:tag :descriptions
    :content [{:tag :description
               :attrs {:descriptionType "Abstract"}
-              :content [(:abstract pub "")]}]})
+              :content [(-> pub :abstract escape-abstract)]}]})
 
 (defn- _resource [pub]
   {:tag     :resource
@@ -83,7 +89,7 @@
                    (_dates d)]))
               (if-let [s (get-in pub [:licenses :name])] [(_license s)]))})
 
-(defn pub2xml [pub]
+(defn pub->xml [pub]
   (xml/emit-element (_resource pub)))
 
 (defn- _get-datacite [xml-str]
@@ -97,4 +103,4 @@
     (last)))
 
 (defn get-datacite [pub]
-  (_get-datacite (with-out-str (pub2xml pub))))
+  (_get-datacite (with-out-str (pub->xml pub))))
