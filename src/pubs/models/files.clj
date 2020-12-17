@@ -101,18 +101,3 @@
     (into {})
     )
   )
-
-(comment
-
-
-  (def f {:type :content, :index 0, :path "broodje/files/c6e1e2e4-c0a0-4e65-b3c2-a66268f40c27.jpg", :name "c6e1e2e4-c0a0-4e65-b3c2-a66268f40c27.jpg"})
-  (add 250 237 1001 f)
-
-  (rm 1178)
-
-  (_content-hash f)
-
-  (get-attachment 237 f)
-
-  )
-
