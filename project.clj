@@ -28,6 +28,9 @@
                  [com.fasterxml.jackson.datatype/jackson-datatype-jsr310 "2.11.2"]
                  [hzn-common "0.1.0-SNAPSHOT"]
                  [hzn-app-core "0.1.0-SNAPSHOT"]
+
+                 [hzn-session-auth "0.1.0-SNAPSHOT"]
+                 [com.layerware/hugsql "0.5.1"]
                  ]
   :exclusions [log4j
                org.slf4j/simple
