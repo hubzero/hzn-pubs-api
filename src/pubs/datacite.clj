@@ -2,9 +2,8 @@
   (:require [clojure.xml :as xml]
             [clj-time.core :as t]
             [clj-time.format :as f]
-            [clj-time.coerce :as c]
             [clj-http.client :as http]
-            [pubs.config :refer [config]])
+            [hzn-app-core.config :refer [config]])
   (:import java.util.Base64
            [org.jsoup Jsoup]))
 

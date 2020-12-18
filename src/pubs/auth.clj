@@ -1,7 +1,7 @@
 (ns pubs.auth
   (:require [digest :as digest]
             [pubs.models.users :as users]
-            [pubs.config :refer [config]]
+            [hzn-app-core.config :refer [config]]
             )
   )
 

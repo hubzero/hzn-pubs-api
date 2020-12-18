@@ -16,7 +16,6 @@
             [pubs.models.series :as series]
             [pubs.models.tags :as tags]
             [pubs.models.users :as users]
-            [pubs.ui-state :as ui-state]
             [pubs.errors :as errors]
             )
   )
@@ -84,9 +83,9 @@
   )
 
 
-(defn save-ui-state [req]
-  (ui-state/create (:body-params req))
-  )
+;(defn save-ui-state [req]
+;  (ui-state/create (:body-params req))
+;  )
 
 (defn get-authors [req]
   (response (authors/ls (:version-id (:params req))))

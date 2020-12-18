@@ -4,7 +4,7 @@
             [clj-time.coerce :as c]
             [yesql.core :refer [defqueries]]
             [clojure.java.jdbc :as jdbc]
-            [pubs.config :refer [config]]
+            [hzn-app-core.config :refer [config]]
             [pubs.utils :as utils]
             [mount.core :as mount :refer [defstate]]
             [pubs.datacite :as doi]

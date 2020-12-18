@@ -1,12 +1,10 @@
 (ns pubs.models.files
   (:require [clj-time.core :as t]
-            [clj-time.format :as f] 
-            [clj-time.coerce :as c]
+            [clj-time.format :as f]
             [digest :as digest]
             [yesql.core :refer [defqueries]]
             [clojure.java.io :as io]
-            [clojure.java.jdbc :as jdbc]
-            [pubs.config :refer [config]]
+            [hzn-app-core.config :refer [config]]
             [pubs.utils :as utils]
             [mount.core :as mount :refer [defstate]]
             )

@@ -5,8 +5,6 @@
             [muuntaja.middleware :refer [wrap-format]]
             [ring.middleware.session :refer [wrap-session]]
             [ring.middleware.cookies :refer [wrap-cookies]]
-            ;[ring.middleware.params :refer [wrap-params]]
-            ;[ring.middleware.session.cookie :refer [cookie-store]]
             [ring.middleware.defaults :refer :all]
             [mount.core :refer [defstate]]        
             [pubs.auth :as auth]
@@ -28,10 +26,6 @@
     )
   )
 
-(defstate init-app
-  :start #(prn "START handler")
-  :stop #(prn "STOP handler"))
-
 (defstate app
   :start
   (->
@@ -48,3 +42,6 @@
     logger/wrap-with-logger
     )
   )
+
+(defn _app []
+  #'app)
