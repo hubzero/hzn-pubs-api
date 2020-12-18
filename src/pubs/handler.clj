@@ -7,24 +7,12 @@
             [ring.middleware.cookies :refer [wrap-cookies]]
             [ring.middleware.defaults :refer :all]
             [mount.core :refer [defstate]]        
-            [pubs.auth :as auth]
+            [hzn-session-auth.middleware :as hsam]
             [pubs.errors :as errors]
             [ring.logger :as logger]
-            ))
+            [hzn-app-core.config :refer [config]]))
 
-(defn wrap-auth [handler]
-  (fn [req]
-    (try
-      (if-let [user (auth/cookie req)]
-        (handler (merge req {:user user}))
-        (errors/!401)
-        )
-      (catch Exception e
-        (.printStackTrace e)
-        (errors/!401))
-      )
-    )
-  )
+(defstate auth-wrap :start (partial hsam/wrap-auth (:secret config) (:mysql config)))
 
 (defstate app
   :start
@@ -36,7 +24,7 @@
       (-> #'ui-routes 
           )
       (route/not-found (errors/!404)))
-    wrap-auth
+    auth-wrap
     wrap-cookies
     wrap-session
     logger/wrap-with-logger
