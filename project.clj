@@ -21,7 +21,6 @@
                  [clj-time "0.15.2"]
                  [digest "1.4.9"]
                  [me.raynes/fs "1.4.6"]
-                 [com.novemberain/monger "3.1.0"]
                  [org.jsoup/jsoup "1.13.1"]
                  [ring-logger "1.0.1"]
 

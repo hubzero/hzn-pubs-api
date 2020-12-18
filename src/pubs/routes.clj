@@ -8,7 +8,6 @@
                                         content-type
                                         resource-response]]
             [ring.util.response :as response]
-            [pubs.ui-state :as ui-state]
             [pubs.errors :as errors]
             [pubs.controllers :as c]
             ))
@@ -76,7 +75,8 @@
 
   (GET    "/types"                                 req   (c/get-types req))
 
-  (POST   "/ui-state"                              req   (c/save-ui-state req))
+ ; We are not using hubcap
+ ;(POST   "/ui-state"                              req   (c/save-ui-state req))
   )
 
 (defroutes ui-routes

@@ -18,4 +18,5 @@ resources/public/js/compiled
 config.edn
 .idea
 /*.iml
+/log
 
