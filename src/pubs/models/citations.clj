@@ -5,7 +5,7 @@
             [clj-http.client :as http]
             [yesql.core :refer [defqueries]]
             [clojure.java.jdbc :as jdbc]
-            [pubs.config :refer [config]]
+            [hzn-app-core.config :refer [config]]
             [mount.core :as mount :refer [defstate]]
             )
   (:import [org.jsoup Jsoup])

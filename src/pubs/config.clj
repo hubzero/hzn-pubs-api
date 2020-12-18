@@ -5,7 +5,7 @@
 
 ;; Configuration comes from:
 ;;
-;; 1. The bundled `pubs.config.edn` located in resources/
+;; 1. The bundled `config.edn` located in resources/
 ;; 2. Command line arguments.
 ;; 3. An EDN configuration file specified with the -c option.
 ;; 4. ENV vars
@@ -15,7 +15,7 @@
 (defstate config
   :start
   (load-config
-    :resource "pubs.config.edn"
+    :resource "config.edn"
     :merge
     [;; see the :options key in `env`
      (mount/args)

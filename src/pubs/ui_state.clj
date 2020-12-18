@@ -6,7 +6,7 @@
             [monger.conversion :refer [from-db-object]]
             [monger.operators :refer :all]
             [mount.core :as mount :refer [defstate]]
-            [pubs.config :refer [config]]
+            [hzn-app-core.config :refer [config]]
             )
   (:import org.bson.types.ObjectId)
   )

@@ -4,10 +4,10 @@
             [clojure.tools.logging :as log]
             [cheshire.generate :as gen]
             [pubs.http-server :as http]
-            [pubs.repl-server :as repl]
             [pubs.handler :as handler]
-            [pubs.config :refer [config]]
-            )
+            [hzn-app-core.config :refer [config]]
+            [hzn-app-core.nrepl]
+            [hzn-app-core.core])
   (:gen-class))
 
 (def cli-options
@@ -25,16 +25,6 @@
        (update :port #(or (-> config :options :port) (-> config :service-host-args :port) % 8888))))
   :stop
   (http/stop http-server))
-
-(defstate ^{:on-reload :noop} repl-server
-  :start
-  (if-let [np (get-in config [:nrepl :port])]
-    (if-let [nb (get-in config [:nrepl :bind] "localhost")]
-      (repl/start {:bind nb :port np})))
-  :stop
-  (when repl-server
-    (repl/stop repl-server)))
-
 
 (gen/add-encoder java.time.LocalDateTime
                  (fn [ldt jsonGenerator]

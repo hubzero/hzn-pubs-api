@@ -6,7 +6,7 @@
             [yesql.core :refer [defqueries]]
             [clojure.java.io :as io]
             [clojure.java.jdbc :as jdbc]
-            [pubs.config :refer [config]]
+            [hzn-app-core.config :refer [config]]
             [pubs.utils :as utils]
             [mount.core :as mount :refer [defstate]]
             )

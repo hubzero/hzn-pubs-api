@@ -1,10 +1,6 @@
 (ns pubs.models.licenses
-  (:require [clj-time.core :as t]
-            [clj-time.format :as f] 
-            [clj-time.coerce :as c]
-            [yesql.core :refer [defqueries]]
-            [clojure.java.jdbc :as jdbc]
-            [pubs.config :refer [config]]
+  (:require [yesql.core :refer [defqueries]]
+            [hzn-app-core.config :refer [config]]
             [mount.core :as mount :refer [defstate]]
             )
   )

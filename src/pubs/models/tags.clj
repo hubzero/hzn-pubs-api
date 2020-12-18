@@ -1,12 +1,9 @@
 (ns pubs.models.tags
   (:require [clj-time.core :as t]
-            [clj-time.format :as f] 
-            [clj-time.coerce :as c]
-            ;[jsonista.core :as json]
+            [clj-time.format :as f]
             [cheshire.core :as json]
             [yesql.core :refer [defqueries]]
-            [clojure.java.jdbc :as jdbc]
-            [pubs.config :refer [config]]
+            [hzn-app-core.config :refer [config]]
             [mount.core :as mount :refer [defstate]]
             )
   )
