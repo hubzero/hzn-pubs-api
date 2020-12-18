@@ -26,11 +26,15 @@
   (assoc a :poc (boolean (> (:repository_contact a 0) 0)))
   )
 
+(defn set-index [a]
+  (assoc a :index (:ordering a)))
+
 (defn get-author [id]
   (->> (sel-author-by-id {:id id} (_connection))
        first
        set-email
        set-poc
+       set-index
        )
   )
 
@@ -47,13 +51,13 @@
                         :firstname (:firstname a "")
                         :lastname (:lastname a "")
                         :org (:organization a "")
-                        :credit (:credit a "") 
+                        :credit (:credit a "")
                         :created (f/unparse (:mysql f/formatters) (t/now))
-                        :created_by user-id 
+                        :created_by user-id
                         :status 1
                         :project_owner_id (:id a)
                         :repository_contact (:poc a false)
-                        } (_connection))  
+                        } (_connection))
       :generated_key
       (get-author)
       )
@@ -121,6 +125,7 @@
                                 :email (:email a)
                                 :project_owner_id (:project_owner_id a)
                                 :index (:ordering a)
+                                :ordering (:ordering a)
                                 :poc (:repository_contact a)
                                 })
               ) {})
@@ -129,7 +134,6 @@
 
 (comment
 
-  (ls 176)
 
   (prjs/get-owner 41)
 

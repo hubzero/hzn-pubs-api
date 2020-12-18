@@ -9,6 +9,7 @@
             [mount.core :refer [defstate]]        
             [pubs.auth :as auth]
             [pubs.errors :as errors]
+            [ring.logger :as logger]
             ))
 
 (defn wrap-auth [handler]
@@ -38,6 +39,7 @@
     wrap-auth
     wrap-cookies
     wrap-session
+    logger/wrap-with-logger
     )
   )
 

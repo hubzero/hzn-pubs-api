@@ -46,7 +46,7 @@
                             :created_by user-id 
                             :role 1
                             :type "data"
-                            :ordering (:index db)
+                            :ordering (:index db)           ;; Not sure why we're not just using :ordering since it is passed back and fourth as well.
                             :element_id 1
                             :path (path db)
                             :vcs_hash ""

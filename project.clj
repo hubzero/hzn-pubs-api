@@ -23,11 +23,9 @@
                  [me.raynes/fs "1.4.6"]
                  [org.jsoup/jsoup "1.13.1"]
                  [ring-logger "1.0.1"]
-
                  [com.fasterxml.jackson.core/jackson-core "2.11.2"]
                  [com.fasterxml.jackson.core/jackson-databind "2.11.2"]
                  [com.fasterxml.jackson.datatype/jackson-datatype-jsr310 "2.11.2"]
-
                  [hzn-common "0.1.0-SNAPSHOT"]
                  [hzn-app-core "0.1.0-SNAPSHOT"]
                  ]
