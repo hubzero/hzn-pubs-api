@@ -3,28 +3,17 @@
             [mount.core :as mount :refer [defstate]]
             [clojure.tools.logging :as log]
             [cheshire.generate :as gen]
-            [pubs.http-server :as http]
-            [pubs.handler :as handler]
             [hzn-app-core.config :refer [config]]
             [hzn-app-core.nrepl]
-            [hzn-app-core.core])
+            [hzn-app-core.core]
+            [hzn-app-core.http-server :as http]
+            [pubs.handler :as handler])
   (:gen-class))
 
 (def cli-options
   [["-p" "--port PORT"       "Port number" :parse-fn #(Integer/parseInt %)]
    ["-c" "--config EDNFILE"  "EDN Config Overrides"]
    ["-b" "--bind address"    "Bind address"]])
-
-(defstate ^{:on-reload :noop} http-server
-  :start
-  (http/start
-   (-> config
-       (assoc :handler #'handler/app)
-       (update :io-threads #(or % (* 2 (.availableProcessors (Runtime/getRuntime)))))
-       (update :host #(or (-> config :service-host-args :host) %))
-       (update :port #(or (-> config :options :port) (-> config :service-host-args :port) % 8888))))
-  :stop
-  (http/stop http-server))
 
 (gen/add-encoder java.time.LocalDateTime
                  (fn [ldt jsonGenerator]
@@ -35,6 +24,10 @@
                                    ;    java.util.Date/from
                                    .toString
                                    ))))
+
+(defstate ^{:on-reload :noop} http-server
+          :start (http/start (http/update-http-config handler/_app config))
+          :stop (http/stop http-server))
 
 (defn stop-app []
   (doseq [component (:stopped (mount/stop))]

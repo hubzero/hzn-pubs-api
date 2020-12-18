@@ -25,10 +25,6 @@
     )
   )
 
-(defstate init-app
-  :start #(prn "START handler")
-  :stop #(prn "STOP handler"))
-
 (defstate app
   :start
   (->
@@ -44,3 +40,6 @@
     wrap-session
     )
   )
+
+(defn _app []
+  #'app)
