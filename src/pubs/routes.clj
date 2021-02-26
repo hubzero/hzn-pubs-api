@@ -12,12 +12,6 @@
             [pubs.controllers :as c]
             ))
 
-;(defn handle-file [req]
-;  (prn (get-in req [:multipart-params "f" :filename]))  
-;  (prn (get-in req [:multipart-params "f" :tempfile]))  
-;  "ok"
-;  )
-
 (def pubroot "/pubs/:id/v/:version-id")
 
 (defroutes api-routes

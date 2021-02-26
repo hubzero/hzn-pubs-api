@@ -12,6 +12,9 @@
             [ring.logger :as logger]
             [hzn-app-core.config :refer [config]]))
 
+;; Create a version of the middle ware function for session authentication that
+;; knows the cookie secrets and uses the database config specific to this app
+;; for user information validation and lookup.
 (defstate auth-wrap :start (partial hsam/wrap-auth (:secret config) (:mysql config)))
 
 (defstate app
